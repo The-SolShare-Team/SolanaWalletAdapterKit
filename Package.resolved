@@ -1,0 +1,15 @@
+{
+  "originHash" : "89c055f37f5323f8de5935147ee3da215212dffdbf6495af22b01e81651cf0f0",
+  "pins" : [
+    {
+      "identity" : "web3-core.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/The-SolShare-Team/web3-core.swift",
+      "state" : {
+        "revision" : "11150d26d04d904a2f763e0c6af09945eb06db67",
+        "version" : "0.3.1"
+      }
+    }
+  ],
+  "version" : 3
+}
