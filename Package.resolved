@@ -1,13 +1,22 @@
 {
-  "originHash" : "89c055f37f5323f8de5935147ee3da215212dffdbf6495af22b01e81651cf0f0",
+  "originHash" : "faddbd56988c1512b72363e9e99c476b4b223e8240f15d7fe00e965b1064dcf0",
   "pins" : [
+    {
+      "identity" : "rpc-core.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/The-SolShare-Team/rpc-core.swift",
+      "state" : {
+        "revision" : "0e16ad564161e75c724ecf704a410226c1d119bb",
+        "version" : "0.2.12"
+      }
+    },
     {
       "identity" : "web3-core.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/The-SolShare-Team/web3-core.swift",
       "state" : {
-        "revision" : "11150d26d04d904a2f763e0c6af09945eb06db67",
-        "version" : "0.3.1"
+        "revision" : "e65d353ad88d4700f0c1e892cdd7b3ebc242557c",
+        "version" : "0.3.6"
       }
     }
   ],

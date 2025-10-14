@@ -22,8 +22,8 @@ let package = Package(
         .target(
             name: "SolanaWalletAdapterKit",
             dependencies: [
-                .product(name: "web3_solana", package: "web3-core.swift"),
-                .product(name: "rpc_solana", package: "rpc-core.swift")
+                "web3-core.swift",
+                "rpc-core.swift"
             ]
         ),
         .testTarget(
