@@ -1,8 +1,7 @@
 // The Swift Programming Language
 // https://docs.swift.org/swift-book
 
-import web3_solana
-import rpc_solana
+import SolanaKit
 import CryptoKit
 
 public func hello() -> String {

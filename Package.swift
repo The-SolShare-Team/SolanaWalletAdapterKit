@@ -7,6 +7,7 @@ let package = Package(
     name: "SolanaWalletAdapterKit",
     platforms: [
         .iOS(.v14),
+        .macOS(.v11)
     ],
     products: [
         .library(
@@ -15,15 +16,13 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/The-SolShare-Team/web3-core.swift", .upToNextMajor(from: "0.0.0")),
-        .package(url: "https://github.com/The-SolShare-Team/rpc-core.swift", .upToNextMajor(from: "0.0.0")),
+        .package(url: "https://github.com/The-SolShare-Team/SolanaKit.swift", .upToNextMajor(from: "0.0.0")),
     ],
     targets: [
         .target(
             name: "SolanaWalletAdapterKit",
             dependencies: [
-                "web3-core.swift",
-                "rpc-core.swift"
+                "SolanaKit.swift",
             ]
         ),
         .testTarget(
