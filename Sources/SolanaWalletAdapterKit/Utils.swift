@@ -7,6 +7,7 @@
 
 import Foundation
 import CryptoKit
+import TweetNacl
 
 class Utils {
     private init() {}
@@ -157,24 +158,33 @@ class Utils {
     // need to cross reference with tweetnacl implementation to see byte sizes that work as well as wallet docs
     // https://github.com/bitmark-inc/tweetnacl-swiftwrap/tree/master/Sources/TweetNacl
     
-    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey) throws -> SymmetricKey {
-        guard let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58),
-            let dataDecoded = Utils.base58Decode(encryptedDataB58),
-            let nonceData = Utils.base58Decode(nonceB58) else {
-                print("invalid data, nonce, or key")
-                return SymmetricKey(size: .bits256)
-            }
-        let backpackPublicKey = try Curve25519.KeyAgreement.PublicKey(rawRepresentation: walletEncryptionPubKeyData)
-        let dappEncryptionSharedSecret = try dappEncryptionPrivateKey.sharedSecretFromKeyAgreement(with: backpackPublicKey)
-        //decipher the data for use
-        return dappEncryptionSharedSecret.hkdfDerivedSymmetricKey(
-            using: SHA256.self,
-            salt: Data(),
-            sharedInfo: Data(),
-            outputByteCount: 32)
+    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Box.KeyPair.PrivateKey  /*Curve25519.KeyAgreement.PrivateKey*/) throws -> Data /*SymmetricKey */{
+        guard let walletPubKeyData = Utils.base58Decode(walletEncPubKeyB58) else {
+            throw NSError(domain: "Utils", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid wallet public key"])
+        }
+        let sharedKey = try Box.sharedKey(
+            privateKey: dappEncryptionPrivateKey,
+            publicKey: walletPubKeyData
+        )
+        return sharedKey
+        
+//        guard let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58),
+//            let dataDecoded = Utils.base58Decode(encryptedDataB58),
+//            let nonceData = Utils.base58Decode(nonceB58) else {
+//                print("invalid data, nonce, or key")
+//                return SymmetricKey(size: .bits256)
+//            }
+//        let backpackPublicKey = try Curve25519.KeyAgreement.PublicKey(rawRepresentation: walletEncryptionPubKeyData)
+//        let dappEncryptionSharedSecret = try dappEncryptionPrivateKey.sharedSecretFromKeyAgreement(with: backpackPublicKey)
+//        //decipher the data for use
+//        return dappEncryptionSharedSecret.hkdfDerivedSymmetricKey(
+//            using: SHA256.self,
+//            salt: Data(),
+//            sharedInfo: Data(),
+//            outputByteCount: 32)
     }
     
-    static func decryptBackpackData(encryptedDataB58: String, nonceB58: String, symmetricKey: SymmetricKey)
+    static func decryptBackpackData(encryptedDataB58: String, nonceB58: String, sharedKey: Data /*symmetricKey: SymmetricKey*/)
     throws -> [String: String]{
         var data: [String: String] = [:]
         guard let dataDecoded = Utils.base58Decode(encryptedDataB58),
@@ -182,18 +192,49 @@ class Utils {
             print("Error decoding from base58")
             return data
         }
-        
-            
-        let nonce = try ChaChaPoly.Nonce(data: nonceData)
-        let sealedBox = try ChaChaPoly.SealedBox(
-            nonce: nonce,
-            ciphertext: dataDecoded.dropLast(16), // ciphertext
-            tag: dataDecoded.suffix(16) // authentication tag (16 bytes, length might be incorrect)
+        let message = try SecretBox.open(
+                    ciphertext: dataDecoded,
+                    nonce: nonceData,
+                    key: sharedKey
         )
-        let message = try ChaChaPoly.open(sealedBox, using: symmetricKey)
+            
+//        let nonce = try ChaChaPoly.Nonce(data: nonceData)
+//        let sealedBox = try ChaChaPoly.SealedBox(
+//            nonce: nonce,
+//            ciphertext: dataDecoded.dropLast(16), // ciphertext
+//            tag: dataDecoded.suffix(16) // authentication tag (16 bytes, length might be incorrect)
+//        )
+//        let message = try ChaChaPoly.open(sealedBox, using: symmetricKey)
         data = try JSONSerialization.jsonObject(with: message, options: []) as! [String: String]
             
         
         return data
     }
+    
+    static func encryptBackpackData(data: Data, nonce: Data, sharedKey: Data/*symmetricKey: SymmetricKey*/) throws -> String {
+//        // Encrypt the data
+//        let sealedBox = try ChaChaPoly.seal(data, using: symmetricKey, nonce: nonce)
+//        
+//        // Concatenate ciphertext + tag (same format as your decrypt function expects)
+//        var combined = sealedBox.ciphertext
+//        combined.append(contentsOf: sealedBox.tag)
+//        
+//        // Base58 encode the result
+//        let encoded = Utils.base58Encode(combined)
+//        return encoded
+        let encrypted = try SecretBox.seal(
+                    message: data,
+                    nonce: nonce,
+                    key: sharedKey
+                )
+        return encrypted
+    }
+
+    static func encryptPayload( dappEncryptionSharedKey: Data, payload: [String:String], nonce: String) throws -> String {
+        let payloadJson = try JSONSerialization.data(withJSONObject: payload)
+        let encryptedPayload = try Utils.encryptBackpackData(data: payloadJson, nonce: Utils.base58Decode(nonce)!, sharedKey: dappEncryptionSharedKey)
+        let payloadString = Utils.base58Encode(encryptedPayload)
+        return payloadString
+    }
+    
 }
