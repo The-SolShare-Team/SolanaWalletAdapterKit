@@ -24,4 +24,4 @@ public func test() async {
         request: rpcRequest,
         resultSerializer: Kotlinx_serialization_jsonJsonElement.companion.serializer()
     )
-}
+}   
