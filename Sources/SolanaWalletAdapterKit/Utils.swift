@@ -161,14 +161,11 @@ class Utils {
     // need to cross reference with tweetnacl implementation to see byte sizes that work as well as wallet docs
     // https://github.com/bitmark-inc/tweetnacl-swiftwrap/tree/master/Sources/TweetNacl
     
-    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Box.KeyPair.PrivateKey  /*Curve25519.KeyAgreement.PrivateKey*/) throws -> Data /*SymmetricKey */{
+    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Data  /*Curve25519.KeyAgreement.PrivateKey*/) throws -> Data /*SymmetricKey */{
         guard let walletPubKeyData = Utils.base58Decode(walletEncPubKeyB58) else {
             throw NSError(domain: "Utils", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid wallet public key"])
         }
-        let sharedKey = try Box.sharedKey(
-            privateKey: dappEncryptionPrivateKey,
-            publicKey: walletPubKeyData
-        )
+        let sharedKey = try NaclBox.before(publicKey: walletPubKeyData, secretKey: dappEncryptionPrivateKey)
         return sharedKey
         
 //        guard let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58),
@@ -189,18 +186,15 @@ class Utils {
     
     // base58 decoded and decrypted using shared secret generated symmetric key
     static func decryptPayload(encryptedDataB58: String, nonceB58: String, sharedKey: Data /*symmetricKey: SymmetricKey*/)
-    throws -> [String: String]{
-        var data: [String: String] = [:]
+    throws -> [String: Any]{
+        var data: [String: Any] = [:]
         guard let dataDecoded = Utils.base58Decode(encryptedDataB58),
               let nonceData = Utils.base58Decode(nonceB58) else {
             print("Error decoding from base58")
             return data
         }
-        let message = try SecretBox.open(
-                    ciphertext: dataDecoded,
-                    nonce: nonceData,
-                    key: sharedKey
-        )
+        
+        let message = try NaclSecretBox.open(box: dataDecoded, nonce: nonceData, key: sharedKey)
             
 //        let nonce = try ChaChaPoly.Nonce(data: nonceData)
 //        let sealedBox = try ChaChaPoly.SealedBox(
@@ -209,13 +203,12 @@ class Utils {
 //            tag: dataDecoded.suffix(16) // authentication tag (16 bytes, length might be incorrect)
 //        )
 //        let message = try ChaChaPoly.open(sealedBox, using: symmetricKey)
-        data = try JSONSerialization.jsonObject(with: message, options: []) as! [String: String]
-            
+        data = try JSONSerialization.jsonObject(with: message, options: []) as! [String: Any]
         
         return data
     }
     
-    static func encryptBackpackData(data: Data, nonce: Data, sharedKey: Data/*symmetricKey: SymmetricKey*/) throws -> String {
+    static func encryptBackpackData(data: Data, nonce: Data, sharedKey: Data/*symmetricKey: SymmetricKey*/) throws -> Data{
 //        // Encrypt the data
 //        let sealedBox = try ChaChaPoly.seal(data, using: symmetricKey, nonce: nonce)
 //        
@@ -226,11 +219,11 @@ class Utils {
 //        // Base58 encode the result
 //        let encoded = Utils.base58Encode(combined)
 //        return encoded
-        let encrypted = try SecretBox.seal(
-                    message: data,
-                    nonce: nonce,
-                    key: sharedKey
-                )
+        let encrypted = try NaclSecretBox.secretBox(
+            message: data,
+            nonce: nonce,
+            key: sharedKey
+        )
         return encrypted
     }
     // encrypted, base58 encoded
@@ -250,7 +243,7 @@ class Utils {
             return data
         
         case .hex:
-            let data = dataFromHexString(encodedMessage)
+            let data = try dataFromHexString(encodedMessage)
             return data
         }
     }
@@ -271,7 +264,8 @@ class Utils {
             
             // Convert the two-character string into a UInt8 using radix 16 (hex)
             guard let byte = UInt8(byteString, radix: 16) else {
-                throw BackpackError.encodingFailed("Invalid hexadecimal sequence encountered: '\(byteString)'.")
+        
+                throw NSError(domain: "BackpackWallet", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid hexadecimal sequence encountered: '\(byteString)'."])
             }
             data.append(byte)
             index = nextIndex

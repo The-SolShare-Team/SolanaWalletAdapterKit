@@ -18,10 +18,15 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "0.0.0"))
+        .package(url: "https://github.com/bitmark-inc/tweetnacl-swiftwrap", .upToNextMajor(from: "1.1.0"))
     ],
     targets: [
         .target(
             name: "SolanaWalletAdapterKit",
+            dependencies: [
+                "SolanaKit.swift",
+                .product(name: "TweetNacl", package:"tweetnacl-swiftwrap")
+            ]
         ),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",

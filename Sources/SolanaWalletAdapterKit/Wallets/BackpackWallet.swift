@@ -5,16 +5,28 @@ import TweetNacl
 //note to self, make a constants page with urls, error messages, etc.
 // add protocl wallet later
 final class BackpackWallet:  ObservableObject{
-    @Published var isConnected: Bool = false
+    @Published var isConnected: Bool
     
     var dappUserPublicKey: String?
     
-    var dappEncryptionPrivateKey: Box.KeyPair.PrivateKey = Box.KeyPair.generate().privateKey
-    var dappEncryptionPublicKey: Data {
-        Box.KeyPair.publicKey(from: dappEncryptionPrivateKey)
-    }
+    var dappEncryptionPrivateKey: Data?
+    var dappEncryptionPublicKey: Data?
     var dappEncryptionSharedKey: Data?
     var session: String?
+    
+    init(keyPair: (publicKey: Data, privateKey: Data)? = nil) throws {
+        let (publicKey, privateKey): (Data, Data)
+        
+        if let providedKeyPair = keyPair {
+            (publicKey, privateKey) = providedKeyPair
+        }else {
+            (publicKey, privateKey) = try NaclBox.keyPair()
+        }
+        self.dappEncryptionPublicKey = publicKey
+        self.dappEncryptionPrivateKey = privateKey
+        self.isConnected = false
+    }
+    
     
 //    var dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey = Curve25519.KeyAgreement.PrivateKey()
 //    var dappEncryptionPublicKey: Data {dappEncryptionPrivateKey.publicKey.rawRepresentation}
@@ -22,12 +34,29 @@ final class BackpackWallet:  ObservableObject{
     
     //Connect
     
-    //handle the redirect logic after connect() has been called
-    func handleConnectRedirect(_ url: URL) async throws -> ConnectResponse {
+    // overloaded handleredirect function
+    
+    private func handleRedirect<T: WalletResponse>(
+        _ url: URL,
+        successHandler: ([String: String]) throws -> T
+    ) async throws -> T {
         let params = Utils.parseUrl(url)
         try Utils.onFailure(params)
-        // no error thrown, success handling
-        return try onConnectionSuccess(payload: params)
+        return try successHandler(params)
+    }
+    
+    private func handleRedirect(
+        _ url: URL,
+        successHandler: ([String: String]) throws -> Void
+    ) async throws {
+        let params = Utils.parseUrl(url)
+        try Utils.onFailure(params)
+        try successHandler(params)
+    }
+    
+    //handle the redirect logic after connect() has been called
+    func handleConnectRedirect(_ url: URL) async throws -> ConnectResponse {
+        try await handleRedirect(url, successHandler: onConnectionSuccess)
     }
     
     //success handler, might've added too much error handling, TBD
@@ -37,18 +66,18 @@ final class BackpackWallet:  ObservableObject{
         let dataKey = "data"
         let nonceKey = "nonce"
         
-        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey)
+        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey!)
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         
-        dappUserPublicKey = data["public_key"]
-        session = data["session"] // base58 encoded string
+        dappUserPublicKey = data["public_key"] as! String
+        session = data["session"] as! String // base58 encoded string
         isConnected = true
         
         return ConnectResponse(
-                encryptionPublicKey: wallet[]
-                userPublicKey: data["public_key"] ?? "",
-                session: data["session"] ?? "",
+                encryptionPublicKey: dappEncryptionPublicKey!,
+                userPublicKey: dappUserPublicKey!,
+                session: session!,
                 nonce: payload[nonceKey] ?? ""
             )
         
@@ -56,9 +85,9 @@ final class BackpackWallet:  ObservableObject{
         
     func generateConnectUrl(_ appUrl: String, _ redirectLink: String, _ cluster: String?) async throws -> URL?{
         let connectURL = "https://backpack.app/ul/v1/connect"
-        let params: [String: String?] = [
+        var params: [String: String?] = [
                     "app_url": appUrl,
-                    "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey),
+                    "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey!),
                     "redirect_link": redirectLink,
         ] //query string params for connect()  https://docs.backpack.app/deeplinks/provider-methods/connect
         if let clust = cluster {
@@ -91,7 +120,7 @@ final class BackpackWallet:  ObservableObject{
         // The DApp's public key needs to be Base58 encoded for the URL
         
         var params: [String: String?] = [
-            "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey)
+            "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey!),
             "nonce": nonce,
             "redirect_link": redirectLink,
             "payload": payload
@@ -114,47 +143,47 @@ final class BackpackWallet:  ObservableObject{
         // 1. Generate Nonce
         let nonce = Utils.base58Encode(Utils.generateNonce())
         // 2. Encrypt payload
-        let payload = Utils.encryptPayload(
-                dappEncryptionSharedKey: dappEncryptionSharedKey,
+        let payload = try Utils.encryptPayload(
+                sharedKey: dappEncryptionSharedKey!,
                 payload: payloadDict,
                 nonce: nonce
         )
         
         let url = try await generateUnivLinkUrl(baseURL, nonce, redirectLink, payload)
         await MainActor.run {
-                UIApplication.shared.open(url)
+            UIApplication.shared.open(url!)
+        }
     }
     
     //Disconnect
     
     func handleDisconnectRedirect(_ url: URL) async throws {
-        let params = Utils.parseUrl(url)
-        try Utils.onFailure(params)
+        try await handleRedirect(url, successHandler: onDisconnectSuccess)
+    }
+    
+    func onDisconnectSuccess(_ params: [String: String]) throws {
         // clear everything
         session = nil
         dappEncryptionSharedKey = nil
         isConnected = false
         dappUserPublicKey = nil
-        dappEncryptionPrivateKey = Box.KeyPair.generate().privateKey
+        (dappEncryptionPublicKey, dappEncryptionPrivateKey) = try NaclBox.keyPair()
         /*dappEncryptionPrivateKey = Curve25519.KeyAgreement.PrivateKey()*/ // generate new key pair
     }
     
     //Note: Payload can and probably should be handled internally as much as possible
     func disconnect( redirectLink: String ) async throws{
         // Implementation
-        payloadDict = ["session": session!]
+        let payloadDict = ["session": session!]
         let baseURL = "https://backpack.app/ul/v1/disconnect"
-        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
     }
     
     //Sign and Send Transaction
     
     
-    func handleSignAndSendTransactionRedirect(_ url: URL) async throws ->  SignAndSendTransactionResponse{
-        let params = Utils.parseUrl(url)
-        try Utils.onFailure(params)
-        return try onSignAndSendTransactionSuccess(payload: params)
-        
+    func handleSignAndSendTransactionRedirect(_ url: URL) async throws -> SignTransactionResponse {
+        try await handleRedirect(url, successHandler: onSignTransactionSuccess)
     }
     
     func onSignAndSendTransactionSuccess(payload: [String: String]) throws  -> SignAndSendTransactionResponse{
@@ -165,19 +194,22 @@ final class BackpackWallet:  ObservableObject{
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAndSendTransactionResponse (
-            signature: data[signatureKey],
-            nonce: payload[nonceKey]
-        )
+            nonce: payload[nonceKey]! as! String,
+            signature: data[signatureKey]! as! String,
+            )
     }
     
-    func signAndSendTransaction( redirectLink: String, transaction : Data, sendOptions: TransactionOptions?) async throws {
+    //note: might have to change conversion from TransactionOption from web3 to String
+        //currently assuming the conversion is trivial, it may not be
+        //nvm it is NOT trivial 
+    func signAndSendTransaction( redirectLink: String, transaction : Data, sendOptions: SendOptions?) async throws {
         // Implementation
         let encodedTransaction: String = Utils.base58Encode( transaction)
-        payloadDict = [
+        var payloadDict = [
             "transaction": encodedTransaction,
             "sessions": session!,
         ]
-        if let options = SendOptions {
+        if let options = sendOptions {
             let optionsData = try JSONEncoder().encode(options)
             guard let optionsString = String(data: optionsData, encoding: .utf8) else {
                 throw NSError(domain: "BackpackWallet", code: 3, userInfo: [NSLocalizedDescriptionKey: "Json serialization failed"])
@@ -186,18 +218,16 @@ final class BackpackWallet:  ObservableObject{
         }
         
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
     }
     
     //Sign all transactions
     
-    func handleSignAllTransactionsRedirect(_ url: URL) async throws ->  SignAllTransactionsResponse{
-        let params = Utils.parseUrl(url)
-        try Utils.onFailure(params)
-        return try onSignAllTransactionsSuccess(payload: params)
-        
+    func handleSignAllTransactionsRedirect(_ url: URL) async throws -> SignAllTransactionsResponse {
+        try await handleRedirect(url, successHandler: onSignAllTransactionsSuccess)
     }
+
         
     func onSignAllTransactionsSuccess(payload: [String: String]) throws -> SignAllTransactionsResponse{
         let transactionsKey = "transactions"
@@ -206,8 +236,9 @@ final class BackpackWallet:  ObservableObject{
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAllTransactionsResponse(
-            transactions: data[transactionsKey],
-            nonce: payload[nonceKey]
+            nonce: payload[nonceKey]! as! String,
+            transactions: data[transactionsKey]! as! [String],
+            
         )
     }
     
@@ -223,21 +254,18 @@ final class BackpackWallet:  ObservableObject{
             throw NSError(domain: "BackpackWallet", code: 3, userInfo: [NSLocalizedDescriptionKey: "Json serialization failed"])
         }
         
-        payloadDict = [
+        let payloadDict = [
             "transactions": transactionsString,
             "sessions": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
     }
       
     // sign transaction
         
-    func handleSignTransactionRedirect(_ url: URL) async throws ->  SignTransactionResponse{
-        let params = Utils.parseUrl(url)
-        try Utils.onFailure(params)
-        return try onSignTransactionSuccess(payload: params)
-        
+    func handleSignTransactionRedirect(_ url: URL) async throws -> SignTransactionResponse {
+        try await handleRedirect(url, successHandler: onSignTransactionSuccess)
     }
         
     func onSignTransactionSuccess(payload: [String: String]) throws -> SignTransactionResponse{
@@ -248,7 +276,7 @@ final class BackpackWallet:  ObservableObject{
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignTransactionResponse(
             nonce: payload[nonceKey]!,
-            transaction: data[transactionKey]
+            transaction: data[transactionKey]! as! String
         )
     }
         
@@ -261,17 +289,14 @@ final class BackpackWallet:  ObservableObject{
             "session": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
     }
 
     // sign message
         
-    func handleSignMessageRedirect(_ url: URL) async throws ->  SignMessageResponse{
-        let params = Utils.parseUrl(url)
-        try Utils.onFailure(params)
-        return try onSignMessageSuccess(payload: params)
-        
+    func handleSignMessageRedirect(_ url: URL) async throws -> SignMessageResponse {
+        try await handleRedirect(url, successHandler: onSignMessageSuccess)
     }
         
     func onSignMessageSuccess(payload: [String: String]) throws -> SignMessageResponse{
@@ -280,18 +305,18 @@ final class BackpackWallet:  ObservableObject{
         let nonceKey = "nonce"
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
-        return SignTransactionResponse(
+        return SignMessageResponse(
             nonce: payload[nonceKey]!,
-            signature: data[signatureKey]
+            signature: data[signatureKey]! as! String,
         )
     }
     
     func signMessage(redirectLink: String, message: String, encodingFormat: EncodingFormat?) async throws {
         //default behaviour is utf-8
-        let encoding = encodingFormat ?? EncodingFormat(rawValue: "utf-8")
+        let encoding: EncodingFormat = encodingFormat ?? .utf8
         let messageData = try Utils.messageStringToData(encodedMessage: message, encoding: encoding)
-        let payloadDict = [
-            "message:" Utils.base58Encode(messageData)
+        var payloadDict = [
+            "message": Utils.base58Encode(messageData),
             "session": session!,
             
         ]
@@ -306,8 +331,8 @@ final class BackpackWallet:  ObservableObject{
     
     func browse(url: String, ref: String) async throws {
         let baseURL = "https://backpack.app/ul/v1/browse/\(url)"
-        params = ["ref": ref]
-        let url = Utils.buildURL(baseURL, params)
+        let params = ["ref": ref]
+        let url = Utils.buildURL(baseURL: baseURL, queryParams: params)
         await MainActor.run {
             UIApplication.shared.open(url!)
         }
