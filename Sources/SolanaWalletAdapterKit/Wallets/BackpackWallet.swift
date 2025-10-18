@@ -39,7 +39,7 @@ final class BackpackWallet:  ObservableObject{
         
         dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey)
         
-        let data = try Utils.decryptBackpackData(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         
         dappUserPublicKey = data["public_key"]
         session = data["session"] // base58 encoded string
@@ -161,7 +161,7 @@ final class BackpackWallet:  ObservableObject{
         let nonceKey = "nonce"
         
         
-        let data = try Utils.decryptBackpackData(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAndSendTransactionResponse (
             signature: data[signatureKey],
             nonce: payload[nonceKey]
@@ -202,7 +202,7 @@ final class BackpackWallet:  ObservableObject{
         let dataKey = "data"
         let nonceKey = "nonce"
         
-        let data = try Utils.decryptBackpackData(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAllTransactionsResponse(
             transactions: data[transactionsKey],
             nonce: payload[nonceKey]
@@ -243,7 +243,7 @@ final class BackpackWallet:  ObservableObject{
         let dataKey = "data"
         let nonceKey = "nonce"
         
-        let data = try Utils.decryptBackpackData(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignTransactionResponse(
             nonce: payload[nonceKey]!,
             transaction: data[transactionKey]
@@ -254,7 +254,7 @@ final class BackpackWallet:  ObservableObject{
     // Implementation
         let encodedTransaction: String = Utils.base58Encode(transaction)
         
-        payloadDict = [
+        let payloadDict = [
             "transaction": encodedTransaction,
             "session": session!,
         ]
@@ -262,8 +262,43 @@ final class BackpackWallet:  ObservableObject{
         try await executeDeepLinkAction(baseURL, redirectLink, payLoadDict)
         
     }
-    func signMessage(nonce: String, redirectLink: String, payload: String) async throws {
-        // Implementation
+
+    // sign message
+        
+    func handleSignMessageRedirect(_ url: URL) async throws ->  SignMessageResponse{
+        let params = Utils.parseUrl(url)
+        try Utils.onFailure(params)
+        return try onSignMessageSuccess(payload: params)
+        
+    }
+        
+    func onSignMessageSuccess(payload: [String: String]) throws -> SignMessageResponse{
+        let signatureKey = "signature"
+        let dataKey = "data"
+        let nonceKey = "nonce"
+        
+        let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        return SignTransactionResponse(
+            nonce: payload[nonceKey]!,
+            signature: data[signatureKey]
+        )
+    }
+    
+    func signMessage(redirectLink: String, message: String, encodingFormat: EncodingFormat?) async throws {
+        //default behaviour is utf-8
+        let encoding = encodingFormat ?? EncodingFormat(rawValue: "utf-8")
+        let messageData = try Utils.messageStringToData(encodedMessage: message, encoding: encoding)
+        let payloadDict = [
+            "message:" Utils.base58Encode(messageData)
+            "session": session!,
+            
+        ]
+        if let encoding = encodingFormat {
+            payloadDict["display"] = encoding.rawValue
+        }
+        let baseURL = "https://backpack.app/ul/v1/signMessage"
+        try await executeDeepLinkAction(baseURL, redirectLink, payloadDict)
+        
         
     }
     
