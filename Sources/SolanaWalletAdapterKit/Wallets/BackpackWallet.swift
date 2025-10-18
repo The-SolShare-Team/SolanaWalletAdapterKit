@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import SolanaKit
 import TweetNacl
 //note to self, make a constants page with urls, error messages, etc.
@@ -70,8 +69,8 @@ final class BackpackWallet:  ObservableObject{
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         
-        dappUserPublicKey = data["public_key"] as! String
-        session = data["session"] as! String // base58 encoded string
+        dappUserPublicKey = (data["public_key"] as! String)
+        session = (data["session"] as! String )// base58 encoded string
         isConnected = true
         
         return ConnectResponse(
@@ -100,12 +99,10 @@ final class BackpackWallet:  ObservableObject{
     }
     
     
-    func connect(appUrl: String, redirectLink: String, cluster: String?) async throws {
+    func connect(appUrl: String, redirectLink: String, cluster: String?) async throws -> URL{
         // Implementation
         let url = try await generateConnectUrl(appUrl, redirectLink, cluster)
-        await MainActor.run {
-            UIApplication.shared.open(url!)
-        }
+        return url!
         
     }
     
@@ -138,7 +135,7 @@ final class BackpackWallet:  ObservableObject{
         _ baseURL: String,
         _ redirectLink: String,
         _ payloadDict: [String: String]
-    ) async throws {
+    ) async throws -> URL {
         
         // 1. Generate Nonce
         let nonce = Utils.base58Encode(Utils.generateNonce())
@@ -150,9 +147,7 @@ final class BackpackWallet:  ObservableObject{
         )
         
         let url = try await generateUnivLinkUrl(baseURL, nonce, redirectLink, payload)
-        await MainActor.run {
-            UIApplication.shared.open(url!)
-        }
+        return url!
     }
     
     //Disconnect
@@ -172,11 +167,11 @@ final class BackpackWallet:  ObservableObject{
     }
     
     //Note: Payload can and probably should be handled internally as much as possible
-    func disconnect( redirectLink: String ) async throws{
+    func disconnect( redirectLink: String ) async throws -> URL{
         // Implementation
         let payloadDict = ["session": session!]
         let baseURL = "https://backpack.app/ul/v1/disconnect"
-        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
     }
     
     //Sign and Send Transaction
@@ -194,7 +189,7 @@ final class BackpackWallet:  ObservableObject{
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAndSendTransactionResponse (
-            nonce: payload[nonceKey]! as! String,
+            nonce: payload[nonceKey]!,
             signature: data[signatureKey]! as! String,
             )
     }
@@ -202,7 +197,7 @@ final class BackpackWallet:  ObservableObject{
     //note: might have to change conversion from TransactionOption from web3 to String
         //currently assuming the conversion is trivial, it may not be
         //nvm it is NOT trivial 
-    func signAndSendTransaction( redirectLink: String, transaction : Data, sendOptions: SendOptions?) async throws {
+    func signAndSendTransaction( redirectLink: String, transaction : Data, sendOptions: SendOptions?) async throws -> URL {
         // Implementation
         let encodedTransaction: String = Utils.base58Encode( transaction)
         var payloadDict = [
@@ -218,7 +213,7 @@ final class BackpackWallet:  ObservableObject{
         }
         
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
     }
     
@@ -236,7 +231,7 @@ final class BackpackWallet:  ObservableObject{
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         return SignAllTransactionsResponse(
-            nonce: payload[nonceKey]! as! String,
+            nonce: payload[nonceKey]!,
             transactions: data[transactionsKey]! as! [String],
             
         )
@@ -244,7 +239,7 @@ final class BackpackWallet:  ObservableObject{
     
     
     
-    func signAllTransactions(redirectLink: String, transactions: [Data]) async throws {
+    func signAllTransactions(redirectLink: String, transactions: [Data]) async throws -> URL{
         // Implementation
         let encodedTransactions: [String] = transactions.map { rawData in
                 return Utils.base58Encode(rawData)
@@ -259,7 +254,7 @@ final class BackpackWallet:  ObservableObject{
             "sessions": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
     }
       
     // sign transaction
@@ -280,7 +275,7 @@ final class BackpackWallet:  ObservableObject{
         )
     }
         
-    func signTransaction(redirectLink: String, transaction: Data) async throws {
+    func signTransaction(redirectLink: String, transaction: Data) async throws -> URL {
     // Implementation
         let encodedTransaction: String = Utils.base58Encode(transaction)
         
@@ -289,7 +284,7 @@ final class BackpackWallet:  ObservableObject{
             "session": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signTransaction"
-        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
     }
 
@@ -311,7 +306,7 @@ final class BackpackWallet:  ObservableObject{
         )
     }
     
-    func signMessage(redirectLink: String, message: String, encodingFormat: EncodingFormat?) async throws {
+    func signMessage(redirectLink: String, message: String, encodingFormat: EncodingFormat?) async throws -> URL {
         //default behaviour is utf-8
         let encoding: EncodingFormat = encodingFormat ?? .utf8
         let messageData = try Utils.messageStringToData(encodedMessage: message, encoding: encoding)
@@ -324,17 +319,15 @@ final class BackpackWallet:  ObservableObject{
             payloadDict["display"] = encoding.rawValue
         }
         let baseURL = "https://backpack.app/ul/v1/signMessage"
-        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
         
     }
     
-    func browse(url: String, ref: String) async throws {
+    func browse(url: String, ref: String) async throws -> URL{
         let baseURL = "https://backpack.app/ul/v1/browse/\(url)"
         let params = ["ref": ref]
         let url = Utils.buildURL(baseURL: baseURL, queryParams: params)
-        await MainActor.run {
-            UIApplication.shared.open(url!)
-        }
+        return url!
     }
 }

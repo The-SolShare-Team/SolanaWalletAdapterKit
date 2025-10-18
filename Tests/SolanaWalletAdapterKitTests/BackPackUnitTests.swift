@@ -28,7 +28,7 @@ import Testing
         let expectedQuery = "q=\(expectedEncodedValue)"
         #expect(absoluteString?.contains(expectedQuery) == true)
         
-        let components = URLComponents(url: try #require(url), resolvingAgainstBaseURL: false)
+        let components = URLComponents(url: url!, resolvingAgainstBaseURL: false)
         let queryItemValue = components?.queryItems?.first(where: { $0.name == "q" })?.value
         
         #expect(queryItemValue == expectedEncodedValue) 
