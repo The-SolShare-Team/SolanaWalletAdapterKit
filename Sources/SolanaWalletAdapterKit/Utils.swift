@@ -52,6 +52,8 @@ class Utils {
         return nonce
     }
     
+    // base58 encode and alphabet
+    //Ai generated
     static private let BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     static private let BASE58_ALPHABET_BYTES = [UInt8](BASE58_ALPHABET.utf8)
     
@@ -105,6 +107,7 @@ class Utils {
     }
     
     // Function to decode Base58 String to Data
+    //AI Generated
     static func base58Decode(_ base58String: String) -> Data? {
         if base58String.isEmpty { return Data() }
 
@@ -184,7 +187,8 @@ class Utils {
 //            outputByteCount: 32)
     }
     
-    static func decryptBackpackData(encryptedDataB58: String, nonceB58: String, sharedKey: Data /*symmetricKey: SymmetricKey*/)
+    // base58 decoded and decrypted using shared secret generated symmetric key
+    static func decryptPayload(encryptedDataB58: String, nonceB58: String, sharedKey: Data /*symmetricKey: SymmetricKey*/)
     throws -> [String: String]{
         var data: [String: String] = [:]
         guard let dataDecoded = Utils.base58Decode(encryptedDataB58),
@@ -229,12 +233,49 @@ class Utils {
                 )
         return encrypted
     }
-
-    static func encryptPayload( dappEncryptionSharedKey: Data, payload: [String:String], nonce: String) throws -> String {
+    // encrypted, base58 encoded
+    static func encryptPayload( sharedKey: Data, payload: [String:String], nonce: String) throws -> String {
         let payloadJson = try JSONSerialization.data(withJSONObject: payload)
-        let encryptedPayload = try Utils.encryptBackpackData(data: payloadJson, nonce: Utils.base58Decode(nonce)!, sharedKey: dappEncryptionSharedKey)
+        let encryptedPayload = try Utils.encryptBackpackData(data: payloadJson, nonce: Utils.base58Decode(nonce)!, sharedKey: sharedKey)
         let payloadString = Utils.base58Encode(encryptedPayload)
         return payloadString
     }
+    // note: swift Data and Uint8Aray are functionally the same thing: a contiguous block of raw, unsigned 8-bit integers (bytes)
+    // so for now we convert the hex or utf-8 encoded message string supplied by the user and convert it to Data type, unlike what is exactly specified in https://docs.backpack.app/deeplinks/provider-methods/signmessage
+    //if this sendMessage is not woorking as intended, this is a key point to look into, perhaps convert to [UInt8]
+    static func messageStringToData(encodedMessage:String , encoding: EncodingFormat) throws -> Data {
+        switch encoding{
+        case .utf8:
+            let data = encodedMessage.data(using: .utf8)!
+            return data
+        
+        case .hex:
+            let data = dataFromHexString(encodedMessage)
+            return data
+        }
+    }
     
+    public static func dataFromHexString(_ hexString: String) throws -> Data {
+        let len = hexString.count
+        
+        // Hex strings must have an even length (two characters per byte)
+        assert(len % 2 == 0)
+        
+        var data = Data(capacity: len / 2)
+        var index = hexString.startIndex
+        
+        for _ in 0..<len / 2 {
+            // Get the next two characters
+            let nextIndex = hexString.index(index, offsetBy: 2)
+            let byteString = String(hexString[index..<nextIndex])
+            
+            // Convert the two-character string into a UInt8 using radix 16 (hex)
+            guard let byte = UInt8(byteString, radix: 16) else {
+                throw BackpackError.encodingFailed("Invalid hexadecimal sequence encountered: '\(byteString)'.")
+            }
+            data.append(byte)
+            index = nextIndex
+        }
+        return data
+    }
 }
