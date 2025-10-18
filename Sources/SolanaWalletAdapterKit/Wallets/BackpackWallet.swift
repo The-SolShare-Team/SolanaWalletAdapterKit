@@ -60,8 +60,10 @@ final class BackpackWallet:  ObservableObject{
                     "app_url": appUrl,
                     "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey),
                     "redirect_link": redirectLink,
-                    "cluster": cluster ?? nil
         ] //query string params for connect()  https://docs.backpack.app/deeplinks/provider-methods/connect
+        if let clust = cluster {
+            params["cluster"] = clust
+        }
         guard let url = Utils.buildURL(baseURL: connectURL, queryParams: params) else {
             throw NSError(domain: "BackpackWallet", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to build URL"])
         }
@@ -103,7 +105,7 @@ final class BackpackWallet:  ObservableObject{
         return url
     }
     // no need to pass shared key, nonce
-    func executeDeepLinkAction(
+    func executeUnivLinkAction(
         _ baseURL: String,
         _ redirectLink: String,
         _ payloadDict: [String: String]
@@ -142,7 +144,7 @@ final class BackpackWallet:  ObservableObject{
         // Implementation
         payloadDict = ["session": session!]
         let baseURL = "https://backpack.app/ul/v1/disconnect"
-        try await executeDeepLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
     }
     
     //Sign and Send Transaction
@@ -184,7 +186,7 @@ final class BackpackWallet:  ObservableObject{
         }
         
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeDeepLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
         
     }
     
@@ -226,7 +228,7 @@ final class BackpackWallet:  ObservableObject{
             "sessions": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        try await executeDeepLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
     }
       
     // sign transaction
@@ -259,7 +261,7 @@ final class BackpackWallet:  ObservableObject{
             "session": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signTransaction"
-        try await executeDeepLinkAction(baseURL, redirectLink, payLoadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payLoadDict)
         
     }
 
@@ -297,12 +299,17 @@ final class BackpackWallet:  ObservableObject{
             payloadDict["display"] = encoding.rawValue
         }
         let baseURL = "https://backpack.app/ul/v1/signMessage"
-        try await executeDeepLinkAction(baseURL, redirectLink, payloadDict)
+        try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
         
         
     }
     
     func browse(url: String, ref: String) async throws {
-        // Implementation
+        let baseURL = "https://backpack.app/ul/v1/browse/\(url)"
+        params = ["ref": ref]
+        let url = Utils.buildURL(baseURL, params)
+        await MainActor.run {
+            UIApplication.shared.open(url!)
+        }
     }
 }
