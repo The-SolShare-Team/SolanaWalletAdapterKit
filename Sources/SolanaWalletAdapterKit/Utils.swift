@@ -9,6 +9,7 @@ import Foundation
 import CryptoKit
 import TweetNacl
 
+
 class Utils {
     private init() {}
     //Utils
@@ -21,8 +22,7 @@ class Utils {
         
         for (key, value) in queryParams {
             if let value = value {
-                let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-                queryItems.append(URLQueryItem(name: key, value: encodedValue))
+                queryItems.append(URLQueryItem(name: key, value: value))
             }
         }
         components.queryItems = queryItems
@@ -55,146 +55,124 @@ class Utils {
     // base58 encode and alphabet
     //Ai generated
     static private let BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-    static private let BASE58_ALPHABET_BYTES = [UInt8](BASE58_ALPHABET.utf8)
+    static private let BASE58_ALPHABET_CHARS = Array(BASE58_ALPHABET)
     
     static func base58Encode(_ data: Data) -> String {
-        let bytes = [UInt8](data)
-            if bytes.isEmpty { return "" }
-
-            // Count leading zeros
-            var zeros = 0
-            for byte in bytes {
-                if byte == 0 {
-                    zeros += 1
-                } else {
-                    break
-                }
+        if data.isEmpty { return "" }
+        let byteArray = [uint8](data)
+        var zeroes = 0
+        var length = 0
+        var pbegin = 0
+        let pend = byteArray.count
+        while pbegin != pend && byteArray[pbegin] == 0 {
+            pbegin += 1
+            zeroes += 1
+        }
+        
+        // Allocate enough space in big-endian base58 representation.
+        let BASE = 58
+        let iFACTOR = log(256.0) / log(Double(BASE))
+        
+        let size = Int(Double(pend - pbegin) * iFACTOR + 1.0)
+        var b58 = [UInt8?](repeating: 0, count: size)
+        while (pbegin != pend) {
+            var carry = UInt32(byteArray[pbegin])
+            var i = 0
+            var it = size - 1
+            while (carry != 0 || i < length) && it != -1 {
+                carry += 256 * UInt32(b58[it]!)
+                b58[it] = UInt8(carry % UInt32(BASE))
+                carry = carry / UInt32(BASE)
+                it -= 1
+                i += 1
             }
-
-            var b58: [UInt8] = [] // Resulting Base58 characters
-            var input = bytes // Mutable copy of input bytes
-
-            while input.count > 0 {
-                var carry = 0
-                var i = 0
-                // Perform long division by 58
-                while i < input.count {
-                    let val = Int(input[i]) + carry * 256 // Treat input[i] as part of a larger number
-                    input[i] = UInt8(val / 58)           // Store quotient
-                    carry = val % 58                     // Store remainder as carry
-                    i += 1
-                }
-
-                if carry > 0 {
-                    // Prepend remainder to result
-                    b58.insert(BASE58_ALPHABET_BYTES[carry], at: 0)
-                }
-
-                // Remove leading zeros from the processed input
-                var newLength = input.count
-                while newLength > 0 && input[0] == 0 {
-                    input.remove(at: 0)
-                    newLength -= 1
-                }
-            }
-
-            // Add back original leading zeros (which become '1's in Base58)
-            for _ in 0..<zeros {
-                b58.insert(BASE58_ALPHABET_BYTES[0], at: 0) // '1' character for zero
-            }
-
-            return String(bytes: b58, encoding: .utf8) ?? ""
+//            if (carry != 0) { throw NSError(
+//                domain: "Base58Encoding",
+//                code: 1,
+//                userInfo: [NSLocalizedDescriptionKey: "Non-zero carry"]
+//            )}
+            length = i
+            pbegin+=1
+        }
+        var it2 = size - length
+        while (it2 != size && b58[it2] == 0) {
+          it2 += 1
+        }
+        var str = String(repeating: BASE58_ALPHABET_CHARS[0], count: zeroes)
+        for it2 in it2..<size {
+            str += String(BASE58_ALPHABET_CHARS[Int(b58[it2]!)])
+        }
+        return str
     }
-    
-    // Function to decode Base58 String to Data
-    //AI Generated
-    static func base58Decode(_ base58String: String) -> Data? {
+
+
+    static func base58Decode(_ base58String: String) -> Data {
         if base58String.isEmpty { return Data() }
 
-        let b58 = [UInt8](base58String.utf8)
-        
-        // Count leading '1's (which represent zero bytes)
         var zeros = 0
-        for byte in b58 {
-            if byte == BASE58_ALPHABET_BYTES[0] { // '1' character
-                zeros += 1
-            } else {
-                break
-            }
+        for ch in base58String {
+            if ch == "1" { zeros += 1 } else { break }
         }
 
-        var decodedBytes: [UInt8] = [] // Resulting raw bytes
-        for char in b58 {
-            guard let index = BASE58_ALPHABET_BYTES.firstIndex(of: char) else { return nil } // Invalid Base58 character
+        var decoded: [UInt8] = []
 
-            var carry = index
-            // Perform long multiplication by 58 and add current digit
-            for i in 0..<decodedBytes.count {
-                let val = Int(decodedBytes[i]) * 58 + carry
-                decodedBytes[i] = UInt8(val % 256)
-                carry = val / 256
+        for ch in base58String {
+            guard let digit = BASE58_ALPHABET_CHARS.firstIndex(of: ch) else {return Data()}
+            var carry = digit
+            var i = decoded.count - 1
+            while i >= 0 {
+                let val = Int(decoded[i]) * 58 + carry
+                decoded[i] = UInt8(val & 0xff)
+                carry = val >> 8
+                i -= 1
             }
-
             while carry > 0 {
-                decodedBytes.append(UInt8(carry % 256))
-                carry /= 256
+                decoded.insert(UInt8(carry & 0xff), at: 0)
+                carry >>= 8
             }
         }
 
-        decodedBytes.reverse() // Digits were appended in reverse order
-
-        // Remove leading zeros from the result
-        var newLength = decodedBytes.count
-        while newLength > 0 && decodedBytes[0] == 0 {
-            decodedBytes.remove(at: 0)
-            newLength -= 1
+        if zeros > 0 {
+            decoded.insert(contentsOf: Array(repeating: 0, count: zeros), at: 0)
         }
 
-        // Add back original leading zeros
-        for _ in 0..<zeros {
-            decodedBytes.insert(0, at: 0)
-        }
-
-        return Data(decodedBytes)
+        return Data(decoded)
     }
+
     
     // need to cross reference with tweetnacl implementation to see byte sizes that work as well as wallet docs
     // https://github.com/bitmark-inc/tweetnacl-swiftwrap/tree/master/Sources/TweetNacl
     
-    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Data  /*Curve25519.KeyAgreement.PrivateKey*/) throws -> Data /*SymmetricKey */{
-        guard let walletPubKeyData = Utils.base58Decode(walletEncPubKeyB58) else {
-            throw NSError(domain: "Utils", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid wallet public key"])
-        }
-        let sharedKey = try NaclBox.before(publicKey: walletPubKeyData, secretKey: dappEncryptionPrivateKey)
-        return sharedKey
+    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey) throws -> SymmetricKey {
+//        guard let walletPubKeyData = Utils.base58Decode(walletEncPubKeyB58) else {
+//            throw NSError(domain: "Utils", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid wallet public key"])
+//        }
+//        let sharedKey = try NaclBox.before(publicKey: walletPubKeyData, secretKey: dappEncryptionPrivateKey)
+//        return sharedKey
         
-//        guard let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58),
-//            let dataDecoded = Utils.base58Decode(encryptedDataB58),
-//            let nonceData = Utils.base58Decode(nonceB58) else {
-//                print("invalid data, nonce, or key")
-//                return SymmetricKey(size: .bits256)
-//            }
-//        let backpackPublicKey = try Curve25519.KeyAgreement.PublicKey(rawRepresentation: walletEncryptionPubKeyData)
-//        let dappEncryptionSharedSecret = try dappEncryptionPrivateKey.sharedSecretFromKeyAgreement(with: backpackPublicKey)
-//        //decipher the data for use
-//        return dappEncryptionSharedSecret.hkdfDerivedSymmetricKey(
-//            using: SHA256.self,
-//            salt: Data(),
-//            sharedInfo: Data(),
-//            outputByteCount: 32)
+        let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58)
+        let dataDecoded = Utils.base58Decode(encryptedDataB58)
+        let nonceData = Utils.base58Decode(nonceB58)
+        let backpackPublicKey = try Curve25519.KeyAgreement.PublicKey(rawRepresentation: walletEncryptionPubKeyData)
+        let dappEncryptionSharedSecret = try dappEncryptionPrivateKey.sharedSecretFromKeyAgreement(with: backpackPublicKey)
+        //decipher the data for use
+        
+        
+        return dappEncryptionSharedSecret.hkdfDerivedSymmetricKey(
+            using: SHA256.self,
+            salt: Data(),
+            sharedInfo: Data(),
+            outputByteCount: 32)
     }
     
     // base58 decoded and decrypted using shared secret generated symmetric key
-    static func decryptPayload(encryptedDataB58: String, nonceB58: String, sharedKey: Data /*symmetricKey: SymmetricKey*/)
+    static func decryptPayload(encryptedDataB58: String, nonceB58: String, sharedKey:  SymmetricKey)
     throws -> [String: Any]{
         var data: [String: Any] = [:]
-        guard let dataDecoded = Utils.base58Decode(encryptedDataB58),
-              let nonceData = Utils.base58Decode(nonceB58) else {
-            print("Error decoding from base58")
-            return data
-        }
+        let dataDecoded = Utils.base58Decode(encryptedDataB58)
+        let nonceData = Utils.base58Decode(nonceB58)
         
-        let message = try NaclSecretBox.open(box: dataDecoded, nonce: nonceData, key: sharedKey)
+        let message = try NaclSecretBox.open(box: dataDecoded, nonce: nonceData, key: sharedKey.withUnsafeBytes{Data($0)})
             
 //        let nonce = try ChaChaPoly.Nonce(data: nonceData)
 //        let sealedBox = try ChaChaPoly.SealedBox(
@@ -208,28 +186,16 @@ class Utils {
         return data
     }
     
-    static func encryptBackpackData(data: Data, nonce: Data, sharedKey: Data/*symmetricKey: SymmetricKey*/) throws -> Data{
-//        // Encrypt the data
-//        let sealedBox = try ChaChaPoly.seal(data, using: symmetricKey, nonce: nonce)
-//        
-//        // Concatenate ciphertext + tag (same format as your decrypt function expects)
-//        var combined = sealedBox.ciphertext
-//        combined.append(contentsOf: sealedBox.tag)
-//        
-//        // Base58 encode the result
-//        let encoded = Utils.base58Encode(combined)
-//        return encoded
-        let encrypted = try NaclSecretBox.secretBox(
-            message: data,
-            nonce: nonce,
-            key: sharedKey
-        )
-        return encrypted
-    }
+    
     // encrypted, base58 encoded
-    static func encryptPayload( sharedKey: Data, payload: [String:String], nonce: String) throws -> String {
+    static func encryptPayload( sharedKey: SymmetricKey, payload: [String:String], nonce: String) throws -> String {
         let payloadJson = try JSONSerialization.data(withJSONObject: payload)
-        let encryptedPayload = try Utils.encryptBackpackData(data: payloadJson, nonce: Utils.base58Decode(nonce)!, sharedKey: sharedKey)
+        let encryptedPayload = try NaclSecretBox.secretBox(
+            message: payloadJson,
+            nonce: Utils.base58Decode(nonce),
+            key: sharedKey.withUnsafeBytes{Data($0)}
+        )
+
         let payloadString = Utils.base58Encode(encryptedPayload)
         return payloadString
     }

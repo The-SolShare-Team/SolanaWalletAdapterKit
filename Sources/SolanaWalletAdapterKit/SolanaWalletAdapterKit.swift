@@ -1,13 +1,15 @@
 import SolanaKit
 import CryptoKit
 
-public func hello() -> String {
-    let privateKey = Curve25519.Signing.PrivateKey()
+public func solanaKey() -> String {
+    let privateKey = Curve25519.KeyAgreement.PrivateKey()
     let publicKey = privateKey.publicKey
     
     let solanaKey = SolanaPublicKey(bytes: ByteArrayKt.toByteArray(publicKey.rawRepresentation))
+
     return solanaKey.address
 }
+
 
 public func test() async {
     // Setup RPC driver
