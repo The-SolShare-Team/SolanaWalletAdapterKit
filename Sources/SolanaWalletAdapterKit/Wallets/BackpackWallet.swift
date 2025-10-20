@@ -1,5 +1,6 @@
 import Foundation
 import SolanaKit
+import CryptoKit
 import TweetNacl
 //note to self, make a constants page with urls, error messages, etc.
 // add protocl wallet later
@@ -8,21 +9,20 @@ final class BackpackWallet:  ObservableObject{
     
     var dappUserPublicKey: String?
     
-    var dappEncryptionPrivateKey: Data?
-    var dappEncryptionPublicKey: Data?
-    var dappEncryptionSharedKey: Data?
+    var dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey
+    var dappEncryptionPublicKey: Curve25519.KeyAgreement.PublicKey
+//    var dappEncryptionSolanaKey: SolanaPublicKey
+    var dappEncryptionSharedKey: SymmetricKey?
     var session: String?
     
-    init(keyPair: (publicKey: Data, privateKey: Data)? = nil) throws {
-        let (publicKey, privateKey): (Data, Data)
-        
-        if let providedKeyPair = keyPair {
-            (publicKey, privateKey) = providedKeyPair
+    init(privateKey: Curve25519.KeyAgreement.PrivateKey?) throws {
+        if let privKey = privateKey {
+            dappEncryptionPrivateKey = privKey
         }else {
-            (publicKey, privateKey) = try NaclBox.keyPair()
+            dappEncryptionPrivateKey = Curve25519.KeyAgreement.PrivateKey()
         }
-        self.dappEncryptionPublicKey = publicKey
-        self.dappEncryptionPrivateKey = privateKey
+        dappEncryptionPublicKey = dappEncryptionPrivateKey.publicKey
+//        dappEncryptionSolanaKey = SolanaPublicKey(bytes: ByteArrayKt.toByteArray(dappEncryptionPublicKey.rawRepresentation))
         self.isConnected = false
     }
     
@@ -65,16 +65,18 @@ final class BackpackWallet:  ObservableObject{
         let dataKey = "data"
         let nonceKey = "nonce"
         
-        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey!)
+        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey)
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
+        
+        
         
         dappUserPublicKey = (data["public_key"] as! String)
         session = (data["session"] as! String )// base58 encoded string
         isConnected = true
         
         return ConnectResponse(
-                encryptionPublicKey: dappEncryptionPublicKey!,
+            encryptionPublicKey: dappEncryptionPublicKey.rawRepresentation,
                 userPublicKey: dappUserPublicKey!,
                 session: session!,
                 nonce: payload[nonceKey] ?? ""
@@ -86,7 +88,7 @@ final class BackpackWallet:  ObservableObject{
         let connectURL = "https://backpack.app/ul/v1/connect"
         var params: [String: String?] = [
                     "app_url": appUrl,
-                    "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey!),
+                    "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey.rawRepresentation),
                     "redirect_link": redirectLink,
         ] //query string params for connect()  https://docs.backpack.app/deeplinks/provider-methods/connect
         if let clust = cluster {
@@ -108,30 +110,8 @@ final class BackpackWallet:  ObservableObject{
     
     //general deep link urls (connect is the only one that is different)
     // no  need to pass public key
-    func generateUnivLinkUrl(
-        _ baseURL: String,
-        _ nonce: String,
-        _ redirectLink: String,
-        _ payload: String
-    ) async throws -> URL? {
-        // The DApp's public key needs to be Base58 encoded for the URL
-        
-        var params: [String: String?] = [
-            "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey!),
-            "nonce": nonce,
-            "redirect_link": redirectLink,
-            "payload": payload
-        ]
-        
-        // Note: redirectLink MUST be URL-encoded, which Utils.buildURL should handle.
-        
-        guard let url = Utils.buildURL(baseURL: baseURL, queryParams: params) else {
-            throw NSError(domain: "BackpackWallet", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to build URL"])
-        }
-        return url
-    }
     // no need to pass shared key, nonce
-    func executeUnivLinkAction(
+    func generateUnivLink(
         _ baseURL: String,
         _ redirectLink: String,
         _ payloadDict: [String: String]
@@ -145,9 +125,16 @@ final class BackpackWallet:  ObservableObject{
                 payload: payloadDict,
                 nonce: nonce
         )
-        
-        let url = try await generateUnivLinkUrl(baseURL, nonce, redirectLink, payload)
-        return url!
+        let params: [String: String?] = [
+            "dapp_encryption_public_key": Utils.base58Encode(dappEncryptionPublicKey.rawRepresentation),
+            "nonce": nonce,
+            "redirect_link": redirectLink,
+            "payload": payload
+        ]
+        guard let url = Utils.buildURL(baseURL: baseURL, queryParams: params) else {
+            throw NSError(domain: "BackpackWallet", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to build URL"])
+        }
+        return url
     }
     
     //Disconnect
@@ -162,8 +149,9 @@ final class BackpackWallet:  ObservableObject{
         dappEncryptionSharedKey = nil
         isConnected = false
         dappUserPublicKey = nil
-        (dappEncryptionPublicKey, dappEncryptionPrivateKey) = try NaclBox.keyPair()
-        /*dappEncryptionPrivateKey = Curve25519.KeyAgreement.PrivateKey()*/ // generate new key pair
+//        (dappEncryptionPublicKey, dappEncryptionPrivateKey) = try NaclBox.keyPair()
+        dappEncryptionPrivateKey = Curve25519.KeyAgreement.PrivateKey() // generate new key pair
+        dappEncryptionPublicKey = dappEncryptionPrivateKey.publicKey
     }
     
     //Note: Payload can and probably should be handled internally as much as possible
@@ -171,7 +159,7 @@ final class BackpackWallet:  ObservableObject{
         // Implementation
         let payloadDict = ["session": session!]
         let baseURL = "https://backpack.app/ul/v1/disconnect"
-        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await generateUnivLink(baseURL, redirectLink, payloadDict)
     }
     
     //Sign and Send Transaction
@@ -197,7 +185,7 @@ final class BackpackWallet:  ObservableObject{
     //note: might have to change conversion from TransactionOption from web3 to String
         //currently assuming the conversion is trivial, it may not be
         //nvm it is NOT trivial 
-    func signAndSendTransaction( redirectLink: String, transaction : Data, sendOptions: SendOptions?) async throws -> URL {
+    func signAndSendTransaction( redirectLink: String, transaction: Data, sendOptions: SendOptions?) async throws -> URL {
         // Implementation
         let encodedTransaction: String = Utils.base58Encode( transaction)
         var payloadDict = [
@@ -213,7 +201,7 @@ final class BackpackWallet:  ObservableObject{
         }
         
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await generateUnivLink(baseURL, redirectLink, payloadDict)
         
     }
     
@@ -254,7 +242,7 @@ final class BackpackWallet:  ObservableObject{
             "sessions": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signAndSendTransaction"
-        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await generateUnivLink(baseURL, redirectLink, payloadDict)
     }
       
     // sign transaction
@@ -284,7 +272,7 @@ final class BackpackWallet:  ObservableObject{
             "session": session!,
         ]
         let baseURL = "https://backpack.app/ul/v1/signTransaction"
-        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await generateUnivLink(baseURL, redirectLink, payloadDict)
         
     }
 
@@ -319,7 +307,7 @@ final class BackpackWallet:  ObservableObject{
             payloadDict["display"] = encoding.rawValue
         }
         let baseURL = "https://backpack.app/ul/v1/signMessage"
-        return try await executeUnivLinkAction(baseURL, redirectLink, payloadDict)
+        return try await generateUnivLink(baseURL, redirectLink, payloadDict)
         
         
     }
