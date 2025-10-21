@@ -212,11 +212,11 @@ class Utils {
         }
     }
     
-    public static func dataFromHexString(_ hexString: String) throws -> Data {
+    static func dataFromHexString(_ hexString: String) throws -> Data {
         let len = hexString.count
         
         // Hex strings must have an even length (two characters per byte)
-        assert(len % 2 == 0)
+        if len % 2 != 0 {throw NSError(domain: "backpackwallet", code: 404, userInfo: [NSLocalizedDescriptionKey: "bad req, length must be even"])}
         
         var data = Data(capacity: len / 2)
         var index = hexString.startIndex
@@ -236,4 +236,5 @@ class Utils {
         }
         return data
     }
+    
 }
