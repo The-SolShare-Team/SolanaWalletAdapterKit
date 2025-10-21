@@ -63,3 +63,20 @@ enum Commitment: String, Codable {
     case root
     case max
 }
+
+// factory class provider enum
+
+enum WalletProvider: String {
+    case backpack
+    case phantom
+    case solflare
+    init?(input: String) {
+        switch input.lowercased() {
+        case "backpack", "bp": self = .backpack
+        case "phantom", "ph": self = .phantom
+        case "solflare", "sf": self = .solflare
+        default: return nil
+        }
+    }
+    
+}

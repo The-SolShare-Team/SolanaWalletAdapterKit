@@ -4,18 +4,25 @@ import CryptoKit
 import TweetNacl
 //note to self, make a constants page with urls, error messages, etc.
 // add protocl wallet later
-final class BackpackWallet:  ObservableObject{
+final class BackpackWallet: Wallet, ObservableObject{
     @Published var isConnected: Bool
     
     var dappUserPublicKey: String?
     
-    var dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey
+    private var dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey
     var dappEncryptionPublicKey: Curve25519.KeyAgreement.PublicKey
 //    var dappEncryptionSolanaKey: SolanaPublicKey
     var dappEncryptionSharedKey: SymmetricKey?
     var session: String?
     
-    init(privateKey: Curve25519.KeyAgreement.PrivateKey?) throws {
+    func getDappEncryptionPrivateKey () -> Curve25519.KeyAgreement.PrivateKey {
+        return dappEncryptionPrivateKey
+    }
+    func setDappEncryptionPrivateKey (_ newKey: Curve25519.KeyAgreement.PrivateKey) {
+        dappEncryptionPrivateKey = newKey
+    }
+    
+    init(privateKey: Curve25519.KeyAgreement.PrivateKey? = nil) {
         if let privKey = privateKey {
             dappEncryptionPrivateKey = privKey
         }else {
@@ -35,7 +42,7 @@ final class BackpackWallet:  ObservableObject{
     
     // overloaded handleredirect function
     
-    private func handleRedirect<T: WalletResponse>(
+    func handleRedirect<T: WalletResponse>(
         _ url: URL,
         successHandler: ([String: String]) throws -> T
     ) async throws -> T {
@@ -44,7 +51,7 @@ final class BackpackWallet:  ObservableObject{
         return try successHandler(params)
     }
     
-    private func handleRedirect(
+    func handleRedirect(
         _ url: URL,
         successHandler: ([String: String]) throws -> Void
     ) async throws {

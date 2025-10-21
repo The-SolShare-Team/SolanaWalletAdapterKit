@@ -1,4 +1,4 @@
-struct SolflareWallet: Wallet {
+struct SolflareWallet /*Wallet*/ {
     var dappEncryptionPublicKey: String
     
     func connect(appUrl: String, redirectLink: String, cluster: String?) async throws {
