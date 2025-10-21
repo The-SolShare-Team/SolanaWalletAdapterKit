@@ -143,7 +143,7 @@ class Utils {
     // need to cross reference with tweetnacl implementation to see byte sizes that work as well as wallet docs
     // https://github.com/bitmark-inc/tweetnacl-swiftwrap/tree/master/Sources/TweetNacl
     
-    static func computeSharedKey(walletEncPubKeyB58: String, encryptedDataB58: String, nonceB58: String, dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey) throws -> SymmetricKey {
+    static func computeSharedKey(walletEncPubKeyB58: String, dappEncryptionPrivateKey: Curve25519.KeyAgreement.PrivateKey) throws -> SymmetricKey {
 //        guard let walletPubKeyData = Utils.base58Decode(walletEncPubKeyB58) else {
 //            throw NSError(domain: "Utils", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid wallet public key"])
 //        }
@@ -151,8 +151,6 @@ class Utils {
 //        return sharedKey
         
         let walletEncryptionPubKeyData = Utils.base58Decode(walletEncPubKeyB58)
-        let dataDecoded = Utils.base58Decode(encryptedDataB58)
-        let nonceData = Utils.base58Decode(nonceB58)
         let backpackPublicKey = try Curve25519.KeyAgreement.PublicKey(rawRepresentation: walletEncryptionPubKeyData)
         let dappEncryptionSharedSecret = try dappEncryptionPrivateKey.sharedSecretFromKeyAgreement(with: backpackPublicKey)
         //decipher the data for use

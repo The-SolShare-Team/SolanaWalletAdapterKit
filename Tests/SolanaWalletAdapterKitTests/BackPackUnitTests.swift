@@ -6,6 +6,7 @@
 //
 import Foundation
 import Testing
+import CryptoKit
 @testable import SolanaWalletAdapterKit
 
 @Suite("Util Tests") struct UtilTests {
@@ -73,6 +74,17 @@ import Testing
         }
     }
     
+    @Test func testGenerateNonce() {
+        let nonceLength = 24
+        let nonce = Utils.generateNonce(nonceLength)
+        
+        #expect(nonce.count == nonceLength, "Nonce should be exactly \(nonceLength) bytes")
+        let allZeros = Data(repeating: 0, count: nonceLength)
+        #expect(nonce != allZeros, "Nonce should not be all zeros")
+        let nonce2 = Utils.generateNonce(nonceLength)
+        #expect(nonce != nonce2, "Nonce should be unique for each call")
+    }
+    
     @Test func testB58EncodeDecode() throws{
         let emptyData = Data()
         let emptyB58 = ""
@@ -84,7 +96,7 @@ import Testing
         
         #expect(Utils.base58Encode(zeroKeyRaw) == zeroKeyB58, "Zero key encoding failed")
         
-        let decodedZeroKeyRaw = try Utils.base58Decode(zeroKeyB58)
+        let decodedZeroKeyRaw = Utils.base58Decode(zeroKeyB58)
         #expect(decodedZeroKeyRaw == zeroKeyRaw, "Zero key decoding failed")
         
         let invalidB58 = "Invalid$String!"
@@ -105,5 +117,21 @@ import Testing
         #expect(decodedStr == alphabet, "Printable ASCII failed")
     }
     
+    @Test func testComputeSharedKey() throws {
+        let dappPrivateKey = Curve25519.KeyAgreement.PrivateKey()
+        let dappPublicKey = dappPrivateKey.publicKey
+            
+        let walletPrivateKey = Curve25519.KeyAgreement.PrivateKey()
+        let walletPublicKey = walletPrivateKey.publicKey
+        
+        let dappSideKey = try Utils.computeSharedKey(walletEncPubKeyB58: Utils.base58Encode(walletPublicKey.rawRepresentation), dappEncryptionPrivateKey: dappPrivateKey)
+        let walletSideKey = try Utils.computeSharedKey(walletEncPubKeyB58: Utils.base58Encode(dappPublicKey.rawRepresentation), dappEncryptionPrivateKey: walletPrivateKey)
+        
+        #expect(dappSideKey == walletSideKey, "symmetric key should be the same")
+        
+    }
     
+    @Test func testDecryptPayload() throws {
+        
+    }
 }

@@ -65,7 +65,7 @@ final class BackpackWallet:  ObservableObject{
         let dataKey = "data"
         let nonceKey = "nonce"
         
-        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey)
+        dappEncryptionSharedKey = try Utils.computeSharedKey(walletEncPubKeyB58: payload[encryptionPublicKeyName]!, dappEncryptionPrivateKey: dappEncryptionPrivateKey)
         
         let data = try Utils.decryptPayload(encryptedDataB58: payload[dataKey]!, nonceB58: payload[nonceKey]!, sharedKey: dappEncryptionSharedKey!)
         
