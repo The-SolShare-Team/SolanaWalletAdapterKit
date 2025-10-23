@@ -1,8 +1,8 @@
 import CryptoKit
 import Foundation
-protocol Wallet {
+public protocol Wallet {
     var dappEncryptionPublicKey: Curve25519.KeyAgreement.PublicKey {get set}
-    
+    var provider: WalletProvider {get set}
     
     func connect(appUrl: String, redirectLink: String, cluster: String?) async throws -> URL
     func disconnect(redirectLink: String) async throws -> URL
