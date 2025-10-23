@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WalletResponse: Codable {}
+public protocol WalletResponse: Codable {}
 
 struct ConnectResponse: WalletResponse {
     let encryptionPublicKey: Data
@@ -40,20 +40,20 @@ struct SignMessageResponse: WalletResponse {
     let signature: String
 }
 
-enum EncodingFormat: String {
+public enum EncodingFormat: String {
     case hex = "hex"
     case utf8 = "utf-8"
 }
 
 // SendOptions type based on https://solana-foundation.github.io/solana-web3.js/types/SendOptions.html
-struct SendOptions: Codable {
+public struct SendOptions: Codable {
     public let maxRetries: Int?
     public let minContextSlot: Int?
     public let preflightCommitment: Commitment?
     public let skipPreflight: Bool?
 }
 
-enum Commitment: String, Codable {
+public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
@@ -66,7 +66,7 @@ enum Commitment: String, Codable {
 
 // factory class provider enum
 
-enum WalletProvider: String {
+public enum WalletProvider: String {
     case backpack
     case phantom
     case solflare

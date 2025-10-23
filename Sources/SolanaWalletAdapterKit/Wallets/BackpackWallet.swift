@@ -6,6 +6,7 @@ import TweetNacl
 // add protocl wallet later
 final class BackpackWallet: Wallet, ObservableObject{
     @Published var isConnected: Bool
+    var provider : WalletProvider = WalletProvider.backpack
     
     var dappUserPublicKey: String?
     

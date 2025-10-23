@@ -10,8 +10,8 @@ import SolanaKit
 import CryptoKit
 import TweetNacl
 
-class WalletFactory {
-    static func createWallet(provider: WalletProvider, privateKey: Curve25519.KeyAgreement.PrivateKey? = nil) -> Wallet? {
+public class WalletFactory {
+    public static func createWallet(provider: WalletProvider, privateKey: Curve25519.KeyAgreement.PrivateKey? = nil) -> Wallet? {
         switch provider.rawValue{
         case "backpack": return BackpackWallet(privateKey: privateKey)
             // add other providers when finished implementation
