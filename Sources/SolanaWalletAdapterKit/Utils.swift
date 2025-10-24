@@ -9,7 +9,6 @@ import Foundation
 import CryptoKit
 import TweetNacl
 
-
 class Utils {
     private init() {}
     //Utils

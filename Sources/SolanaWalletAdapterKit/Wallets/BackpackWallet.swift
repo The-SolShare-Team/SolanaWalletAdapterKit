@@ -3,7 +3,7 @@ import SolanaKit
 import CryptoKit
 import TweetNacl
 //note to self, make a constants page with urls, error messages, etc.
-// add protocl wallet later
+// add protocol wallet later
 final class BackpackWallet: Wallet, ObservableObject{
     @Published var isConnected: Bool
     var provider : WalletProvider = WalletProvider.backpack

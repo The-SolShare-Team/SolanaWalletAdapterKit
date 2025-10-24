@@ -9,33 +9,33 @@ import Foundation
 
 public protocol WalletResponse: Codable {}
 
-struct ConnectResponse: WalletResponse {
+public struct ConnectResponse: WalletResponse {
     let encryptionPublicKey: Data
     let userPublicKey: String
     let session: String
     let nonce: String
 }
 
-struct SignAndSendTransactionResponse: WalletResponse {
+public struct SignAndSendTransactionResponse: WalletResponse {
     let nonce: String
     let signature: String
     
 }
 
-struct SignAllTransactionsResponse: WalletResponse {
+public struct SignAllTransactionsResponse: WalletResponse {
     let nonce: String
     let transactions: [String]
     
 }
 
-struct SignTransactionResponse: WalletResponse {
+public struct SignTransactionResponse: WalletResponse {
     let nonce: String
     let transaction: String
    
 }
 // for messages
 
-struct SignMessageResponse: WalletResponse {
+public struct SignMessageResponse: WalletResponse {
     let nonce: String
     let signature: String
 }
