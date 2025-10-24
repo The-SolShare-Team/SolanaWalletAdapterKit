@@ -58,7 +58,7 @@ class Utils {
     
     static func base58Encode(_ data: Data) -> String {
         if data.isEmpty { return "" }
-        let byteArray = [uint8](data)
+        let byteArray = [UInt8](data)
         var zeroes = 0
         var length = 0
         var pbegin = 0

@@ -46,7 +46,7 @@ final class BackpackWallet: Wallet, ObservableObject{
     func handleRedirect<T: WalletResponse>(
         _ url: URL,
         successHandler: ([String: String]) throws -> T
-    ) async throws -> T {
+    ) throws -> T {
         let params = Utils.parseUrl(url)
         try Utils.onFailure(params)
         return try successHandler(params)
@@ -55,15 +55,15 @@ final class BackpackWallet: Wallet, ObservableObject{
     func handleRedirect(
         _ url: URL,
         successHandler: ([String: String]) throws -> Void
-    ) async throws {
+    ) throws {
         let params = Utils.parseUrl(url)
         try Utils.onFailure(params)
         try successHandler(params)
     }
     
     //handle the redirect logic after connect() has been called
-    func handleConnectRedirect(_ url: URL) async throws -> ConnectResponse {
-        try await handleRedirect(url, successHandler: onConnectionSuccess)
+    func handleConnectRedirect(_ url: URL) throws -> ConnectResponse {
+        try handleRedirect(url, successHandler: onConnectionSuccess)
     }
     
     //success handler, might've added too much error handling, TBD
@@ -147,8 +147,8 @@ final class BackpackWallet: Wallet, ObservableObject{
     
     //Disconnect
     
-    func handleDisconnectRedirect(_ url: URL) async throws {
-        try await handleRedirect(url, successHandler: onDisconnectSuccess)
+    func handleDisconnectRedirect(_ url: URL) throws {
+        try handleRedirect(url, successHandler: onDisconnectSuccess)
     }
     
     func onDisconnectSuccess(_ params: [String: String]) throws {
@@ -173,8 +173,8 @@ final class BackpackWallet: Wallet, ObservableObject{
     //Sign and Send Transaction
     
     
-    func handleSignAndSendTransactionRedirect(_ url: URL) async throws -> SignTransactionResponse {
-        try await handleRedirect(url, successHandler: onSignTransactionSuccess)
+    func handleSignAndSendTransactionRedirect(_ url: URL) throws -> SignTransactionResponse {
+        try handleRedirect(url, successHandler: onSignTransactionSuccess)
     }
     
     func onSignAndSendTransactionSuccess(payload: [String: String]) throws  -> SignAndSendTransactionResponse{
@@ -215,8 +215,8 @@ final class BackpackWallet: Wallet, ObservableObject{
     
     //Sign all transactions
     
-    func handleSignAllTransactionsRedirect(_ url: URL) async throws -> SignAllTransactionsResponse {
-        try await handleRedirect(url, successHandler: onSignAllTransactionsSuccess)
+    func handleSignAllTransactionsRedirect(_ url: URL) throws -> SignAllTransactionsResponse {
+        try handleRedirect(url, successHandler: onSignAllTransactionsSuccess)
     }
 
         
@@ -255,8 +255,8 @@ final class BackpackWallet: Wallet, ObservableObject{
       
     // sign transaction
         
-    func handleSignTransactionRedirect(_ url: URL) async throws -> SignTransactionResponse {
-        try await handleRedirect(url, successHandler: onSignTransactionSuccess)
+    func handleSignTransactionRedirect(_ url: URL) throws -> SignTransactionResponse {
+        try handleRedirect(url, successHandler: onSignTransactionSuccess)
     }
         
     func onSignTransactionSuccess(payload: [String: String]) throws -> SignTransactionResponse{
@@ -286,8 +286,8 @@ final class BackpackWallet: Wallet, ObservableObject{
 
     // sign message
         
-    func handleSignMessageRedirect(_ url: URL) async throws -> SignMessageResponse {
-        try await handleRedirect(url, successHandler: onSignMessageSuccess)
+    func handleSignMessageRedirect(_ url: URL) throws -> SignMessageResponse {
+        try handleRedirect(url, successHandler: onSignMessageSuccess)
     }
         
     func onSignMessageSuccess(payload: [String: String]) throws -> SignMessageResponse{
