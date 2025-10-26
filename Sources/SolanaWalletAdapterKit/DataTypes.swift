@@ -70,7 +70,7 @@ public enum WalletProvider: String {
     case backpack
     case phantom
     case solflare
-    init?(input: String) {
+    public init?(input: String) {
         switch input.lowercased() {
         case "backpack", "bp": self = .backpack
         case "phantom", "ph": self = .phantom

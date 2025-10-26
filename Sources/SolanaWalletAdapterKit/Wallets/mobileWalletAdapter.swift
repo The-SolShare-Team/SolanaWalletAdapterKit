@@ -21,10 +21,10 @@ import CryptoKit
 // separate the UIapp calls and just do them directly in the demo app
 
 public class MobileWalletAdapter: ObservableObject {
-    @Published var storedWallets: [String: Wallet?]
-    @Published var activeWallet: Wallet?
-    @Published var demoAppMetadataUrl: String
-    @Published var redirectProtocol: String
+    @Published public var storedWallets: [String: Wallet?]
+    @Published public var activeWallet: Wallet?
+    @Published public var demoAppMetadataUrl: String
+    @Published public var redirectProtocol: String
     
     public init(demoAppMetadataUrl: String = "https://solshare.syc.onl", redirectProtocol: String = "solanaMWADemo://") {
         storedWallets =

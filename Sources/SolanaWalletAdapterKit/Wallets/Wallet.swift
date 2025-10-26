@@ -3,6 +3,8 @@ import Foundation
 public protocol Wallet {
     var dappEncryptionPublicKey: Curve25519.KeyAgreement.PublicKey {get set}
     var provider: WalletProvider {get set}
+    var dappEncryptionSharedKey: SymmetricKey? {get set}
+    var session: String? {get set}
     
     // each provider function for our wallet builds and returns a URL that is called using an adapter in the Demo App
     // things to maybe change:

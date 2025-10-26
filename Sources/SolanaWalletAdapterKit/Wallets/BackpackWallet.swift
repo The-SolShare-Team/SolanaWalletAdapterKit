@@ -112,6 +112,7 @@ final class BackpackWallet: Wallet, ObservableObject{
     func connect(appUrl: String, redirectLink: String, cluster: String?) async throws -> URL{
         // Implementation
         let url = try await generateConnectUrl(appUrl, redirectLink, cluster)
+        print(url)
         return url!
         
     }
