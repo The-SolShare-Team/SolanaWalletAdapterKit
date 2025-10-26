@@ -16,14 +16,15 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/The-SolShare-Team/SolanaKit.swift", .upToNextMajor(from: "0.0.0")),
+        .package(url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "0.0.0")),
     ],
     targets: [
         .target(
             name: "SolanaWalletAdapterKit",
-            dependencies: [
-                "SolanaKit.swift",
-            ]
+        ),
+        .target(
+            name: "RPC",
+            dependencies: ["SwiftBorsh"]
         ),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
