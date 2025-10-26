@@ -57,6 +57,7 @@ public struct RPCError: Error, CustomStringConvertible {
 
     public enum Kind: Sendable, CustomStringConvertible {
         case clientError
+
         case parseError
         case invalidRequest
         case methodNotFound

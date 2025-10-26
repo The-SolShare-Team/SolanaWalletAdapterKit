@@ -29,5 +29,4 @@ extension SolanaRPCClient {
             into: RPCResponseResult<ResponseData>.self)
         return (response.value.blockhash, response.value.lastValidBlockHeight)
     }
-
 }
