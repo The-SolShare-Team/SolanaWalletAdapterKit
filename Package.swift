@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "0.0.0"))
+            url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(
