@@ -125,7 +125,7 @@ public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Co
 
     public var url: URL {
         switch self {
-        case .mainnetBeta:
+        case .mainnet:
             return URL(string: "https://api.mainnet-beta.solana.com")!
         case .testnet:
             return URL(string: "https://api.testnet.solana.com")!
