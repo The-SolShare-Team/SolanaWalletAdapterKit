@@ -118,14 +118,14 @@ public struct RPCError: Error, CustomStringConvertible {
 }
 
 public enum Endpoint {
-    case mainnetBeta
+    case mainnet
     case testnet
     case devnet
     case other(url: URL)
 
     public var url: URL {
         switch self {
-        case .mainnetBeta:
+        case .mainnet:
             return URL(string: "https://api.mainnet-beta.solana.com")!
         case .testnet:
             return URL(string: "https://api.testnet.solana.com")!
