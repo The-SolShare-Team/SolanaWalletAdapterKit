@@ -59,3 +59,11 @@ public enum Cluster: String {
     case devnet = "devnet"
     case testnet = "testnet"
 }
+
+import Foundation
+
+let solana = SolanaWalletAdapter(callbackScheme: "myscheme")
+
+protocol DeeplinkWallet: Wallet {
+    var baseURL: URL { get }
+}

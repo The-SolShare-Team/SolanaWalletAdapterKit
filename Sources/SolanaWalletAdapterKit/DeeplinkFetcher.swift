@@ -42,7 +42,7 @@ public class DeeplinkFetcher {
         async throws(DeeplinkFetchingError) -> URLComponents
     {
         let id = UUID()
-        let callbackURL = "\(scheme)\(id.uuidString)"
+        let callbackURL = "\(scheme):\(id.uuidString)"
 
         let finalURL = {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
