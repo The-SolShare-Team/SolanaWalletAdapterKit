@@ -1,36 +1,41 @@
 import Base58
 import ByteBuffer
 
-public struct PublicKey: Equatable, CustomStringConvertible {
-    let backing: (UInt64, UInt64, UInt64, UInt64)
+public struct PublicKey: Equatable, CustomStringConvertible, CustomDebugStringConvertible {
+    // InlineArray is not widely enough supported to be used here
+    public static let byteLength = 32
+    public let bytes: [UInt8]
 
-    public init(base58: String) throws {
-        let bytes = try Base58.decode(base58)
-        var buffer = ByteBuffer(bytes: bytes)
-        try self.init(fromSolanaTransaction: &buffer)
+    public init?(bytes: [UInt8]) {
+        if bytes.count != Self.byteLength { return nil }
+        self.bytes = bytes
     }
 
-    public static func == (lhs: PublicKey, rhs: PublicKey) -> Bool {
-        return lhs.backing == rhs.backing
+    public init?(base58EncodedString string: String) {
+        guard let decoded = try? Base58.decode(string) else { return nil }
+        self.init(bytes: decoded)
     }
 
     public var description: String {
         Base58.encode(bytes)
     }
 
-    var bytes: [UInt8] {
-        var bytes: [UInt8] = []
-        withUnsafeBytes(of: backing.0.bigEndian) { bytes.append(contentsOf: $0) }
-        withUnsafeBytes(of: backing.1.bigEndian) { bytes.append(contentsOf: $0) }
-        withUnsafeBytes(of: backing.2.bigEndian) { bytes.append(contentsOf: $0) }
-        withUnsafeBytes(of: backing.3.bigEndian) { bytes.append(contentsOf: $0) }
-        return bytes
+    public var debugDescription: String {
+        "\(String(reflecting: Self.self))(base58EncodedString: \"\(Base58.encode(bytes))\"))"
     }
 }
 
 extension PublicKey: ExpressibleByStringLiteral {
     public init(stringLiteral value: StaticString) {
-        try! self.init(base58: "\(value)")
+        self.init(base58EncodedString: "\(value)")!
+    }
+}
+
+extension PublicKey: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = UInt8
+
+    public init(arrayLiteral elements: UInt8...) {
+        self.init(bytes: elements)!
     }
 }
 
@@ -38,15 +43,13 @@ extension PublicKey: SolanaTransactionCodable {
     init(fromSolanaTransaction buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {
-        guard let data: (UInt64, UInt64, UInt64, UInt64) = buffer.readMultipleIntegers() else {
-            throw .endOfBuffer
-        }
-        self.backing = data
+        guard let data = buffer.readBytes(length: Self.byteLength) else { throw .endOfBuffer }
+        self.bytes = data
     }
 
     func solanaTransactionEncode(to buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {
-        buffer.writeMultipleIntegers(backing.0, backing.1, backing.2, backing.3)
+        buffer.writeBytes(bytes)
     }
 }

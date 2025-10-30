@@ -1,7 +1,7 @@
 public struct CompiledInstruction: Equatable {
-    let programIdIndex: UInt8
-    let accounts: [UInt8]
-    let data: [UInt8]
+    public let programIdIndex: UInt8
+    public let accounts: [UInt8]
+    public let data: [UInt8]
 }
 
 extension CompiledInstruction: SolanaTransactionCodable {

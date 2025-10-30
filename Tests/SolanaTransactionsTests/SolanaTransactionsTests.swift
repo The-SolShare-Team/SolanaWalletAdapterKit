@@ -45,23 +45,13 @@ import Testing
 @Test func transaction() {
     let base64Transaction =
         "AVY2OiCW17TmRtYkLf5hXChKiLI426BCzVvm3HVWbfc9jB/bbeXBdr44qqHonxaXU72IujL8UxMHINFxdbiZrAaAAQABA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtzYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K5sAQICAAEMAgAAAICWmAAAAAAAAA=="
-    var transactionBytes = SolanaTransactionBuffer(bytes: Data(base64Encoded: base64Transaction)!)
 
-    let transaction = try! Transaction(fromSolanaTransaction: &transactionBytes)
-    #expect(transaction.signatures.count == 1)
-    #expect(
-        transaction.signatures[0].bytes == [
-            86, 54, 58, 32, 150, 215, 180, 230, 70, 214, 36,
-            45, 254, 97, 92, 40, 74, 136, 178, 56, 219, 160,
-            66, 205, 91, 230, 220, 117, 86, 109, 247, 61, 140,
-            31, 219, 109, 229, 193, 118, 190, 56, 170, 161, 232,
-            159, 22, 151, 83, 189, 136, 186, 50, 252, 83, 19,
-            7, 32, 209, 113, 117, 184, 153, 172, 6,
-        ])
+    let transaction = try! CompiledTransaction(bytes: Data(base64Encoded: base64Transaction)!)
+    print(transaction)
 
     #expect(
         transaction
-            == Transaction(
+            == CompiledTransaction(
                 signatures: [
                     [
                         86, 54, 58, 32, 150, 215, 180, 230, 70, 214, 36,
@@ -73,7 +63,7 @@ import Testing
                     ]
                 ],
                 message: .v0(
-                    V0Message(
+                    CompiledV0Message(
                         signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
