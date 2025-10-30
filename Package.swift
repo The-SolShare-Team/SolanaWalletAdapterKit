@@ -21,19 +21,21 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SolanaWalletAdapterKit",
-        ),
+            name: "SolanaWalletAdapterKit"),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
-            dependencies: ["SolanaWalletAdapterKit"]
-        ),
+            dependencies: ["SolanaWalletAdapterKit"]),
+        .target(
+            name: "SolanaTransactions",
+            dependencies: ["SwiftBorsh"]),
+        .testTarget(
+            name: "SolanaTransactionsTests",
+            dependencies: ["SolanaTransactions", "SwiftBorsh"]),
         .target(
             name: "SolanaRPC",
-            dependencies: ["SwiftBorsh"]
-        ),
+            dependencies: ["SwiftBorsh"]),
         .testTarget(
             name: "SolanaRPCTests",
-            dependencies: ["SolanaRPC"]
-        ),
+            dependencies: ["SolanaRPC"]),
     ]
 )

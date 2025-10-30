@@ -1,6 +1,6 @@
 import Foundation
 
-let solana = SolanaWalletAdapter(callbackScheme: "myscheme")
+// let solana = SolanaWalletAdapter(callbackScheme: "myscheme")
 
 protocol DeeplinkWallet: Wallet {
     var baseURL: URL { get }
@@ -8,7 +8,7 @@ protocol DeeplinkWallet: Wallet {
 
 extension DeeplinkWallet {
     func connect(appUrl: String, redirectLink: String, cluster: String?) async throws {
-        print(try await solana.fetcher.fetch(baseURL, callbackParameter: "redirect_link"))
+        // print(try await solana.fetcher.fetch(baseURL, callbackParameter: "redirect_link"))
     }
 
     func disconnect(nonce: String, redirectLink: String, payload: String) async throws {
