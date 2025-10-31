@@ -46,12 +46,11 @@ import Testing
     let base64Transaction =
         "AVY2OiCW17TmRtYkLf5hXChKiLI426BCzVvm3HVWbfc9jB/bbeXBdr44qqHonxaXU72IujL8UxMHINFxdbiZrAaAAQABA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtzYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K5sAQICAAEMAgAAAICWmAAAAAAAAA=="
 
-    let transaction = try! CompiledTransaction(bytes: Data(base64Encoded: base64Transaction)!)
-    print(transaction)
+    let transaction = try! Transaction(bytes: Data(base64Encoded: base64Transaction)!)
 
     #expect(
         transaction
-            == CompiledTransaction(
+            == Transaction(
                 signatures: [
                     [
                         86, 54, 58, 32, 150, 215, 180, 230, 70, 214, 36,
@@ -63,7 +62,7 @@ import Testing
                     ]
                 ],
                 message: .v0(
-                    CompiledV0Message(
+                    V0Message(
                         signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",

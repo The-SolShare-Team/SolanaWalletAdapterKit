@@ -1,9 +1,9 @@
-public struct CompiledTransaction: Equatable {
+public struct Transaction: Equatable {
     public let signatures: [Signature]
-    public let message: CompiledVersionedMessage
+    public let message: VersionedMessage
 }
 
-extension CompiledTransaction {
+extension Transaction {
     public func encode() throws(SolanaTransactionCodingError) -> [UInt8] {
         var buffer = SolanaTransactionBuffer()
         try signatures.solanaTransactionEncode(to: &buffer)
@@ -15,6 +15,6 @@ extension CompiledTransaction {
     where Bytes.Element == UInt8 {
         var buffer = SolanaTransactionBuffer(bytes: bytes)
         signatures = try [Signature].init(fromSolanaTransaction: &buffer)
-        message = try CompiledVersionedMessage(fromSolanaTransaction: &buffer)
+        message = try VersionedMessage(fromSolanaTransaction: &buffer)
     }
 }

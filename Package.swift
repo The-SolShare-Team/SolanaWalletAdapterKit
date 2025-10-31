@@ -30,7 +30,7 @@ let package = Package(
             dependencies: ["SwiftBorsh"]),
         .testTarget(
             name: "SolanaTransactionsTests",
-            dependencies: ["SolanaTransactions", "SwiftBorsh"]),
+            dependencies: ["SolanaTransactions", "SwiftBorsh", "SolanaRPC"]),
         .target(
             name: "SolanaRPC",
             dependencies: ["SwiftBorsh"]),

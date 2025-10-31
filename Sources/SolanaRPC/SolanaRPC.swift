@@ -146,6 +146,10 @@ public enum Commitment: Codable {
 public struct SolanaRPCClient {
     public let endpoint: Endpoint
 
+    public init(endpoint: Endpoint) {
+        self.endpoint = endpoint
+    }
+
     func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T

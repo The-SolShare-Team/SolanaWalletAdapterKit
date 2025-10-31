@@ -1,10 +1,10 @@
-public struct CompiledAddressTableLookup: Equatable {
+public struct AddressTableLookup: Equatable {
     public let account: PublicKey
     public let writableIndexes: [UInt8]
     public let readOnlyIndexes: [UInt8]
 }
 
-extension CompiledAddressTableLookup: SolanaTransactionCodable {
+extension AddressTableLookup: SolanaTransactionCodable {
     init(fromSolanaTransaction buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {

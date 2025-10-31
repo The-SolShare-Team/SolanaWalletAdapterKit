@@ -1,9 +1,9 @@
-public enum CompiledVersionedMessage: Equatable {
-    case legacyMessage(CompiledLegacyMessage)
-    case v0(CompiledV0Message)
+public enum VersionedMessage: Equatable {
+    case legacyMessage(LegacyMessage)
+    case v0(V0Message)
 }
 
-public struct CompiledLegacyMessage: Equatable {
+public struct LegacyMessage: Equatable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
@@ -12,17 +12,17 @@ public struct CompiledLegacyMessage: Equatable {
     let instructions: [CompiledInstruction]
 }
 
-public struct CompiledV0Message: Equatable {
+public struct V0Message: Equatable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
     let accounts: [PublicKey]
     let blockhash: Blockhash
     let instructions: [CompiledInstruction]
-    let addressTableLookups: [CompiledAddressTableLookup]
+    let addressTableLookups: [AddressTableLookup]
 }
 
-extension CompiledVersionedMessage: SolanaTransactionCodable {
+extension VersionedMessage: SolanaTransactionCodable {
     func solanaTransactionEncode(to buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {
@@ -44,19 +44,19 @@ extension CompiledVersionedMessage: SolanaTransactionCodable {
             throw .endOfBuffer
         }
         guard let version = firstByte & firstBit == 0 ? nil : firstByte & mask7 else {
-            self = .legacyMessage(try CompiledLegacyMessage(fromSolanaTransaction: &buffer))
+            self = .legacyMessage(try LegacyMessage(fromSolanaTransaction: &buffer))
             return
         }
         buffer.moveReaderIndex(forwardBy: 1)
         self =
             switch version {
-            case 0: .v0(try CompiledV0Message(fromSolanaTransaction: &buffer))
+            case 0: .v0(try V0Message(fromSolanaTransaction: &buffer))
             default: throw .unsupportedVersion
             }
     }
 }
 
-extension CompiledLegacyMessage: SolanaTransactionCodable {
+extension LegacyMessage: SolanaTransactionCodable {
     func solanaTransactionEncode(to buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {
@@ -80,7 +80,7 @@ extension CompiledLegacyMessage: SolanaTransactionCodable {
     }
 }
 
-extension CompiledV0Message: SolanaTransactionCodable {
+extension V0Message: SolanaTransactionCodable {
     func solanaTransactionEncode(to buffer: inout SolanaTransactionBuffer)
         throws(SolanaTransactionCodingError)
     {
@@ -102,6 +102,6 @@ extension CompiledV0Message: SolanaTransactionCodable {
         accounts = try [PublicKey].init(fromSolanaTransaction: &buffer)
         blockhash = try Blockhash.init(fromSolanaTransaction: &buffer)
         instructions = try [CompiledInstruction].init(fromSolanaTransaction: &buffer)
-        addressTableLookups = try [CompiledAddressTableLookup].init(fromSolanaTransaction: &buffer)
+        addressTableLookups = try [AddressTableLookup].init(fromSolanaTransaction: &buffer)
     }
 }
