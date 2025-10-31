@@ -1,11 +1,9 @@
 import SwiftBorsh
 
-public enum MemoProgram: Instruction {
-    case publishMemo(account: PublicKey, memo: String)
+public enum MemoProgram: Program, Instruction {
+    public static let programId: PublicKey = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
 
-    public var programId: PublicKey {
-        return "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
-    }
+    case publishMemo(account: PublicKey, memo: String)
 
     public var accounts: [AccountMeta] {
         return switch self {

@@ -14,16 +14,6 @@ private struct CreateAccountData {
     let programId: PublicKey
 }
 
-public protocol Program {
-    static var programId: PublicKey { get }
-}
-
-extension Program {
-    public var programId: PublicKey {
-        Self.programId
-    }
-}
-
 public enum SystemProgram: Program, Instruction {
     public static let programId: PublicKey = "11111111111111111111111111111111"
 

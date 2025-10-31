@@ -52,7 +52,10 @@ private struct TransferCheckedData {
     let decimals: UInt8
 }
 
-public enum TokenProgram: Instruction {
+public enum TokenProgram: Program, Instruction {
+    public static let programId: PublicKey = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+    public static let sysvarRentPubkey: PublicKey = "SysvarRent111111111111111111111111111111111"
+
     case initializeMint(
         mintAccount: PublicKey,
         decimals: UInt8,
@@ -90,25 +93,19 @@ public enum TokenProgram: Instruction {
         mint: PublicKey
     )
 
-    public static let programId: PublicKey = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-
-    var sysvarRentPubkey: PublicKey {
-        return "SysvarRent111111111111111111111111111111111"
-    }
-
     public var accounts: [AccountMeta] {
         return switch self {
         case .initializeMint(let mintAccount, _, _, _):
             [
                 AccountMeta(publicKey: mintAccount, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: sysvarRentPubkey, isSigner: false, isWritable: false),
+                AccountMeta(publicKey: Self.sysvarRentPubkey, isSigner: false, isWritable: false),
             ]
         case .initializeAccount(let account, let mintAccount, let owner):
             [
                 AccountMeta(publicKey: account, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: mintAccount, isSigner: false, isWritable: false),
                 AccountMeta(publicKey: owner, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: sysvarRentPubkey, isSigner: false, isWritable: false),
+                AccountMeta(publicKey: Self.sysvarRentPubkey, isSigner: false, isWritable: false),
             ]
         case .transfer(let from, let to, _, let owner):
             [
