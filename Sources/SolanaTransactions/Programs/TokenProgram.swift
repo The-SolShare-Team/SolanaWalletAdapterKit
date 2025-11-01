@@ -17,7 +17,7 @@ extension InitializeMintData: BorshEncodable {
             try freezeAuthority.borshEncode(to: &buffer)
         } else {
             try UInt8(0).borshEncode(to: &buffer)
-            try [UInt8].init(repeating: 0, count: PublicKey.byteLength).borshEncode(to: &buffer)
+            try PublicKey.zero.borshEncode(to: &buffer)
         }
     }
 }
