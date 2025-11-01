@@ -6,16 +6,15 @@ public struct ProgramDerivedAddress: Sendable {
     public let publicKey: PublicKey
     public let nonce: UInt8
 
-    public static func create(programId: PublicKey, seeds: [[UInt8]]) async throws
-        -> PublicKey
-    {
+    public static func create(programId: PublicKey, seeds: [[UInt8]]) async throws -> PublicKey {
         try await Task.detached {
             // Concatenate all seed bytes and validate their length
             let concatenatedSeeds: [UInt8] = try seeds.enumerated().reduce(into: [UInt8]()) {
                 acc, next in
                 let (index, seed) = next
                 guard seed.count <= 32 else {
-                    throw ProgramError.seedTooLong(index: index, length: seed.count)
+                    throw ProgramDerivedAddressError.seedTooLong(
+                        index: index, length: seed.count)
                 }
                 acc.append(contentsOf: seed)
             }
@@ -25,11 +24,12 @@ public struct ProgramDerivedAddress: Sendable {
             let address = [UInt8](SHA256.hash(data: Data(pdaInput)))
 
             if try SaltUtil.isOnCurve(publicKey: Data(address)) {
-                throw ProgramError.addressOnCurve
+                throw ProgramDerivedAddressError.addressOnCurve
             }
 
             return PublicKey(bytes: address)!
         }.value
+
     }
 
     public static func find(programId: PublicKey, seeds: [[UInt8]]) async throws
@@ -44,7 +44,21 @@ public struct ProgramDerivedAddress: Sendable {
                 else { continue }
                 return ProgramDerivedAddress(publicKey: result, nonce: bump)
             }
-            throw SolanaTransactionCodingError.endOfBuffer
+            throw ProgramDerivedAddressError.addressOnCurve
         }.value
+    }
+}
+
+public enum ProgramDerivedAddressError: Error, CustomStringConvertible {
+    case seedTooLong(index: Int, length: Int)
+    case addressOnCurve
+
+    public var description: String {
+        switch self {
+        case .seedTooLong(let index, let length):
+            "Seed at index \(index) too long (\(length) bytes). Must be <= 32 bytes."
+        case .addressOnCurve:
+            "Invalid seeds: derived address falls on the ed25519 curve."
+        }
     }
 }

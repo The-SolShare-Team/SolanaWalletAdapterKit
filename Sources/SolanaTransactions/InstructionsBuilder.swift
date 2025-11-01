@@ -1,3 +1,4 @@
+import Collections
 import SwiftBorsh
 
 public protocol Instruction {
@@ -50,29 +51,26 @@ extension Transaction {
         blockhash: Blockhash, @InstructionsBuilder _ instructionsBuilder: () -> [Instruction]
     ) throws {
         let instructions = instructionsBuilder()
-        signatures = []
 
-        var writableSigners: Set<PublicKey> = []
-        var readOnlySigners: Set<PublicKey> = []
-        var writableNonSigners: Set<PublicKey> = []
-        var readOnlyNonSigners: Set<PublicKey> = []
-        var programIds: Set<PublicKey> = []
+        var writableSigners: OrderedSet<PublicKey> = []
+        var readOnlySigners: OrderedSet<PublicKey> = []
+        var readOnlyNonSigners: OrderedSet<PublicKey> = []
+        var accounts: OrderedSet<PublicKey> = []
 
         for instruction in instructions {
+            accounts.append(instruction.programId)
             for account in instruction.accounts {
                 switch (account.isSigner, account.isWritable) {
-                case (true, true): writableSigners.insert(account.publicKey)
-                case (true, false): readOnlySigners.insert(account.publicKey)
-                case (false, true): writableNonSigners.insert(account.publicKey)
-                case (false, false): readOnlyNonSigners.insert(account.publicKey)
+                case (true, true): writableSigners.append(account.publicKey)
+                case (true, false): readOnlySigners.append(account.publicKey)
+                case (false, true): break
+                case (false, false): readOnlyNonSigners.append(account.publicKey)
                 }
+                accounts.append(account.publicKey)
             }
-            programIds.insert(instruction.programId)
         }
 
         let signers = writableSigners.union(readOnlySigners)
-        let accounts = Array(
-            signers.union(writableNonSigners).union(readOnlyNonSigners).union(programIds))
 
         let compiledInstructions = try instructions.map {
             CompiledInstruction(
@@ -81,6 +79,7 @@ extension Transaction {
                 data: try BorshEncoder.encode($0.data))
         }
 
+        signatures = []
         message = .legacyMessage(
             LegacyMessage(
                 signatureCount: UInt8(signers.count),
