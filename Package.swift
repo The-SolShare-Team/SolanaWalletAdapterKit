@@ -17,23 +17,43 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "0.0.0"))
+            url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "1.0.0")),
+        .package(
+            url: "https://github.com/The-SolShare-Team/Salkt.swift", .upToNextMajor(from: "0.0.0")),
+        .package(
+            url: "https://github.com/bitmark-inc/tweetnacl-swiftwrap.git",
+            .upToNextMajor(from: "1.0.0")),
+        .package(
+            url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .target(
-            name: "SolanaWalletAdapterKit",
-        ),
+            name: "Salt",
+            dependencies: [
+                "Salkt.swift",
+                .product(name: "TweetNacl", package: "tweetnacl-swiftwrap"),
+            ]),
+        .testTarget(name: "SaltTests", dependencies: ["Salt"]),
+        .target(
+            name: "SolanaWalletAdapterKit"),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
-            dependencies: ["SolanaWalletAdapterKit"]
-        ),
+            dependencies: ["SolanaWalletAdapterKit"]),
+        .target(
+            name: "SolanaTransactions",
+            dependencies: [
+                "SwiftBorsh",
+                "Salt",
+                .product(name: "Collections", package: "swift-collections"),
+            ]),
+        .testTarget(
+            name: "SolanaTransactionsTests",
+            dependencies: ["SolanaTransactions", "SwiftBorsh", "SolanaRPC"]),
         .target(
             name: "SolanaRPC",
-            dependencies: ["SwiftBorsh"]
-        ),
+            dependencies: ["SwiftBorsh", "SolanaTransactions"]),
         .testTarget(
             name: "SolanaRPCTests",
-            dependencies: ["SolanaRPC"]
-        ),
+            dependencies: ["SolanaRPC"]),
     ]
 )

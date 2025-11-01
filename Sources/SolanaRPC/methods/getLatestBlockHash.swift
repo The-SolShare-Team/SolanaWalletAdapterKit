@@ -1,10 +1,12 @@
+import SolanaTransactions
+
 private struct RequestConfiguration: Encodable {
     let commitment: Commitment
     let minContextSlot: Int
 }
 
 private struct ResponseData: Decodable {
-    let blockhash: String
+    let blockhash: Blockhash
     let lastValidBlockHeight: UInt64
 }
 
@@ -13,7 +15,7 @@ extension SolanaRPCClient {
         configuration: (commitment: Commitment, minContextSlot: Int)? = nil
     )
         async throws(RPCError) -> (
-            blockhash: String, lastValidBlockHeight: UInt64
+            blockhash: Blockhash, lastValidBlockHeight: UInt64
         )
     {
         let response = try await fetch(
