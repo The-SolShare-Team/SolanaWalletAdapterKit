@@ -30,7 +30,7 @@ extension VersionedMessage: SolanaTransactionCodable {
         case .legacyMessage(let message):
             try message.solanaTransactionEncode(to: &buffer)
         case .v0(let message):
-            try UInt8(0).solanaTransactionEncode(to: &buffer)
+            try UInt8(0x80).solanaTransactionEncode(to: &buffer)
             try message.solanaTransactionEncode(to: &buffer)
         }
     }

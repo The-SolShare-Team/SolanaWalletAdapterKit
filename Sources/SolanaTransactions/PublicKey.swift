@@ -16,6 +16,8 @@ public struct PublicKey {
         guard let decoded = try? Base58.decode(string) else { return nil }
         self.init(bytes: decoded)
     }
+
+    public static let zero = PublicKey(bytes: [UInt8](repeating: 0, count: PublicKey.byteLength))!
 }
 
 extension PublicKey: Sendable {}
@@ -86,12 +88,13 @@ extension PublicKey: BorshCodable {
     public func borshEncode(to buffer: inout SwiftBorsh.BorshByteBuffer) throws(SwiftBorsh
         .BorshEncodingError)
     {
-        try bytes.borshEncode(to: &buffer)
+        buffer.writeBytes(bytes)
     }
 
     public init(fromBorshBuffer buffer: inout SwiftBorsh.BorshByteBuffer) throws(SwiftBorsh
         .BorshDecodingError)
     {
-        bytes = try [UInt8].init(fromBorshBuffer: &buffer)
+        guard let bytes = buffer.readBytes(length: Self.byteLength) else { throw .endOfBuffer }
+        self.bytes = bytes
     }
 }
