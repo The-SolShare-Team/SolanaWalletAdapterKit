@@ -319,11 +319,11 @@ import SwiftBorsh
 // MARK: - Associated Token Program Tests
 
 @Test func associatedTokenProgramCreate() throws {
-    let instruction = AssociatedTokenProgram.createAccount(
-        funder: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
+    let instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
+        mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         associatedAccount: "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",
         owner: "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
-        mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+        payer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG"
     )
 
     // Verify accounts

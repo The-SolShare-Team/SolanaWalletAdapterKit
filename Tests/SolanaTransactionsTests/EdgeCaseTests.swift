@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import SwiftBorsh
 
 @testable import SolanaTransactions
 
@@ -109,7 +110,7 @@ import Testing
 @Test func allZeroBlockhash() throws {
     // Edge case: blockhash of all zeros
     let zeroBytes = [UInt8](repeating: 0, count: 32)
-    let blockhash = PublicKey(bytes: zeroBytes)
+    let blockhash = PublicKey(bytes: zeroBytes)!
 
     var buffer = SolanaTransactionBuffer()
     try blockhash.solanaTransactionEncode(to: &buffer)
@@ -121,7 +122,7 @@ import Testing
 @Test func allOnesBlockhash() throws {
     // Edge case: blockhash of all 0xFF
     let onesBytes = [UInt8](repeating: 0xFF, count: 32)
-    let blockhash = PublicKey(bytes: onesBytes)
+    let blockhash = PublicKey(bytes: onesBytes)!
 
     var buffer = SolanaTransactionBuffer()
     try blockhash.solanaTransactionEncode(to: &buffer)
@@ -132,7 +133,7 @@ import Testing
 
 // MARK: - Signature Edge Cases
 
-@Test func emptySignatures() throws {
+@Test func emptySignaturesArray() throws {
     let tx = Transaction(
         signatures: [],
         message: .legacyMessage(
@@ -157,9 +158,9 @@ import Testing
 }
 
 @Test func multipleSignatures() throws {
-    let sig1 = Signature(bytes: [UInt8](repeating: 1, count: 64))
-    let sig2 = Signature(bytes: [UInt8](repeating: 2, count: 64))
-    let sig3 = Signature(bytes: [UInt8](repeating: 3, count: 64))
+    let sig1 = Signature(bytes: [UInt8](repeating: 1, count: 64))!
+    let sig2 = Signature(bytes: [UInt8](repeating: 2, count: 64))!
+    let sig3 = Signature(bytes: [UInt8](repeating: 3, count: 64))!
 
     let tx = Transaction(
         signatures: [sig1, sig2, sig3],
@@ -373,48 +374,50 @@ import Testing
 
 // MARK: - Program Derived Address Edge Cases
 
-@Test func pdaValidSeeds() throws {
+@Test func pdaValidSeeds() async throws {
+    let metadataPubkey: PublicKey = "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG"
     let seeds: [[UInt8]] = [
         "metadata".utf8.map { $0 },
-        Array("AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG".utf8),
+        // Use the actual 32-byte public key, not the base58 string as UTF-8
+        metadataPubkey.bytes,
     ]
 
     let programId: PublicKey = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
     // This should not throw for valid seeds
-    let result = try? ProgramDerivedAddress.findProgramAddress(
-        seeds: seeds,
-        programId: programId
+    let result = try? await ProgramDerivedAddress.find(
+        programId: programId,
+        seeds: seeds
     )
 
     #expect(result != nil)
 }
 
-@Test func pdaSingleSeed() throws {
+@Test func pdaSingleSeed() async throws {
     let seeds: [[UInt8]] = [
         "singleton".utf8.map { $0 }
     ]
 
     let programId: PublicKey = "11111111111111111111111111111111"
 
-    let result = try? ProgramDerivedAddress.findProgramAddress(
-        seeds: seeds,
-        programId: programId
+    let result = try? await ProgramDerivedAddress.find(
+        programId: programId,
+        seeds: seeds
     )
 
     #expect(result != nil)
 }
 
-@Test func pdaEmptySeed() throws {
+@Test func pdaEmptySeed() async throws {
     let seeds: [[UInt8]] = [
         []  // Empty seed
     ]
 
     let programId: PublicKey = "11111111111111111111111111111111"
 
-    let result = try? ProgramDerivedAddress.findProgramAddress(
-        seeds: seeds,
-        programId: programId
+    let result = try? await ProgramDerivedAddress.find(
+        programId: programId,
+        seeds: seeds
     )
 
     #expect(result != nil)

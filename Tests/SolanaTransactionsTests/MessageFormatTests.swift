@@ -187,9 +187,9 @@ import Testing
 
 @Test func v0WithAddressTableLookup() throws {
     let lookup = AddressTableLookup(
-        accountKey: "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",
+        account: "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",
         writableIndexes: [0, 1, 2],
-        readonlyIndexes: [3, 4]
+        readOnlyIndexes: [3, 4]
     )
 
     let message = V0Message(
@@ -212,20 +212,20 @@ import Testing
     #expect(decoded == message)
     #expect(decoded.addressTableLookups.count == 1)
     #expect(decoded.addressTableLookups[0].writableIndexes == [0, 1, 2])
-    #expect(decoded.addressTableLookups[0].readonlyIndexes == [3, 4])
+    #expect(decoded.addressTableLookups[0].readOnlyIndexes == [3, 4])
 }
 
 @Test func v0WithMultipleAddressTableLookups() throws {
     let lookup1 = AddressTableLookup(
-        accountKey: "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",
+        account: "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",
         writableIndexes: [0, 1],
-        readonlyIndexes: [2]
+        readOnlyIndexes: [2]
     )
 
     let lookup2 = AddressTableLookup(
-        accountKey: "9aZyFqQ8tGKmXMvJhq2N6zY4CjQjU3FxNGEwsM9ynWqz",
+        account: "9aZyFqQ8tGKmXMvJhq2N6zY4CjQjU3FxNGEwsM9ynWqz",
         writableIndexes: [0],
-        readonlyIndexes: [1, 2, 3]
+        readOnlyIndexes: [1, 2, 3]
     )
 
     let message = V0Message(
@@ -365,7 +365,7 @@ import Testing
         // Generate different public keys
         var bytes = [UInt8](repeating: UInt8(i), count: 32)
         bytes[0] = UInt8(i)
-        accounts.append(PublicKey(bytes: bytes))
+        accounts.append(PublicKey(bytes: bytes)!)
     }
 
     let message = LegacyMessage(

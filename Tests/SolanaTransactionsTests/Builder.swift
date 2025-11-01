@@ -26,7 +26,8 @@ import Testing
                 signatures: [],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        // Program IDs (SystemProgram, MemoProgram) are read-only non-signers
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "11111111111111111111111111111111",
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",

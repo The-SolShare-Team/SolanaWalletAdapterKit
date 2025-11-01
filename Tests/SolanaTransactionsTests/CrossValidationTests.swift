@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import SwiftBorsh
 
 @testable import SolanaTransactions
 
@@ -173,9 +174,9 @@ import Testing
 @Test func knownV0TransactionWithLookupTables() throws {
     // V0 transaction using address lookup tables
     let lookup = AddressTableLookup(
-        accountKey: "2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9",
+        account: "2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9",
         writableIndexes: [0, 1],
-        readonlyIndexes: [2, 3, 4]
+        readOnlyIndexes: [2, 3, 4]
     )
 
     let message = V0Message(
@@ -212,7 +213,7 @@ import Testing
     case .v0(let msg):
         #expect(msg.addressTableLookups.count == 1)
         #expect(msg.addressTableLookups[0].writableIndexes == [0, 1])
-        #expect(msg.addressTableLookups[0].readonlyIndexes == [2, 3, 4])
+        #expect(msg.addressTableLookups[0].readOnlyIndexes == [2, 3, 4])
     case .legacyMessage:
         Issue.record("Expected V0 message")
     }
@@ -304,8 +305,8 @@ import Testing
         readOnlyNonSigners: 3,
         accounts: [
             "9B5XszUGdMaxCZ7uSQhPzdks5ZQSmWxrmzCSvtJ6Ns6g",  // owner
-            "sourceTokenAccount111111111111111111111111",    // source
-            "destTokenAccount1111111111111111111111111",     // destination
+            "2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9",  // source (valid pubkey)
+            "CKSVCCfJ9SZkUr3Y9kTLNzUmZPgUZMbNwNJ2kXRubNjS",  // destination (valid pubkey)
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",   // token program
             "11111111111111111111111111111111",              // system program
             "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",   // memo program
@@ -350,8 +351,8 @@ import Testing
         readOnlyNonSigners: 3,
         accounts: [
             "9B5XszUGdMaxCZ7uSQhPzdks5ZQSmWxrmzCSvtJ6Ns6g",  // payer (signer)
-            "mintAccount11111111111111111111111111111111",   // mint (signer)
-            "tokenAccount1111111111111111111111111111111",   // token account
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  // mint (signer) - valid pubkey
+            "5n7VBS8hXLkjJzD1JRJndFV92jDpQ1PwZ4dvGQNqvCKp",  // token account - valid pubkey
             "11111111111111111111111111111111",              // system program
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",   // token program
             "SysvarRent111111111111111111111111111111111",   // rent sysvar
