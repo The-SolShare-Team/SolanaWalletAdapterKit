@@ -1,16 +1,17 @@
 import Foundation
-import SwiftBorsh
 import SolanaTransactions
+import SwiftBorsh
 
 extension SolanaRPCClient {
+    @discardableResult
     public func requestAirdrop(
-        to address: String,
+        to address: PublicKey,
         lamports: UInt64,
-    ) async throws {
-        _ = try await fetch(
+    ) async throws -> Signature {
+        try await fetch(
             method: "requestAirdrop",
             params: [address, lamports],
-            into: String.self
+            into: Signature.self
         )
     }
 }
