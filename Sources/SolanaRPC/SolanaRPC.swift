@@ -1,5 +1,6 @@
 import Foundation
 import SwiftBorsh
+import SolanaTransactions
 
 struct RPCRequest: Encodable {
     let jsonrpc: String = "2.0"
@@ -39,7 +40,6 @@ struct RPCResponseError<T: Decodable>: Decodable {
     let message: String
     let data: T?
 }
-
 struct RPCResponseContext: Decodable {
     let slot: UInt64
     let apiVersion: String?
