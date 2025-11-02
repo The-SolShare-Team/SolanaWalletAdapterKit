@@ -1,6 +1,6 @@
 import Foundation
-import SwiftBorsh
 import SolanaTransactions
+import SwiftBorsh
 
 struct RPCRequest: Encodable {
     let jsonrpc: String = "2.0"
@@ -78,7 +78,7 @@ public struct RPCError: Error, CustomStringConvertible {
                 self = .invalidParams
             case -32603:
                 self = .internalError
-            case -32000 ... -32099:
+            case -32099 ... -32000:
                 self = .serverError
             default:
                 self = .unknown(code: code)
