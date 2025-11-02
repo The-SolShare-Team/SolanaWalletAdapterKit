@@ -22,9 +22,10 @@ extension CryptographicIdentifier {
     }
 
     public init(stringLiteral value: StaticString) {
-        let bytes = try! Base58.decode("\(value)")
-        precondition(bytes.count == Self.byteLength)
-        self.init(bytes: bytes)
+        let bytes = Base58.decode("\(value)")
+        precondition(bytes != nil)
+        precondition(bytes!.count == Self.byteLength)
+        self.init(bytes: bytes!)
     }
 
     public var description: String {
@@ -61,7 +62,7 @@ extension CryptographicIdentifier {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
-        guard let bytes = try? Base58.decode(string) else {
+        guard let bytes = Base58.decode(string) else {
             throw DecodingError.dataCorruptedError(
                 in: container, debugDescription: "Invalid Base58 public key: \(string)")
         }
