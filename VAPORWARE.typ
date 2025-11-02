@@ -199,7 +199,7 @@ Once this is done, all the expected operations can be executed, under an impleme
   try await wallet.signAndSendTransaction(myTransaction)
   ```,
 )
-For example, in the case of Phantom, the above would be automatically be polyfilled into a `signTransaction` deeplink and a native transaction broadcast through an RPC client.
+For example, in the case of Phantom, the above would automatically be polyfilled into a `signTransaction` deeplink and a native transaction broadcast through an RPC client.
 
 For convenience, the wallet also exposes property like `publicKey` in a way that is compatible with SwiftUI's reactivity model.
 
