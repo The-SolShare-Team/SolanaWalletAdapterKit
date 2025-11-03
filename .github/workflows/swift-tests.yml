@@ -1,0 +1,60 @@
+name: Swift Tests & Coverage
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests with Coverage
+    runs-on:  macos-26
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build
+      run: swift build -v
+
+    - name: Run tests with coverage
+      run: swift test --enable-code-coverage
+
+    - name: Generate coverage report
+      run: |
+        BINARY=".build/debug/SolanaWalletAdapterKitPackageTests.xctest/Contents/MacOS/SolanaWalletAdapterKitPackageTests"
+        PROFILE=".build/debug/codecov/default.profdata"
+        IGNORE="(\.build/|Tests/)"
+
+        # Generate lcov format
+        xcrun llvm-cov export \
+          "$BINARY" \
+          -instr-profile="$PROFILE" \
+          -ignore-filename-regex="$IGNORE" \
+          -format="lcov" > coverage.lcov
+
+        # Generate markdown summary
+        echo "# Code Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        xcrun llvm-cov report \
+          "$BINARY" \
+          -instr-profile="$PROFILE" \
+          -ignore-filename-regex="$IGNORE" \
+          -show-branch-summary=false >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.lcov
+        fail_ci_if_error: true
+
+    - name: Archive coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.lcov
