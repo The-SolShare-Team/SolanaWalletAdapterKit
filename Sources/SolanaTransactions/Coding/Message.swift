@@ -28,7 +28,7 @@ public struct V0Message: Equatable {
     ) {
         self.signatureCount = signatureCount
         self.readOnlyAccounts = readOnlyAccounts
-        self.readOnlyNonSigners = readOnlyAccounts
+        self.readOnlyNonSigners = readOnlyNonSigners
         self.accounts = accounts
         self.blockhash = blockhash
         self.instructions = instructions
