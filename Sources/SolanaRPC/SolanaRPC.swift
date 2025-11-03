@@ -184,9 +184,9 @@ public struct SolanaRPCClient {
             )
         }
 
-        let response: RPCResponse<T, String>
+        let response: RPCResponse<T, JSONValue>
         do {
-            response = try JSONDecoder().decode(RPCResponse<T, String>.self, from: data)
+            response = try JSONDecoder().decode(RPCResponse<T, JSONValue>.self, from: data)
         } catch {
             throw RPCError(
                 message: "Decoding error",
