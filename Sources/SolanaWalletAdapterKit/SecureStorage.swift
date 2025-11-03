@@ -41,3 +41,22 @@ public enum SecureStorageError: Error {
     case encodingError(Error)
     case decodingError(Error)
 }
+
+@MainActor
+public class InMemorySecureStorage: SecureStorage {
+    private var storage: [String: Data] = [:]
+
+    public init() {} // simple initializer
+
+    public func retrieve(key: String) async throws -> Data? {
+        return storage[key]
+    }
+
+    public func store(_ data: Data, key: String) async throws {
+        storage[key] = data
+    }
+
+    public func clear(key: String) async throws {
+        storage.removeValue(forKey: key)
+    }
+}

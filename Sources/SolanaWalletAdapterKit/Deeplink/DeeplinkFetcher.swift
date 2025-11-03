@@ -15,13 +15,13 @@ public enum DeeplinkFetchingError: Error {
 @MainActor
 class DeeplinkFetcher {
     let scheme: String
-
+    
     init(scheme: String) {
         self.scheme = scheme
     }
-
+    
     private var pendingRequests: [UUID: PendingRequest] = [:]
-
+    
     private struct PendingRequest {
         let continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>
         let timeoutTask: Task<Void, Never>
@@ -38,16 +38,16 @@ class DeeplinkFetcher {
     // periphery:ignore
     @available(iOS 16.0, macOS 13.0, *)
     func fetch(_ url: URL, callbackParameter: String, timeout: Duration)
-        async throws(DeeplinkFetchingError) -> [String: String]
+    async throws(DeeplinkFetchingError) -> [String: String]
     {
         try await fetch(
             url, callbackParameter: callbackParameter,
             timeout: Double(timeout.components.seconds) + Double(timeout.components.attoseconds)
-                / 1_000_000_000_000_000_000)
+            / 1_000_000_000_000_000_000)
     }
-
+    
     func fetch(_ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0)
-        async throws(DeeplinkFetchingError) -> [String: String]
+    async throws(DeeplinkFetchingError) -> [String: String]
     {
         let id = UUID()
         let callbackURL = "\(scheme)://\(id.uuidString)"
@@ -83,7 +83,7 @@ class DeeplinkFetcher {
                 }
             }
         }
-
+        
         switch result {
         case .failure(let cause): throw cause
         case .success(let components):
@@ -93,7 +93,7 @@ class DeeplinkFetcher {
             return queryParams
         }
     }
-
+    
     func handleCallback(_ url: URL) -> Bool {
         guard url.scheme?.lowercased() == scheme.lowercased() else { return false }
 
@@ -104,7 +104,7 @@ class DeeplinkFetcher {
         {
             resumeRequestTask(id, .success(components))
         }
-
+        
         return true
     }
 }
