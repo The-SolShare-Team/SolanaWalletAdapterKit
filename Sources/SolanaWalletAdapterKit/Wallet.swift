@@ -107,16 +107,6 @@ public enum DisplayFormat: String {
     case utf8 = "utf-8"
 }
 
-public enum WalletAdapterError: Error {
-    case alreadyConnected
-    case notConnected
-    case invalidResponse
-    case pairingFailed
-    case unpairingFailed
-    case transactionSigningFailed
-    case messageSigningFailed
-    case browsingFailed
-}
 
 /// Error from the wallets:
 /// - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors

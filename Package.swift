@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SolanaWalletAdapterKit",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v18),
         .macOS(.v11),
     ],
     products: [

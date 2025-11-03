@@ -1,14 +1,14 @@
 import Foundation
 import SolanaRPC
 
-public class SolflareWallet: DeeplinkWallet {
+public struct SolflareWallet: DeeplinkWallet {
     public static var baseURL: URL = URL(string: "https://solflare.com/ul/v1")!
     public var connection: WalletConnection?
     public var appId: AppIdentity
     public var cluster: SolanaRPC.Endpoint
     public var secureStorage: SecureStorage
 
-    public required init(
+    public init(
         for appId: AppIdentity,
         cluster: SolanaRPC.Endpoint,
         restoreFrom secureStorage: SecureStorage
@@ -20,7 +20,7 @@ public class SolflareWallet: DeeplinkWallet {
             key: self.secureStorageKey)
     }
 
-    public func pair() async throws {
-        try await pair(walletEncryptionPublicKeyIdentifier: "solflare_encryption_public_key")
+    public mutating func pair() async throws {
+        try await self.pair(walletEncryptionPublicKeyIdentifier: "solflare_encryption_public_key")
     }
 }

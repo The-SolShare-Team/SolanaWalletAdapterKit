@@ -10,6 +10,7 @@ import Foundation
 public enum WalletAdapterError: LocalizedError {
     case urlBuildFailed(baseURL: String)
     case walletNotConnected
+    case walletAlreadyConnected
     case missingSession
     case missingSharedKey
     case invalidResponse
@@ -22,6 +23,7 @@ public enum WalletAdapterError: LocalizedError {
     case timeout
     case userCancelled
     case walletNotInstalled(walletName: String)
+    case browsingFailed(url: String)
     
     public var errorDescription: String? {
         switch self {
@@ -29,6 +31,8 @@ public enum WalletAdapterError: LocalizedError {
             return "Failed to build URL with base: \(baseURL)"
         case .walletNotConnected:
             return "Wallet is not connected. Please connect first."
+        case .walletAlreadyConnected:
+            return "Wallet is already connected. Please disconnect first."
         case .missingSession:
             return "Session is missing. Connection may have been lost."
         case .missingSharedKey:
@@ -56,6 +60,8 @@ public enum WalletAdapterError: LocalizedError {
             return "User cancelled the request"
         case .walletNotInstalled(let walletName):
             return "\(walletName) wallet is not installed"
+        case .browsingFailed(let url):
+            return "Failed to open URL in wallet browser: \(url)"
         }
     }
     
@@ -63,12 +69,16 @@ public enum WalletAdapterError: LocalizedError {
         switch self {
         case .walletNotConnected, .missingSession, .missingSharedKey:
             return "Try reconnecting to your wallet."
+        case .walletAlreadyConnected:
+            return "Disconnect the current wallet before connecting a new one."
         case .timeout:
             return "Check your internet connection and try again."
         case .walletNotInstalled(let walletName):
             return "Please install \(walletName) from the App Store."
         case .userCancelled:
             return nil
+        case .browsingFailed: 
+            return "Make sure the wallet app is installed and up to date."
         default:
             return "If the problem persists, please contact support."
         }

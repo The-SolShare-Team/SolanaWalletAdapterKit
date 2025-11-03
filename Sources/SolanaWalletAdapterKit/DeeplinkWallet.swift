@@ -25,7 +25,7 @@ extension DeeplinkWallet {
         Pair with the wallet.
     */
     mutating public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
-        guard connection == nil else { throw WalletAdapterError.alreadyConnected }
+        guard connection == nil else { throw WalletAdapterError.walletAlreadyConnected }
 
         let endpointUrl = Self.getEndpointUrl(path: "connect")
 
@@ -233,7 +233,7 @@ extension DeeplinkWallet {
             let encodedRefURL = ref.absoluteString.addingPercentEncoding(
                 withAllowedCharacters: .urlQueryAllowed)
         else {
-            throw WalletAdapterError.browsingFailed  // TODO: Is this a good error?
+            throw WalletAdapterError.browsingFailed(url: url.absoluteString)  // TODO: Is this a good error?
         }
 
         let deeplink = "\(endpointUrl)/\(encodedTargetURL)?ref=\(encodedRefURL)"
@@ -322,10 +322,10 @@ extension DeeplinkWallet {
     }
 
     /// Decrypt the encrypted payload into the specified type
-    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data) throws -> T {
+    func decryptPayload<T: Decodable>(encryptedData: Data?, nonce: Data?) throws -> T {
         checkIsConnected()
 
-        if encryptedData == nil || nonce == nil {
+        guard let encryptedData = encryptedData, let nonce = nonce else {
             throw WalletAdapterError.invalidResponse
         }
 
