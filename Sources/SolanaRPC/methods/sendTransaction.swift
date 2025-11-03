@@ -11,8 +11,8 @@ public struct TransactionOptions: Encodable, Equatable {
     public let minContextSlot: Int?
 
     public init(
-        encoding: TransactionEncoding?, skipPreflight: Bool?,
-        preflightCommitment: Commitment?, maxRetries: Int?, minContextSlot: Int?
+        encoding: TransactionEncoding? = nil, skipPreflight: Bool? = nil,
+        preflightCommitment: Commitment? = nil, maxRetries: Int? = nil, minContextSlot: Int? = nil
     ) {
         self.encoding = encoding
         self.skipPreflight = skipPreflight
