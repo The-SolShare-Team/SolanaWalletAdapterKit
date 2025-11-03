@@ -35,7 +35,9 @@ let package = Package(
             ]),
         .testTarget(name: "SaltTests", dependencies: ["Salt"]),
         .target(
-            name: "SolanaWalletAdapterKit"),
+            name: "SolanaWalletAdapterKit",
+            dependencies: ["Salt"]
+        ),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
             dependencies: ["SolanaWalletAdapterKit"]),

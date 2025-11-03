@@ -42,7 +42,7 @@ public class DeeplinkFetcher {
         async throws(DeeplinkFetchingError) -> URLComponents
     {
         let id = UUID()
-        let callbackURL = "\(scheme):\(id.uuidString)"
+        let callbackURL = "\(scheme)\(id.uuidString)"
 
         let finalURL = {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
@@ -64,14 +64,21 @@ public class DeeplinkFetcher {
                 continuation: continuation, timeoutTask: timeoutTask)
 
             #if os(iOS)
-                let success = await UIApplication.shared.open(finalURL)
+                    Task { // <-- wrap async call in Task
+                        print("opening \(finalURL)")
+                        let success = await UIApplication.shared.open(finalURL)
+                        if !success {
+                            continuation.resume(returning: .failure(.unableToOpen))
+                        }
+                    }
             #elseif os(macOS)
                 let success = NSWorkspace.shared.open(finalURL)
+                if !success {
+                    continuation.resume(returning: .failure(.unableToOpen))
+                }
             #endif
 
-            if !success {
-                continuation.resume(returning: .failure(.unableToOpen))
-            }
+            
         }
 
         switch result {
@@ -83,16 +90,32 @@ public class DeeplinkFetcher {
     @MainActor
     func handleCallback(_ url: URL) -> Bool {
         guard url.scheme == scheme else { return false }
-
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-
-        if let id = UUID(uuidString: url.lastPathComponent),
-            let request = pendingRequests.removeValue(forKey: id)
-        {
-            request.timeoutTask.cancel()
-            request.continuation.resume(returning: .success(components))
-        }
-
-        return true
+            print ("attmepting to handle \(url)")
+            
+            // ⭐️ FIX 1: Safely unwrap components ⭐️
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                // If the URL is bad, we can't process it. We should attempt to fail the request
+                // if it still exists, but safely exit the function otherwise.
+                return true
+            }
+            
+            // Now look up the request
+            if let id = UUID(uuidString: url.lastPathComponent),
+               let request = pendingRequests.removeValue(forKey: id)
+            {
+                print("UUID:\(id), rqeuest: \(request)")
+                request.timeoutTask.cancel()
+                request.continuation.resume(returning: .success(components))
+                
+                // ⭐️ FIX 2: We must cancel the timeout task.
+                // If the task has already run and removed the request, the request variable
+                // would be nil, so the timeout logic handles the failure.
+                // This is the correct logic for handling success/failure.
+                return true
+            }
+            
+            // If we reach here, the request wasn't found (likely timed out),
+            // so we let the timeout task handle the failure.
+            return true
     }
 }
