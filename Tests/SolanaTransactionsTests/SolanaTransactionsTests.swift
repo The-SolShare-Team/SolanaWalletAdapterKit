@@ -52,14 +52,7 @@ import Testing
         transaction
             == Transaction(
                 signatures: [
-                    [
-                        86, 54, 58, 32, 150, 215, 180, 230, 70, 214, 36,
-                        45, 254, 97, 92, 40, 74, 136, 178, 56, 219, 160,
-                        66, 205, 91, 230, 220, 117, 86, 109, 247, 61, 140,
-                        31, 219, 109, 229, 193, 118, 190, 56, 170, 161, 232,
-                        159, 22, 151, 83, 189, 136, 186, 50, 252, 83, 19,
-                        7, 32, 209, 113, 117, 184, 153, 172, 6,
-                    ]
+                    "2iyMu2haKjkw8bAHgpkSaKHSiVawRdCtEn4rCgfGQmztJ51AGX8iB99R41VyYVGjNK8TCRDRr6zVx7jznL5zr4ah"
                 ],
                 message: .v0(
                     V0Message(
