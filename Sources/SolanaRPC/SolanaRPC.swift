@@ -137,7 +137,7 @@ public enum Endpoint {
     }
 }
 
-public enum Commitment: Codable {
+public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
@@ -164,6 +164,7 @@ public struct SolanaRPCClient {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
             urlRequest.httpBody = try JSONEncoder().encode(request)
+            print(String(data: urlRequest.httpBody!, encoding: .utf8)!)
         } catch {
             throw RPCError(
                 message: "Encoding error",
