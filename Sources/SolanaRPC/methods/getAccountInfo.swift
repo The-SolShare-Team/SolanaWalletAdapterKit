@@ -66,21 +66,15 @@ public enum AccountData: Codable, Equatable {
     }
 }
 
-
 extension SolanaRPCClient {
-
     public func getAccountInfo(
         for account: PublicKey,
         config: AccountInfoConfig? = nil
     ) async throws -> AccountInfoResult? {
-        let base58Address = try BorshEncoder.base58Encode(account)
-
-        let response: RPCResponseResult<AccountInfoResult?> = try await fetch(
+        try await fetch(
             method: "getAccountInfo",
-            params: [base58Address, config ?? AccountInfoConfig()],
+            params: [account, config ?? AccountInfoConfig()],
             into: RPCResponseResult<AccountInfoResult?>.self
-        )
-
-        return response.value
+        ).value
     }
 }

@@ -1,8 +1,8 @@
 import SolanaTransactions
 
 private struct RequestConfiguration: Encodable {
-    let commitment: Commitment
-    let minContextSlot: Int
+    let commitment: Commitment?
+    let minContextSlot: Int?
 }
 
 private struct ResponseData: Decodable {
@@ -12,22 +12,25 @@ private struct ResponseData: Decodable {
 
 extension SolanaRPCClient {
     public func getLatestBlockhash(
-        configuration: (commitment: Commitment, minContextSlot: Int)? = nil
+        configuration: (commitment: Commitment?, minContextSlot: Int?)? = nil
     )
         async throws(RPCError) -> (
             blockhash: Blockhash, lastValidBlockHeight: UInt64
         )
     {
+        var params: [Encodable] = []
+
+        if let configuration = configuration {
+            params.append(
+                RequestConfiguration(
+                    commitment: configuration.commitment,
+                    minContextSlot: configuration.minContextSlot
+                ))
+        }
+
         let response = try await fetch(
             method: "getLatestBlockhash",
-            params: [
-                configuration.map {
-                    RequestConfiguration(
-                        commitment: $0.commitment,
-                        minContextSlot: $0.minContextSlot
-                    )
-                }
-            ],
+            params: params,
             into: RPCResponseResult<ResponseData>.self)
         return (response.value.blockhash, response.value.lastValidBlockHeight)
     }

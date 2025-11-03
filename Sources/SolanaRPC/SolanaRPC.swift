@@ -164,7 +164,6 @@ public struct SolanaRPCClient {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
             urlRequest.httpBody = try JSONEncoder().encode(request)
-            print(String(data: urlRequest.httpBody!, encoding: .utf8)!)
         } catch {
             throw RPCError(
                 message: "Encoding error",

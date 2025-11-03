@@ -1,24 +1,22 @@
+import Base58
+import Base64
 import SolanaTransactions
 import SwiftBorsh
 
-public struct TransactionOptions: Codable, Equatable {
+public struct TransactionOptions: Encodable, Equatable {
     public let encoding: TransactionEncoding?
     public let skipPreflight: Bool?
     public let preflightCommitment: Commitment?
-    public let maxRetries: UInt64?
+    public let maxRetries: Int?
     public let minContextSlot: Int?
 
-
     public init(
-        skipPreflight: Bool? = nil,
-        preflightCommitment: Commitment? = nil,
-        encoding: TransactionEncoding? = nil,
-        maxRetries: UInt64? = nil,
-        minContextSlot: Int? = nil
+        encoding: TransactionEncoding?, skipPreflight: Bool?,
+        preflightCommitment: Commitment?, maxRetries: Int?, minContextSlot: Int?
     ) {
+        self.encoding = encoding
         self.skipPreflight = skipPreflight
         self.preflightCommitment = preflightCommitment
-        self.encoding = encoding
         self.maxRetries = maxRetries
         self.minContextSlot = minContextSlot
     }
@@ -33,13 +31,25 @@ extension SolanaRPCClient {
     public func sendTransaction(
         transaction: Transaction,
         options: TransactionOptions? = nil
-    ) async throws {
-        let serializedData = try transaction.encode()
-        _ = try await fetch(
-            method: "sendTransaction",
-            params: [serializedData, options ?? TransactionOptions()],
-            into: String.self
-        )
+    ) async throws -> Signature {
+        var params: [Encodable] = []
 
+        let serializedTransaction = try transaction.encode()
+        let encodedTransaction =
+            switch options?.encoding ?? .base58 {
+            case .base58: Base58.encode(serializedTransaction)
+            case .base64: Base64.encode(serializedTransaction)
+            }
+        params.append(encodedTransaction)
+
+        if let options = options {
+            params.append(options)
+        }
+
+        return try await fetch(
+            method: "sendTransaction",
+            params: params,
+            into: Signature.self
+        )
     }
 }
