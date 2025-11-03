@@ -17,16 +17,22 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/The-SolShare-Team/SwiftBorsh", .upToNextMajor(from: "1.0.0")),
+            url: "https://github.com/The-SolShare-Team/SwiftBorsh",
+            .upToNextMajor(from: "0.0.0")),
         .package(
-            url: "https://github.com/The-SolShare-Team/Salkt.swift", .upToNextMajor(from: "0.0.0")),
+            url: "https://github.com/The-SolShare-Team/Salkt.swift",
+            .upToNextMajor(from: "0.0.0")),
         .package(
             url: "https://github.com/bitmark-inc/tweetnacl-swiftwrap.git",
             .upToNextMajor(from: "1.0.0")),
         .package(
-            url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
+            url: "https://github.com/apple/swift-collections.git",
+            .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
+        .target(name: "Base58"),
+        .testTarget(name: "Base58Tests", dependencies: ["Base58"]),
+        .target(name: "Base64"),
         .target(
             name: "Salt",
             dependencies: [
@@ -42,6 +48,7 @@ let package = Package(
         .target(
             name: "SolanaTransactions",
             dependencies: [
+                "Base58",
                 "SwiftBorsh",
                 "Salt",
                 .product(name: "Collections", package: "swift-collections"),
@@ -51,7 +58,7 @@ let package = Package(
             dependencies: ["SolanaTransactions", "SwiftBorsh", "SolanaRPC"]),
         .target(
             name: "SolanaRPC",
-            dependencies: ["SwiftBorsh", "SolanaTransactions"]),
+            dependencies: ["SwiftBorsh", "SolanaTransactions", "Base64"]),
         .testTarget(
             name: "SolanaRPCTests",
             dependencies: ["SolanaRPC"]),
