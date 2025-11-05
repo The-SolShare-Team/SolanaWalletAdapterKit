@@ -1,6 +1,11 @@
 public struct Transaction: Equatable {
     public let signatures: [Signature]
     public let message: VersionedMessage
+
+    public init(signatures: [Signature], message: VersionedMessage) {
+        self.signatures = signatures
+        self.message = message
+    }
 }
 
 extension Transaction {

@@ -1,4 +1,5 @@
 import Foundation
+import SolanaTransactions
 import SwiftBorsh
 
 struct RPCRequest: Encodable {
@@ -39,7 +40,6 @@ struct RPCResponseError<T: Decodable>: Decodable {
     let message: String
     let data: T?
 }
-
 struct RPCResponseContext: Decodable {
     let slot: UInt64
     let apiVersion: String?
@@ -78,7 +78,7 @@ public struct RPCError: Error, CustomStringConvertible {
                 self = .invalidParams
             case -32603:
                 self = .internalError
-            case -32000 ... -32099:
+            case -32099 ... -32000:
                 self = .serverError
             default:
                 self = .unknown(code: code)
@@ -137,7 +137,7 @@ public enum Endpoint {
     }
 }
 
-public enum Commitment: Codable {
+public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
@@ -183,9 +183,9 @@ public struct SolanaRPCClient {
             )
         }
 
-        let response: RPCResponse<T, String>
+        let response: RPCResponse<T, JSONValue>
         do {
-            response = try JSONDecoder().decode(RPCResponse<T, String>.self, from: data)
+            response = try JSONDecoder().decode(RPCResponse<T, JSONValue>.self, from: data)
         } catch {
             throw RPCError(
                 message: "Decoding error",
