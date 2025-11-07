@@ -28,6 +28,9 @@ let package = Package(
         .package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMajor(from: "1.0.0")),
+        .package(
+            url: "https://github.com/auth0/SimpleKeychain.git",
+            .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .target(name: "Base58"),
@@ -42,8 +45,12 @@ let package = Package(
         .testTarget(name: "SaltTests", dependencies: ["Salt"]),
         .target(
             name: "SolanaWalletAdapterKit",
-            dependencies: ["Salt"]
-        ),
+            dependencies: [
+                "Base58",
+                "SimpleKeychain",
+                "SolanaRPC",
+                "Salt",
+            ]),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
             dependencies: ["SolanaWalletAdapterKit"]),

@@ -1,7 +1,6 @@
 import Foundation
 
-public class SolflareWallet: BaseDeeplinkWallet {
-    public override var baseURL: URL {
-        URL(string: "https://solflare.com/ul/v1")!
-    }
+public struct SolflareWallet: DeeplinkWallet {
+    public static let baseURL = URL(string: "https://solflare.com/ul/v1")!
+    public var encryption: DiffieHellman
 }
