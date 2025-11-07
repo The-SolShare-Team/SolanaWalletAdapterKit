@@ -6,20 +6,20 @@ import Foundation
     import AppKit
 #endif
 
-enum DeeplinkFetchingError: Error {
+public enum DeeplinkFetchingError: Error {
     case timeout
     case unableToOpen
     case decodeError
 }
 
-public class DeeplinkFetcher {
+@MainActor
+class DeeplinkFetcher {
     let scheme: String
 
-    internal init(scheme: String) {
+    init(scheme: String) {
         self.scheme = scheme
     }
 
-    @MainActor
     private var pendingRequests: [UUID: PendingRequest] = [:]
 
     private struct PendingRequest {
@@ -37,7 +37,6 @@ public class DeeplinkFetcher {
                 / 1_000_000_000_000_000_000)
     }
 
-    @MainActor
     func fetch(_ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0)
         async throws(DeeplinkFetchingError) -> URLComponents
     {
@@ -80,7 +79,6 @@ public class DeeplinkFetcher {
         }
     }
 
-    @MainActor
     func handleCallback(_ url: URL) -> Bool {
         guard url.scheme == scheme else { return false }
 
