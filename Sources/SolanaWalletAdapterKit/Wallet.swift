@@ -1,6 +1,9 @@
 import Foundation
+import SolanaRPC
 
 public nonisolated protocol Wallet {
+    init(for appId: AppIdentity, cluster: Endpoint)
+
     mutating func connect(appUrl: String, redirectLink: String, cluster: String?)
         async throws
     mutating func disconnect(nonce: String, redirectLink: String, payload: String)
