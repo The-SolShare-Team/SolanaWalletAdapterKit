@@ -27,8 +27,8 @@ public struct DiffieHellmanData: Codable {
 
 public struct WalletConnection: Codable {
     let encryption: DiffieHellmanData
-    let walletPublicKey: String
-    let session: String
+    public let walletPublicKey: String
+    let session: String // TODO: Do the other fields also need to be public?
 
     public init(encryption: DiffieHellmanData, walletPublicKey: String, session: String) {
         self.encryption = encryption
