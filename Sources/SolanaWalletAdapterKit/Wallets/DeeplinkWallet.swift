@@ -28,8 +28,6 @@ public extension DeeplinkWallet {
     mutating func connect(appUrl: String, redirectLink: String, cluster: String? = nil) async throws {
         let clusterToUse = cluster ?? self.cluster.rawValue
         let connectUrl = try generateConnectUrl(appUrl, redirectLink) // add cluster later
-        
-        
         print(try await solana.fetcher.fetch(connectUrl, callbackParameter: "redirect_link"))
         isConnected = true
     }
