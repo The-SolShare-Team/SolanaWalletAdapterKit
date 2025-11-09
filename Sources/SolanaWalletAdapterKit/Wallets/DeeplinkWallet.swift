@@ -25,6 +25,7 @@ public extension DeeplinkWallet {
         }
         return url
     }
+   @MainActor
     mutating func connect(appUrl: String, redirectLink: String, cluster: String? = nil) async throws {
         let clusterToUse = cluster ?? self.cluster.rawValue
         let connectUrl = try generateConnectUrl(appUrl, redirectLink) // add cluster later
