@@ -37,10 +37,12 @@ public struct WalletConnection: Codable {
     }
 }
 
-public protocol DeeplinkWallet: Wallet {
+/// Protocol for Deeplink wallets.
+/// Note: Only classes can conform to this protocol.
+public protocol DeeplinkWallet: Wallet, AnyObject {
     static var baseURL: URL { get }
     var connection: WalletConnection? { get set }
-    mutating func pair(walletEncryptionPublicKeyIdentifier: String) async throws
+    func pair(walletEncryptionPublicKeyIdentifier: String) async throws
 }
 
 extension DeeplinkWallet {
@@ -49,7 +51,7 @@ extension DeeplinkWallet {
     /**
         Pair with the wallet.
     */
-    mutating public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
+    public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
         let endpointUrl = Self.getEndpointUrl(path: "connect")
@@ -106,7 +108,7 @@ extension DeeplinkWallet {
     /**
         Unpair from the wallet.
     */
-    mutating public func unpair(nonce: String, redirectLink: String, payload: String) async throws {
+    public func unpair(nonce: String, redirectLink: String, payload: String) async throws {
         checkIsConnected()
 
         let endpointUrl: URL = Self.getEndpointUrl(path: "disconnect")
