@@ -22,7 +22,7 @@ public enum SolanaWalletAdapter {
     public static func deeplinkFetch(
         _ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0
     )
-        async throws(DeeplinkFetchingError) -> URLComponents
+        async throws(DeeplinkFetchingError) -> [String: String]
     {
         try await fetcher.fetch(url, callbackParameter: callbackParameter, timeout: timeout)
     }

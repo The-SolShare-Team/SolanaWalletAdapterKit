@@ -117,7 +117,7 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
-public enum Endpoint {
+public enum Endpoint: Sendable {
     case mainnet
     case testnet
     case devnet
@@ -133,6 +133,19 @@ public enum Endpoint {
             return URL(string: "https://api.devnet.solana.com")!
         case .other(let url):
             return url
+        }
+    }
+
+    public var name: String {
+        switch self {
+        case .mainnet:
+            return "mainnet"
+        case .testnet:
+            return "testnet"
+        case .devnet:
+            return "devnet"
+        case .other:  // TODO: Solflare does not support otehr though
+            return "other"
         }
     }
 }

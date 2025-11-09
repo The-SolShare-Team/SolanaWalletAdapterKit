@@ -50,6 +50,7 @@ let package = Package(
                 "SimpleKeychain",
                 "SolanaRPC",
                 "Salt",
+                "SolanaTransactions",
             ]),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",
