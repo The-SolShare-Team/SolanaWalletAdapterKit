@@ -23,8 +23,8 @@ class DeeplinkFetcher {
     private var pendingRequests: [UUID: PendingRequest] = [:]
     
     private struct PendingRequest {
-        let continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>
-        let timeoutTask: Task<Void, Never>
+        let continuation: CheckedContinuation<URLComponents, Error>
+        let timeoutTask: DispatchWorkItem
     }
     
     @available(iOS 16.0, macOS 13.0, *)
@@ -60,16 +60,26 @@ class DeeplinkFetcher {
             }
             
             pendingRequests[id] = PendingRequest(
-                continuation: continuation, timeoutTask: timeoutTask)
-
+                continuation: continuation,
+                timeoutTask: workItem
+            )
+            print("[DeeplinkFetcher] Current pending UUIDs after registration: \(pendingRequests.keys)")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: workItem)
+            // Open the URL after everything is registered
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds delay
             #if os(iOS)
-                let success = await UIApplication.shared.open(finalURL)
+                UIApplication.shared.open(finalURL) { [self] success in
+                    if !success {
+                        if let request = pendingRequests.removeValue(forKey: id) {
+                            request.timeoutTask.cancel()
+                            request.continuation.resume(throwing: DeeplinkFetchingError.unableToOpen)
+                        }
+                    }
+                }
             #elseif os(macOS)
                 let success = NSWorkspace.shared.open(finalURL)
             #endif
-
-            if !success {
-                continuation.resume(returning: .failure(.unableToOpen))
             }
         }
         
@@ -84,17 +94,33 @@ class DeeplinkFetcher {
     }
     
     func handleCallback(_ url: URL) -> Bool {
+        print("[DeeplinkFetcher] handleCallback called with URL: \(url.absoluteString)")
+
         guard url.scheme == scheme else { return false }
 
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            print("[DeeplinkFetcher] Failed to parse URL components")
+            return false
+        }
+        guard let idString = url.host else {
+            print("[DeeplinkFetcher] URL host is missing: \(url.absoluteString)")
+            return false
+        }
+        guard let id = UUID(uuidString: idString) else {
+            print("[DeeplinkFetcher] Failed to extract UUID from URL lastPathComponent: \(url.lastPathComponent)")
+            return false
+        }
+        print("[DeeplinkFetcher] Pending UUIDs before removing: \(pendingRequests.keys)")
 
-        if let id = UUID(uuidString: url.lastPathComponent),
-            let request = pendingRequests.removeValue(forKey: id)
-        {
-            request.timeoutTask.cancel()
-            request.continuation.resume(returning: .success(components))
+        guard let request = pendingRequests.removeValue(forKey: id) else {
+            print("[DeeplinkFetcher] No pending request found for UUID: \(id)")
+            return false
         }
 
+        print("[DeeplinkFetcher] Found pending request, resuming continuation and cancelling timeout")
+        request.timeoutTask.cancel()
+        request.continuation.resume(returning: components)
+        print("[DeeplinkFetcher] Callback handled successfully for UUID: \(id)")
         return true
     }
 }
