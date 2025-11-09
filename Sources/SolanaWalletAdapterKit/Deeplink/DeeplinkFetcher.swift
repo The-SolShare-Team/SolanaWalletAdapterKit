@@ -36,6 +36,12 @@ class DeeplinkFetcher {
             timeout: Double(timeout.components.seconds) + Double(timeout.components.attoseconds)
                 / 1_000_000_000_000_000_000)
     }
+    
+    func resumeOnce(_ id: UUID, _ result: Result<URLComponents, DeeplinkFetchingError>) {
+        guard let request = pendingRequests.removeValue(forKey: id) else { return }
+        request.timeoutTask.cancel()
+        request.continuation.resume(returning: result)
+    }
 
     func fetch(_ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0)
         async throws(DeeplinkFetchingError) -> [String: String]
@@ -54,10 +60,11 @@ class DeeplinkFetcher {
         let result = await withCheckedContinuation {
             (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>)
             in
+            
             // Create the timeout task first
             let timeoutTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64((timeout * 1_000_000_000).rounded()))
-                continuation.resume(returning: .failure(.timeout))
+                resumeOnce(id, .failure(.timeout))
             }
 
             // Store pending request so handleCallback can complete it
@@ -72,10 +79,7 @@ class DeeplinkFetcher {
                 #endif
 
                 if !success {
-                    // If we failed to open, cancel timeout and clean up, then resume
-                    timeoutTask.cancel()
-                    _ = pendingRequests.removeValue(forKey: id)
-                    continuation.resume(returning: .failure(.unableToOpen))
+                    resumeOnce(id, .failure(.timeout))
                 }
             }
         }
