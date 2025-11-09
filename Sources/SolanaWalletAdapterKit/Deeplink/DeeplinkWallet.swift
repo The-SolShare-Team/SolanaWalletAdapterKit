@@ -264,17 +264,16 @@ extension DeeplinkWallet {
         }
 
         let deeplink = "\(endpointUrl)/\(encodedTargetURL)?ref=\(encodedRefURL)"
-
-        // TODO: Not if this is how we should handle it
-        #if os(iOS)
-            let success = await UIApplication.shared.open(deeplink)
-        #elseif os(macOS)
-            if let deeplinkUrl = URL(string: deeplink) {
-                let success = NSWorkspace.shared.open(deeplinkUrl)
-            } else {
-                throw DeeplinkFetchingError.unableToOpen  // TODO: Not sure about this error
-            }
-        #endif
+        if let deeplink = URL(string: deeplink) {
+            // TODO: Not if this is how we should handle it
+            #if os(iOS)
+                let success = await UIApplication.shared.open(deeplink)
+            #elseif os(macOS)
+                let success = NSWorkspace.shared.open(deeplink)
+            #endif
+        } else {
+            throw DeeplinkFetchingError.unableToOpen  // TODO: Not sure about this error
+        }
     }
 
     // ***********************************
