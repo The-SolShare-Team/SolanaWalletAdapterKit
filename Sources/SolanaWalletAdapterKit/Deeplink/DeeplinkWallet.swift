@@ -88,7 +88,8 @@ extension DeeplinkWallet {
             secretKey: encryptionKeyPair.secretKey)
         let decryptedData: ConnectResponseData = try decryptPayload(
             encryptedData: Data(decodedData),
-            nonce: Data(decodedNonce))
+            nonce: Data(decodedNonce),
+            sharedKey: sharedSecretKey)
 
         // Set the connection property on the wallet
         self.connection = WalletConnection(
@@ -348,8 +349,9 @@ extension DeeplinkWallet {
     }
 
     /// Decrypt the encrypted payload into the specified type
-    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data) throws -> T {
-        checkIsConnected()
+    /// If a sharedKey is not provided, the connection.encryption.sharedKey is used
+    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data, sharedKey: Data? = nil) throws -> T {
+        if sharedKey == nil { checkIsConnected() }
 
         if encryptedData == nil || nonce == nil {
             throw SolanaWalletAdapterError.invalidResponse
@@ -359,7 +361,7 @@ extension DeeplinkWallet {
         let data = try SaltSecretBox.open(
             box: encryptedData,
             nonce: nonce,
-            key: connection!.encryption.sharedKey)
+            key: sharedKey ?? connection!.encryption.sharedKey)
 
         return try JSONDecoder().decode(T.self, from: data)
     }
