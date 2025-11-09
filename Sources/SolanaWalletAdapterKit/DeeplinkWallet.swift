@@ -15,6 +15,7 @@ import SolanaTransactions
 
 public protocol DeeplinkWallet: Wallet {
     static var baseURL: URL { get }
+    mutating func pair(walletEncryptionPublicKeyIdentifier: String) async throws
 }
 
 extension DeeplinkWallet {
@@ -23,7 +24,9 @@ extension DeeplinkWallet {
     /**
         Pair with the wallet.
     */
-    mutating public func pair() async throws {
+    mutating public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
+        guard connection == nil else { throw WalletAdapterError.alreadyConnected }
+
         let endpointUrl = Self.getEndpointUrl(path: "connect")
 
         let encryptionKeyPair = try SaltBox.keyPair()
@@ -37,22 +40,37 @@ extension DeeplinkWallet {
             URLQueryItem(name: "cluster", value: cluster.name),
         ]
         components.queryItems = queryItems
-        let url = components.url!  // TODO: Can I force here?
+        let deeplink = components.url!  // TODO: Can I force here?
 
-        // Await deeplink fetch
+        // Response
         let response = try await SolanaWalletAdapter.deeplinkFetch(
-            url, callbackParameter: "redirect_link")
-        let sharedSecretKey = try! SaltBox.before(
-            publicKey: Data(Base58.decode(response["solflare_encryption_public_key"]!)!),
-            secretKey: encryptionKeyPair.secretKey)
+            deeplink, callbackParameter: "redirect_link")
+        guard let walletEncryptionPublicKey = response[walletEncryptionPublicKeyIdentifier],
+            let nonce = response["nonce"],
+            let data = response["data"],
+            let decodedWalletEncryptionPublicKey = Base58.decode(walletEncryptionPublicKey),
+            let decodedNonce = Base58.decode(nonce),
+            let decodedData = Base58.decode(data)
+        else {
+            throw WalletAdapterError.invalidResponse
+        }
 
+        // Decrypt the data in the response
+        let sharedSecretKey = try SaltBox.before(
+            publicKey: Data(decodedWalletEncryptionPublicKey),
+            secretKey: encryptionKeyPair.secretKey)
+        let decryptedData: ConnectResponse = try decryptPayload(
+            encryptedData: Data(decodedData),
+            nonce: Data(decodedNonce))
+
+        // Set the connection property on the wallet
         self.connection = WalletConnection(
             encryption: DiffieHellmanData(
                 publicKey: encryptionKeyPair.publicKey,
                 privateKey: encryptionKeyPair.secretKey,
                 sharedKey: sharedSecretKey),
-            walletPublicKey: response["wallet_public_key"]!,
-            session: response["session"]!)
+            walletPublicKey: decryptedData.publicKey,
+            session: decryptedData.session)
 
         // We force unwrap here because connection is set just above.
         try await secureStorage.storeWalletConnection(
@@ -80,8 +98,9 @@ extension DeeplinkWallet {
             deeplink, callbackParameter: "redirect_link")
         try throwIfError(response: response)
 
-        // Clear secure storage
+        // Clear secure storage and reset connection
         try await secureStorage.clear(key: self.secureStorageKey)
+        self.connection = nil
     }
 
     /**
@@ -265,14 +284,14 @@ extension DeeplinkWallet {
     func processSigningMethodResponse<T: Decodable>(response: [String: String]) throws -> T {
         guard let nonce = response["payload"],
             let data = response["data"],
-            let nonceData = Data(base64Encoded: nonce),
-            let dataData = Data(base64Encoded: data)
+            let decodedNonce = Base58.decode(nonce),
+            let decodedData = Base58.decode(data)
         else {
             throw WalletAdapterError.invalidResponse
         }
         return try decryptPayload(
-            encryptedData: dataData,
-            nonce: nonceData)
+            encryptedData: Data(decodedData),
+            nonce: Data(decodedNonce))
     }
 
     /// Generate a deeplink URL for non-connect methods. This is due to the fact that
