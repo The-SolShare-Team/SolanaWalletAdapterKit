@@ -28,7 +28,7 @@ public struct DiffieHellmanData: Codable {
 public struct WalletConnection: Codable {
     let encryption: DiffieHellmanData
     public let walletPublicKey: String
-    let session: String // TODO: Do the other fields also need to be public?
+    let session: String  // TODO: Do the other fields also need to be public?
 
     public init(encryption: DiffieHellmanData, walletPublicKey: String, session: String) {
         self.encryption = encryption
@@ -109,7 +109,7 @@ extension DeeplinkWallet {
     /**
         Unpair from the wallet.
     */
-    public func unpair(nonce: String, redirectLink: String, payload: String) async throws {
+    public func unpair() async throws {
         checkIsConnected()
 
         let endpointUrl: URL = Self.getEndpointUrl(path: "disconnect")
@@ -350,7 +350,9 @@ extension DeeplinkWallet {
 
     /// Decrypt the encrypted payload into the specified type
     /// If a sharedKey is not provided, the connection.encryption.sharedKey is used
-    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data, sharedKey: Data? = nil) throws -> T {
+    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data, sharedKey: Data? = nil)
+        throws -> T
+    {
         if sharedKey == nil { checkIsConnected() }
 
         if encryptedData == nil || nonce == nil {
