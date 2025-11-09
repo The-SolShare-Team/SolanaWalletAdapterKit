@@ -139,7 +139,7 @@ public enum Endpoint: Sendable {
     public var name: String {
         switch self {
         case .mainnet:
-            return "mainnet"
+            return "mainnet-beta"
         case .testnet:
             return "testnet"
         case .devnet:
