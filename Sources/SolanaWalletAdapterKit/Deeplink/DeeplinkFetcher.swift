@@ -54,22 +54,29 @@ class DeeplinkFetcher {
         let result = await withCheckedContinuation {
             (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>)
             in
+            // Create the timeout task first
             let timeoutTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64((timeout * 1_000_000_000).rounded()))
                 continuation.resume(returning: .failure(.timeout))
             }
 
+            // Store pending request so handleCallback can complete it
             pendingRequests[id] = PendingRequest(
                 continuation: continuation, timeoutTask: timeoutTask)
 
-            #if os(iOS)
-                let success = await UIApplication.shared.open(finalURL)
-            #elseif os(macOS)
-                let success = NSWorkspace.shared.open(finalURL)
-            #endif
+            Task { @MainActor in
+                #if os(iOS)
+                    let success = await UIApplication.shared.open(finalURL)
+                #elseif os(macOS)
+                    let success = NSWorkspace.shared.open(finalURL)
+                #endif
 
-            if !success {
-                continuation.resume(returning: .failure(.unableToOpen))
+                if !success {
+                    // If we failed to open, cancel timeout and clean up, then resume
+                    timeoutTask.cancel()
+                    _ = pendingRequests.removeValue(forKey: id)
+                    continuation.resume(returning: .failure(.unableToOpen))
+                }
             }
         }
 
