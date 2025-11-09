@@ -287,7 +287,7 @@ extension DeeplinkWallet {
 
     /// Get endpoint URL by appending path to baseURL
     static func getEndpointUrl(path: String) -> URL {
-        if #available(macOS 13, *) {
+        if #available(iOS 16.0, macOS 13, *) {
             return Self.baseURL.appending(path: path, directoryHint: .notDirectory)
         } else {
             return Self.baseURL.appendingPathComponent(path)
