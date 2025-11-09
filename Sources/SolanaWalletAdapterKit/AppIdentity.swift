@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AppIdentity {
+public struct AppIdentity: Sendable {
     let name: String
     let url: URL
     let icon: String
