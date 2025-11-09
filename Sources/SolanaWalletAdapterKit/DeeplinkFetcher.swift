@@ -29,7 +29,7 @@ class DeeplinkFetcher {
 
     @available(iOS 16.0, macOS 13.0, *)
     func fetch(_ url: URL, callbackParameter: String, timeout: Duration)
-        async throws(DeeplinkFetchingError) -> URLComponents
+        async throws(DeeplinkFetchingError) -> [String: String]
     {
         try await fetch(
             url, callbackParameter: callbackParameter,
@@ -38,7 +38,7 @@ class DeeplinkFetcher {
     }
 
     func fetch(_ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0)
-        async throws(DeeplinkFetchingError) -> URLComponents
+        async throws(DeeplinkFetchingError) -> [String: String]
     {
         let id = UUID()
         let callbackURL = "\(scheme):\(id.uuidString)"
@@ -75,7 +75,11 @@ class DeeplinkFetcher {
 
         switch result {
         case .failure(let cause): throw cause
-        case .success(let components): return components
+        case .success(let components):
+            let urlQueryItems = components.queryItems ?? []
+            let queryParams: [String: String] = Dictionary(
+                uniqueKeysWithValues: urlQueryItems.map { ($0.name, $0.value ?? "") })
+            return queryParams
         }
     }
 
