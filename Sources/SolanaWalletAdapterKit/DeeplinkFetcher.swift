@@ -61,13 +61,13 @@ class DeeplinkFetcher {
             
             pendingRequests[id] = PendingRequest(
                 continuation: continuation, timeoutTask: timeoutTask)
-            
-#if os(iOS)
-            let success = await UIApplication.shared.open(finalURL)
-#elseif os(macOS)
-            let success = NSWorkspace.shared.open(finalURL)
-#endif
-            
+
+            #if os(iOS)
+                let success = await UIApplication.shared.open(finalURL)
+            #elseif os(macOS)
+                let success = NSWorkspace.shared.open(finalURL)
+            #endif
+
             if !success {
                 continuation.resume(returning: .failure(.unableToOpen))
             }
@@ -85,16 +85,16 @@ class DeeplinkFetcher {
     
     func handleCallback(_ url: URL) -> Bool {
         guard url.scheme == scheme else { return false }
-        
+
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        
+
         if let id = UUID(uuidString: url.lastPathComponent),
-           let request = pendingRequests.removeValue(forKey: id)
+            let request = pendingRequests.removeValue(forKey: id)
         {
             request.timeoutTask.cancel()
             request.continuation.resume(returning: .success(components))
         }
-        
+
         return true
     }
 }
