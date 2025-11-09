@@ -52,6 +52,16 @@ public struct DiffieHellmanData: Codable {
     }
 }
 
+public struct ConnectResponse: Decodable {
+    public let publicKey: String
+    public let session: String
+
+    enum CodingKeys: String, CodingKey {
+        case publicKey = "public_key"
+        case session
+    }
+}
+
 public struct SignAndSendTransactionResponse: Decodable {
     public let signature: String
 }
@@ -82,6 +92,7 @@ public enum DisplayFormat: String {
 }
 
 public enum WalletAdapterError: Error {
+    case alreadyConnected
     case notConnected
     case invalidResponse
     case pairingFailed
