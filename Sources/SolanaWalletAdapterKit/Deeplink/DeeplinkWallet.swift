@@ -13,8 +13,33 @@ import SolanaTransactions
     import AppKit
 #endif
 
+public struct DiffieHellmanData: Codable {
+    let publicKey: Data
+    let privateKey: Data
+    let sharedKey: Data
+
+    public init(publicKey: Data, privateKey: Data, sharedKey: Data) {
+        self.publicKey = publicKey
+        self.privateKey = privateKey
+        self.sharedKey = sharedKey
+    }
+}
+
+public struct WalletConnection: Codable {
+    let encryption: DiffieHellmanData
+    let walletPublicKey: String
+    let session: String
+
+    public init(encryption: DiffieHellmanData, walletPublicKey: String, session: String) {
+        self.encryption = encryption
+        self.walletPublicKey = walletPublicKey
+        self.session = session
+    }
+}
+
 public protocol DeeplinkWallet: Wallet {
     static var baseURL: URL { get }
+    var connection: WalletConnection? { get set }
     mutating func pair(walletEncryptionPublicKeyIdentifier: String) async throws
 }
 
@@ -25,7 +50,7 @@ extension DeeplinkWallet {
         Pair with the wallet.
     */
     mutating public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
-        guard connection == nil else { throw WalletAdapterError.alreadyConnected }
+        guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
         let endpointUrl = Self.getEndpointUrl(path: "connect")
 
@@ -52,14 +77,14 @@ extension DeeplinkWallet {
             let decodedNonce = Base58.decode(nonce),
             let decodedData = Base58.decode(data)
         else {
-            throw WalletAdapterError.invalidResponse
+            throw SolanaWalletAdapterError.invalidResponse
         }
 
         // Decrypt the data in the response
         let sharedSecretKey = try SaltBox.before(
             publicKey: Data(decodedWalletEncryptionPublicKey),
             secretKey: encryptionKeyPair.secretKey)
-        let decryptedData: ConnectResponse = try decryptPayload(
+        let decryptedData: ConnectResponseData = try decryptPayload(
             encryptedData: Data(decodedData),
             nonce: Data(decodedNonce))
 
@@ -107,7 +132,7 @@ extension DeeplinkWallet {
         Sign and send a transaction.
     */
     public func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions? = nil)
-        async throws -> SignAndSendTransactionResponse
+        async throws -> SignAndSendTransactionResponseData
     {
         checkIsConnected()
 
@@ -139,7 +164,7 @@ extension DeeplinkWallet {
         Sign all transactions.
     */
     public func signAllTransactions(transactions: [Transaction])
-        async throws -> SignAllTransactionsResponse
+        async throws -> SignAllTransactionsResponseData
     {
         checkIsConnected()
 
@@ -168,7 +193,7 @@ extension DeeplinkWallet {
         Sign a transaction.
     */
     public func signTransaction(transaction: Transaction)
-        async throws -> SignTransactionResponse
+        async throws -> SignTransactionResponseData
     {
         checkIsConnected()
 
@@ -195,7 +220,7 @@ extension DeeplinkWallet {
         Sign a message.
     */
     public func signMessage(message: Data, display: DisplayFormat? = nil)
-        async throws -> SignMessageResponse
+        async throws -> SignMessageResponseData
     {
         checkIsConnected()
 
@@ -233,7 +258,7 @@ extension DeeplinkWallet {
             let encodedRefURL = ref.absoluteString.addingPercentEncoding(
                 withAllowedCharacters: .urlQueryAllowed)
         else {
-            throw WalletAdapterError.browsingFailed  // TODO: Is this a good error?
+            throw SolanaWalletAdapterError.browsingFailed  // TODO: Is this a good error?
         }
 
         let deeplink = "\(endpointUrl)/\(encodedTargetURL)?ref=\(encodedRefURL)"
@@ -274,7 +299,7 @@ extension DeeplinkWallet {
             let errorMessage = response["errorMessage"]
         {
             guard let errorCode = Int(errorCode) else {
-                throw WalletAdapterError.invalidResponse
+                throw SolanaWalletAdapterError.invalidResponse
             }
             throw WalletError(code: errorCode, message: errorMessage)
         }
@@ -287,7 +312,7 @@ extension DeeplinkWallet {
             let decodedNonce = Base58.decode(nonce),
             let decodedData = Base58.decode(data)
         else {
-            throw WalletAdapterError.invalidResponse
+            throw SolanaWalletAdapterError.invalidResponse
         }
         return try decryptPayload(
             encryptedData: Data(decodedData),
@@ -326,7 +351,7 @@ extension DeeplinkWallet {
         checkIsConnected()
 
         if encryptedData == nil || nonce == nil {
-            throw WalletAdapterError.invalidResponse
+            throw SolanaWalletAdapterError.invalidResponse
         }
 
         // Decrypt the message

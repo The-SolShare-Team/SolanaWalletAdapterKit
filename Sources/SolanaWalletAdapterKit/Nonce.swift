@@ -1,14 +1,5 @@
 import Foundation
-
-// public func generateNonce(bytes count: Int = 24) -> Data {
-//     var data = Data(count: count)
-//     let result = data.withUnsafeMutableBytes { ptr -> Int32 in
-//         guard let base = ptr.baseAddress else { return -1 }
-//         return SecRandomCopyBytes(kSecRandomDefault, count, base)
-//     }
-//     precondition(result == errSecSuccess, "Failed to generate secure random bytes")
-//     return data
-// }
+import Security
 
 func generateNonce(bytes count: Int = 24) throws -> Data {
     var data = Data(count: count)
