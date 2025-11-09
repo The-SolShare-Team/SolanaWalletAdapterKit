@@ -12,7 +12,7 @@ public protocol Wallet {
 
     mutating func pair()
         async throws
-    mutating func unpair(nonce: String, redirectLink: String, payload: String)
+    mutating func unpair()
         async throws
 
     nonmutating func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?)
