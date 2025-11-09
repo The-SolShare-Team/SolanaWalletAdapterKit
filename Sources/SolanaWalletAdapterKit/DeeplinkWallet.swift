@@ -5,138 +5,330 @@ import Salt
 import Security
 import SimpleKeychain
 import SolanaRPC
+import SolanaTransactions
+
+#if os(iOS)
+    import UIKit
+#elseif os(macOS)
+    import AppKit
+#endif
 
 public protocol DeeplinkWallet: Wallet {
     static var baseURL: URL { get }
-    var encryption: DiffieHellman { get set }
-}
-
-public struct DiffieHellman {
-    let encryptionKeyPair: (publicKey: Data, secretKey: Data)
-    let sharedKey: Data
-}
-
-public struct KeyPair {
-    let publicKey: Data
-    let secretKey: Data
 }
 
 extension DeeplinkWallet {
-    init(for appId: AppIdentity, cluster: Endpoint) {
-        let keychain = SimpleKeychain(service: appId.name)  // TODO: Expose keychain options
+    var secureStorageKey: String { "\(appId.name)-\(appId.url.absoluteString)-\(cluster)" }
 
-        let kPub = "encryptionPublicKey"
-        let kSec = "encryptionSecretKey"
-        let kShared = "encryptionSharedKey"
-        let kSession = "session"
-        let kPublicKey = "publicKey"
+    /**
+        Pair with the wallet.
+    */
+    mutating public func pair() async throws {
+        let endpointUrl = Self.getEndpointUrl(path: "connect")
 
-        do {
-            let encryptionPublicKey = try keychain.data(forKey: kPub)
-            let encryptionSecretKey = try keychain.data(forKey: kSec)
+        let encryptionKeyPair = try SaltBox.keyPair()
 
-            self.encryptionKey = KeyPair(
-                publicKey: encryptionPublicKey,
-                secretKey: encryptionSecretKey
-            )
-            self.sharedKey = try keychain.data(forKey: kShared)
-            self.session = try? keychain.string(forKey: kSession)
-            self.publicKey = try? keychain.string(forKey: kPublicKey)
-        } catch {
-            // On any error (including partial state), clear possible partial entries and recreate keys.
-            clearKeypairFromKeychain()
-
-            if let kp = try? SaltBox.keyPair() {
-                self.encryptionKeyPair = kp
-                // Best-effort persistence; failures should not crash the app.
-                try? keychain.set(kp.publicKey, forKey: kPub)
-                try? keychain.set(kp.secretKey, forKey: kSec)
-            } else {
-                // As an unlikely fallback, initialize with empty Data to keep object in a valid state.
-                self.encryptionKeyPair = (publicKey: Data(), secretKey: Data())
-            }
-
-            // Reset optional values — they'll be set when the session is established.
-            self.encryptionSharedKey = nil
-            self.session = nil
-            self.publicKey = nil
-        }
-
-        if let encryptionPublicKey = try? keychain.data(forKey: "encryptionPublicKey"),
-            let encryptionSecretKey = try? keychain.data(forKey: "encryptionSecretKey"),
-            let session = try? keychain.string(forKey: "session"),
-            let encryptionSharedKey = try? keychain.data(forKey: "encryptionSharedKey"),
-            let publicKey = try? keychain.string(forKey: "publicKey")
-        {
-            self.encryptionKeyPair = (
-                publicKey: encryptionPublicKey, secretKey: encryptionSecretKey
-            )
-            self.encryptionSharedKey = encryptionSharedKey
-            self.session = session
-            self.publicKey = publicKey
-        } else {
-            self.encryptionKeyPair = try! SaltBox.keyPair()
-            try! keychain.set(self.encryptionKeyPair.publicKey, forKey: "encryptionPublicKey")
-            try! keychain.set(self.encryptionKeyPair.secretKey, forKey: "encryptionSecretKey")
-        }
-    }
-
-    public func connect(appUrl: String, redirectLink: String, cluster: String?)
-        async throws
-    {
-        let privateKey = Curve25519.KeyAgreement.PrivateKey()
-
-        let connectURL = "connect"
-        var params: [String: String?] = [
-            "app_url": appUrl,
-            "dapp_encryption_public_key": Base58.encode(dappEncryptionPublicKey.rawRepresentation),
-            "redirect_link": redirectLink,
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!  // TODO: Can I force here?
+        let queryItems = [
+            URLQueryItem(name: "app_url", value: appId.url.absoluteString),
+            URLQueryItem(
+                name: "dapp_encryption_public_key",
+                value: Base58.encode([UInt8](encryptionKeyPair.publicKey))),
+            URLQueryItem(name: "cluster", value: cluster.name),
         ]
-        if let clust = cluster {
-            params["cluster"] = clust
+        components.queryItems = queryItems
+        let url = components.url!  // TODO: Can I force here?
+
+        // Await deeplink fetch
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            url, callbackParameter: "redirect_link")
+        let sharedSecretKey = try! SaltBox.before(
+            publicKey: Data(Base58.decode(response["solflare_encryption_public_key"]!)!),
+            secretKey: encryptionKeyPair.secretKey)
+
+        self.connection = WalletConnection(
+            encryption: DiffieHellmanData(
+                publicKey: encryptionKeyPair.publicKey,
+                privateKey: encryptionKeyPair.secretKey,
+                sharedKey: sharedSecretKey),
+            walletPublicKey: response["wallet_public_key"]!,
+            session: response["session"]!)
+
+        // We force unwrap here because connection is set just above.
+        try await secureStorage.storeWalletConnection(
+            self.connection!,
+            key: self.secureStorageKey)
+    }
+
+    /**
+        Unpair from the wallet.
+    */
+    mutating public func unpair(nonce: String, redirectLink: String, payload: String) async throws {
+        checkIsConnected()
+
+        let endpointUrl: URL = Self.getEndpointUrl(path: "disconnect")
+
+        // Request
+        let requestPayload: [String: Any] = [
+            "session": connection!.session
+        ]
+        let deeplink = try generateNonConnectDeeplinkURL(
+            endpointUrl: endpointUrl, payload: requestPayload)
+
+        // Response
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            deeplink, callbackParameter: "redirect_link")
+        try throwIfError(response: response)
+
+        // Clear secure storage
+        try await secureStorage.clear(key: self.secureStorageKey)
+    }
+
+    /**
+        Sign and send a transaction.
+    */
+    public func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions? = nil)
+        async throws -> SignAndSendTransactionResponse
+    {
+        checkIsConnected()
+
+        let endpointUrl = Self.getEndpointUrl(path: "signAndSendTransaction")
+
+        // Request
+        let encodedTransaction = try Base58.encode(transaction.encode())
+        var requestPayload: [String: Any] = [
+            "transaction": encodedTransaction,
+            "session": connection!.session,
+        ]
+        if let sendOptions {
+            let sendOptionsJson = try JSONEncoder().encode(sendOptions)
+            let encodedSendOptions = String(data: sendOptionsJson, encoding: .utf8) ?? ""  // TODO: Not sure if this is the right way to handle the optional here
+            requestPayload["sendOptions"] = encodedSendOptions
         }
-        guard let url = Utils.buildURL(baseURL: connectURL, queryParams: params) else {
-            throw NSError(
-                domain: "BackpackWallet", code: 0,
-                userInfo: [NSLocalizedDescriptionKey: "Failed to build URL"])
+        let deeplink = try generateNonConnectDeeplinkURL(
+            endpointUrl: endpointUrl, payload: requestPayload)
+
+        // Response
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            deeplink, callbackParameter: "redirect_link")
+        try throwIfError(response: response)
+        return try processSigningMethodResponse(
+            response: response)
+    }
+
+    /**
+        Sign all transactions.
+    */
+    public func signAllTransactions(transactions: [Transaction])
+        async throws -> SignAllTransactionsResponse
+    {
+        checkIsConnected()
+
+        let endpointUrl = Self.getEndpointUrl(path: "signAllTransactions")
+
+        // Request
+        let encodedTransactions: [String] = try transactions.map { transaction in
+            return try Base58.encode(transaction.encode())
         }
-        return url
+        let requestPayload: [String: Any] = [
+            "transactions": encodedTransactions,
+            "session": connection!.session,
+        ]
+        let deeplink = try generateNonConnectDeeplinkURL(
+            endpointUrl: endpointUrl, payload: requestPayload)
 
-        // let a = try await SolanaWalletAdapter.deeplinkFetch(
-        //     Self.baseURL, callbackParameter: "redirect_link")
-    }
-    public func disconnect(nonce: String, redirectLink: String, payload: String)
-        async throws
-    {
-        // Implementation
-    }
-
-    public func signAllTransactions(
-        nonce: String, redirectLink: String, payload: String
-    )
-        async throws
-    {
-        // Implementation
-    }
-    public func signAndSendTransaction(
-        nonce: String, redirectLink: String, payload: String
-    )
-        async throws
-    {
-        // Implementation
-    }
-    public func signTransaction(nonce: String, redirectLink: String, payload: String)
-        async throws
-    {
-        // Implementation
-    }
-    public func signMessage(nonce: String, redirectLink: String, payload: String)
-        async throws
-    {
-        // Implementation
+        // Response
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            deeplink, callbackParameter: "redirect_link")
+        try throwIfError(response: response)
+        return try processSigningMethodResponse(
+            response: response)
     }
 
-    public func browse(url: URL, ref: String) async throws {
-        // Implementation
+    /**
+        Sign a transaction.
+    */
+    public func signTransaction(transaction: Transaction)
+        async throws -> SignTransactionResponse
+    {
+        checkIsConnected()
+
+        let endpointUrl = Self.getEndpointUrl(path: "signTransaction")
+
+        // Request
+        let encodedTransaction = try Base58.encode(transaction.encode())
+        let requestPayload: [String: Any] = [
+            "transaction": encodedTransaction,
+            "session": connection!.session,
+        ]
+        let deeplink = try generateNonConnectDeeplinkURL(
+            endpointUrl: endpointUrl, payload: requestPayload)
+
+        // Response
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            deeplink, callbackParameter: "redirect_link")
+        try throwIfError(response: response)
+        return try processSigningMethodResponse(
+            response: response)
+    }
+
+    /**
+        Sign a message.
+    */
+    public func signMessage(message: Data, display: DisplayFormat? = nil)
+        async throws -> SignMessageResponse
+    {
+        checkIsConnected()
+
+        let endpointUrl = Self.getEndpointUrl(path: "signMessage")
+
+        // Request
+        let encodedMessage = Base58.encode([UInt8](message))
+        var requestPayload: [String: Any] = [
+            "message": encodedMessage,
+            "session": connection!.session,
+        ]
+        if let display {
+            requestPayload["display"] = display.rawValue
+        }
+        let deeplink = try generateNonConnectDeeplinkURL(
+            endpointUrl: endpointUrl, payload: requestPayload)
+
+        // Response
+        let response = try await SolanaWalletAdapter.deeplinkFetch(
+            deeplink, callbackParameter: "redirect_link")
+        try throwIfError(response: response)
+        return try processSigningMethodResponse(
+            response: response)
+    }
+
+    /**
+        Browse to a URL.
+    */
+    public func browse(url: URL, ref: URL) async throws {
+        let endpointUrl = Self.getEndpointUrl(path: "browse")
+
+        guard
+            let encodedTargetURL = url.absoluteString.addingPercentEncoding(
+                withAllowedCharacters: .urlQueryAllowed),
+            let encodedRefURL = ref.absoluteString.addingPercentEncoding(
+                withAllowedCharacters: .urlQueryAllowed)
+        else {
+            throw WalletAdapterError.browsingFailed  // TODO: Is this a good error?
+        }
+
+        let deeplink = "\(endpointUrl)/\(encodedTargetURL)?ref=\(encodedRefURL)"
+
+        // TODO: Not if this is how we should handle it
+        #if os(iOS)
+            let success = await UIApplication.shared.open(deeplink)
+        #elseif os(macOS)
+            if let deeplinkUrl = URL(string: deeplink) {
+                let success = NSWorkspace.shared.open(deeplinkUrl)
+            } else {
+                throw DeeplinkFetchingError.unableToOpen  // TODO: Not sure about this error
+            }
+        #endif
+    }
+
+    // ***********************************
+    // Utility functions
+    // ***********************************
+
+    /// Check if the wallet is connected, otherwise crash
+    func checkIsConnected() {
+        precondition(connection != nil, "Wallet is not connected.")
+    }
+
+    /// Get endpoint URL by appending path to baseURL
+    static func getEndpointUrl(path: String) -> URL {
+        if #available(macOS 13, *) {
+            return Self.baseURL.appending(path: path, directoryHint: .notDirectory)
+        } else {
+            return Self.baseURL.appendingPathComponent(path)
+        }
+    }
+
+    /// Throws if the response is an error
+    func throwIfError(response: [String: String]) throws {
+        if let errorCode = response["errorCode"],
+            let errorMessage = response["errorMessage"]
+        {
+            guard let errorCode = Int(errorCode) else {
+                throw WalletAdapterError.invalidResponse
+            }
+            throw WalletError(code: errorCode, message: errorMessage)
+        }
+    }
+
+    /// Process response for signing methods.
+    func processSigningMethodResponse<T: Decodable>(response: [String: String]) throws -> T {
+        guard let nonce = response["payload"],
+            let data = response["data"],
+            let nonceData = Data(base64Encoded: nonce),
+            let dataData = Data(base64Encoded: data)
+        else {
+            throw WalletAdapterError.invalidResponse
+        }
+        return try decryptPayload(
+            encryptedData: dataData,
+            nonce: nonceData)
+    }
+
+    /// Generate a deeplink URL for non-connect methods. This is due to the fact that
+    /// all methods other than connect have the same parameters.
+    /// - Parameters:
+    ///     - endpointUrl: The endpoint URL
+    ///     - payload: The unencrypted payload dictionary
+    /// - Returns: The generated deeplink URL
+    func generateNonConnectDeeplinkURL(endpointUrl: URL, payload: [String: Any]) throws -> URL {
+        checkIsConnected()
+
+        let nonce = try generateNonce()
+        let encryptedPayload = try encryptPayload(
+            payload: payload,
+            nonce: nonce)
+
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!  // TODO: Can I force here?
+        let queryItems = [
+            URLQueryItem(
+                name: "dapp_encryption_public_key",
+                value: Base58.encode([UInt8](connection!.encryption.publicKey))),
+            URLQueryItem(name: "nonce", value: Base58.encode([UInt8](nonce))),
+            URLQueryItem(name: "payload", value: Base58.encode([UInt8](encryptedPayload))),
+        ]
+        components.queryItems = queryItems
+
+        return components.url!  // TODO: Can I force here?
+    }
+
+    /// Decrypt the encrypted payload into the specified type
+    func decryptPayload<T: Decodable>(encryptedData: Data, nonce: Data) throws -> T {
+        checkIsConnected()
+
+        if encryptedData == nil || nonce == nil {
+            throw WalletAdapterError.invalidResponse
+        }
+
+        // Decrypt the message
+        let data = try SaltSecretBox.open(
+            box: encryptedData,
+            nonce: nonce,
+            key: connection!.encryption.sharedKey)
+
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+
+    /// Encrypt the payload dictionary
+    func encryptPayload(payload: [String: Any], nonce: Data) throws -> Data {
+        checkIsConnected()
+
+        let payloadJson = try JSONSerialization.data(withJSONObject: payload)
+        let encryptedPayload = try SaltSecretBox.secretBox(
+            message: payloadJson,
+            nonce: nonce,
+            key: connection!.encryption.sharedKey
+        )
+        return encryptedPayload
     }
 }
