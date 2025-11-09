@@ -19,4 +19,8 @@ public class SolflareWallet: DeeplinkWallet {
         self.connection = try await secureStorage.retrieveWalletConnection(
             key: self.secureStorageKey)
     }
+
+    public func pair() async throws {
+        try await pair(walletEncryptionPublicKeyIdentifier: "solflare_encryption_public_key")
+    }
 }
