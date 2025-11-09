@@ -104,7 +104,7 @@ class DeeplinkFetcher {
         {
             resumeRequestTask(id, .success(components))
         }
-        
+
         return true
     }
 }
