@@ -36,7 +36,7 @@ class DeeplinkFetcher {
             timeout: Double(timeout.components.seconds) + Double(timeout.components.attoseconds)
                 / 1_000_000_000_000_000_000)
     }
-    
+
     func resumeOnce(_ id: UUID, _ result: Result<URLComponents, DeeplinkFetchingError>) {
         guard let request = pendingRequests.removeValue(forKey: id) else { return }
         request.timeoutTask.cancel()
@@ -47,7 +47,7 @@ class DeeplinkFetcher {
         async throws(DeeplinkFetchingError) -> [String: String]
     {
         let id = UUID()
-        let callbackURL = "\(scheme):\(id.uuidString)"
+        let callbackURL = "\(scheme)://\(id.uuidString)"
 
         let finalURL = {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
@@ -60,7 +60,7 @@ class DeeplinkFetcher {
         let result = await withCheckedContinuation {
             (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>)
             in
-            
+
             // Create the timeout task first
             let timeoutTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64((timeout * 1_000_000_000).rounded()))
@@ -99,11 +99,10 @@ class DeeplinkFetcher {
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
 
-        if let id = UUID(uuidString: url.lastPathComponent),
-            let request = pendingRequests.removeValue(forKey: id)
+        if let host = url.host,
+            let id = UUID(uuidString: host)
         {
-            request.timeoutTask.cancel()
-            request.continuation.resume(returning: .success(components))
+            resumeOnce(id, .success(components))
         }
 
         return true
