@@ -117,11 +117,11 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
-public enum Endpoint: Sendable {
+public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible {
     case mainnet
     case testnet
     case devnet
-    case other(url: URL)
+    case other(name: String, url: URL)
 
     public var url: URL {
         switch self {
@@ -131,12 +131,12 @@ public enum Endpoint: Sendable {
             return URL(string: "https://api.testnet.solana.com")!
         case .devnet:
             return URL(string: "https://api.devnet.solana.com")!
-        case .other(let url):
+        case .other(_, let url):
             return url
         }
     }
 
-    public var name: String {
+    public var description: String {
         switch self {
         case .mainnet:
             return "mainnet-beta"
@@ -144,8 +144,8 @@ public enum Endpoint: Sendable {
             return "testnet"
         case .devnet:
             return "devnet"
-        case .other:  // TODO: Solflare does not support other though
-            return "other"
+        case .other(let name, _):
+            return name
         }
     }
 }

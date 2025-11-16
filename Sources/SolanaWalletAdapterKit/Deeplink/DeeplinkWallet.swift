@@ -63,8 +63,8 @@ extension DeeplinkWallet {
             URLQueryItem(name: "app_url", value: appId.url.absoluteString),
             URLQueryItem(
                 name: "dapp_encryption_public_key",
-                value: Base58.encode([UInt8](encryptionKeyPair.publicKey))),
-            URLQueryItem(name: "cluster", value: cluster.name),
+                value: encryptionKeyPair.publicKey.base58EncodedString()),
+            URLQueryItem(name: "cluster", value: cluster.description),
         ]
         components.queryItems = queryItems
         let deeplink = components.url!  // TODO: Can I force here?
@@ -75,9 +75,9 @@ extension DeeplinkWallet {
         guard let walletEncryptionPublicKey = response[walletEncryptionPublicKeyIdentifier],
             let nonce = response["nonce"],
             let data = response["data"],
-            let decodedWalletEncryptionPublicKey = Base58.decode(walletEncryptionPublicKey),
-            let decodedNonce = Base58.decode(nonce),
-            let decodedData = Base58.decode(data)
+            let decodedWalletEncryptionPublicKey = Data(base58Encoded: walletEncryptionPublicKey),
+            let decodedNonce = Data(base58Encoded: nonce),
+            let decodedData = Data(base58Encoded: data)
         else {
             throw SolanaWalletAdapterError.invalidResponse
         }
@@ -142,7 +142,7 @@ extension DeeplinkWallet {
         let endpointUrl = Self.getEndpointUrl(path: "signAndSendTransaction")
 
         // Request
-        let encodedTransaction = try Base58.encode(transaction.encode())
+        let encodedTransaction = try transaction.encode().base58EncodedString()
         var requestPayload: [String: Any] = [
             "transaction": encodedTransaction,
             "session": connection!.session,
@@ -174,8 +174,8 @@ extension DeeplinkWallet {
         let endpointUrl = Self.getEndpointUrl(path: "signAllTransactions")
 
         // Request
-        let encodedTransactions: [String] = try transactions.map { transaction in
-            return try Base58.encode(transaction.encode())
+        let encodedTransactions: [String] = try transactions.map {
+            try $0.encode().base58EncodedString()
         }
         let requestPayload: [String: Any] = [
             "transactions": encodedTransactions,
@@ -203,7 +203,7 @@ extension DeeplinkWallet {
         let endpointUrl = Self.getEndpointUrl(path: "signTransaction")
 
         // Request
-        let encodedTransaction = try Base58.encode(transaction.encode())
+        let encodedTransaction = try transaction.encode().base58EncodedString()
         let requestPayload: [String: Any] = [
             "transaction": encodedTransaction,
             "session": connection!.session,
@@ -230,7 +230,7 @@ extension DeeplinkWallet {
         let endpointUrl = Self.getEndpointUrl(path: "signMessage")
 
         // Request
-        let encodedMessage = Base58.encode([UInt8](message))
+        let encodedMessage = message.base58EncodedString()
         var requestPayload: [String: Any] = [
             "message": encodedMessage,
             "session": connection!.session,
@@ -311,8 +311,8 @@ extension DeeplinkWallet {
     func processSigningMethodResponse<T: Decodable>(response: [String: String]) throws -> T {
         guard let nonce = response["payload"],
             let data = response["data"],
-            let decodedNonce = Base58.decode(nonce),
-            let decodedData = Base58.decode(data)
+            let decodedNonce = Data(base58Encoded: nonce),
+            let decodedData = Data(base58Encoded: data)
         else {
             throw SolanaWalletAdapterError.invalidResponse
         }
@@ -339,9 +339,9 @@ extension DeeplinkWallet {
         let queryItems = [
             URLQueryItem(
                 name: "dapp_encryption_public_key",
-                value: Base58.encode([UInt8](connection!.encryption.publicKey))),
-            URLQueryItem(name: "nonce", value: Base58.encode([UInt8](nonce))),
-            URLQueryItem(name: "payload", value: Base58.encode([UInt8](encryptedPayload))),
+                value: connection!.encryption.publicKey.base58EncodedString()),
+            URLQueryItem(name: "nonce", value: nonce.base58EncodedString()),
+            URLQueryItem(name: "payload", value: encryptedPayload.base58EncodedString()),
         ]
         components.queryItems = queryItems
 
