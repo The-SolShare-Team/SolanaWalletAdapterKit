@@ -1,14 +1,16 @@
+import Foundation
+
 public struct Transaction: Equatable {
     public let signatures: [Signature]
     public let message: VersionedMessage
 }
 
 extension Transaction {
-    public func encode() throws(SolanaTransactionCodingError) -> [UInt8] {
+    public func encode() throws(SolanaTransactionCodingError) -> Data {
         var buffer = SolanaTransactionBuffer()
         try signatures.solanaTransactionEncode(to: &buffer)
         try message.solanaTransactionEncode(to: &buffer)
-        return buffer.readBytes(length: buffer.readableBytes) ?? []
+        return Data(buffer.readBytes(length: buffer.readableBytes) ?? [])
     }
 
     public init<Bytes: Sequence>(bytes: Bytes) throws(SolanaTransactionCodingError)

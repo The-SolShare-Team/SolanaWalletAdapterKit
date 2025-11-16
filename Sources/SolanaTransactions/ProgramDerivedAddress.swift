@@ -21,14 +21,13 @@ public struct ProgramDerivedAddress: Sendable {
 
         let pdaInput =
             concatenatedSeeds + programId.bytes + Array("ProgramDerivedAddress".utf8)
-        let address = [UInt8](SHA256.hash(data: Data(pdaInput)))
+        let address = Data(SHA256.hash(data: Data(pdaInput)))
 
-        if try SaltUtil.isOnCurve(publicKey: Data(address)) {
+        if try SaltUtil.isOnCurve(publicKey: address) {
             throw ProgramDerivedAddressError.addressOnCurve
         }
 
         return PublicKey(bytes: address)!
-
     }
 
     @concurrent
