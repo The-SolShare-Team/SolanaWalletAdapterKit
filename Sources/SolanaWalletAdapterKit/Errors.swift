@@ -1,22 +1,16 @@
 import Foundation
 
 public enum SolanaWalletAdapterError: Error {
+    // Library errors
     case alreadyConnected
     case notConnected
+    case invalidRequest
     case invalidResponse
-    case pairingFailed
-    case unpairingFailed
-    case transactionSigningFailed
-    case messageSigningFailed
-    case browsingFailed
-}
 
-/// Errors wallets may return in a deeplink response.
-/// Each error has a code and message.
-/// - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors
-/// - Backpack: https://docs.backpack.app/deeplinks/limitations#errors
-/// - Phantom: https://docs.phantom.com/solana/errors
-enum WalletError: Error {
+    // Errors wallets may return in a deeplink response.
+    // - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors
+    // - Backpack: https://docs.backpack.app/deeplinks/limitations#errors
+    // - Phantom: https://docs.phantom.com/solana/errors
     case disconnected(message: String)
     case unauthorized(message: String)
     case userRejectedRequest(message: String)
@@ -27,7 +21,7 @@ enum WalletError: Error {
     case internalError(message: String)
     case unknownError(code: Int, message: String)
 
-    init(code: Int, message: String) {
+    init(walletErrorCode code: Int, message: String) {
         switch code {
         case 4900: self = .disconnected(message: message)
         case 4100: self = .unauthorized(message: message)
