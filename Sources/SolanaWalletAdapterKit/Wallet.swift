@@ -2,18 +2,23 @@ import Foundation
 import SolanaRPC
 import SolanaTransactions
 
-@MainActor
+public protocol WalletConnection: Codable {}
+
 public protocol Wallet {
-    init(for: AppIdentity, cluster: Endpoint, restoreFrom: SecureStorage) async throws
+    associatedtype Connection: WalletConnection
 
-    var appId: AppIdentity { get set }
-    var cluster: Endpoint { get set }
-    var secureStorage: SecureStorage { get set }
+    static var identifier: any Hashable { get }
 
-    mutating func pair()
-        async throws
-    mutating func unpair()
-        async throws
+    init(for: AppIdentity, cluster: Endpoint, connection: Connection?)
+
+    var appId: AppIdentity { get }
+    var cluster: Endpoint { get }
+
+    var publicKey: PublicKey? { get }
+    var isConnected: Bool { get }
+
+    mutating func connect() async throws -> Connection?
+    mutating func disconnect() async throws -> Connection?
 
     nonmutating func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?)
         async throws -> SignAndSendTransactionResponseData
@@ -21,13 +26,23 @@ public protocol Wallet {
         async throws -> SignAllTransactionsResponseData
     nonmutating func signTransaction(transaction: Transaction)
         async throws -> SignTransactionResponseData
-    nonmutating func signMessage(message: Data, display: DisplayFormat?)
+    nonmutating func signMessage(message: Data, display: MessageDisplayFormat?)
         async throws -> SignMessageResponseData
 
     nonmutating func browse(url: URL, ref: URL) async throws
 }
 
-public struct AppIdentity: Sendable {
+extension Wallet {
+    init(for appIdentity: AppIdentity, cluster: Endpoint) {
+        self.init(for: appIdentity, cluster: cluster, connection: nil)
+    }
+
+    public var isConnected: Bool {
+        return publicKey != nil
+    }
+}
+
+public struct AppIdentity: Sendable, Hashable {
     let name: String
     let url: URL
     let icon: String

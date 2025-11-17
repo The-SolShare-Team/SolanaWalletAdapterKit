@@ -8,18 +8,18 @@ public struct ConnectResponseData: Decodable {
     }
 }
 
-public struct SignAndSendTransactionResponseData: Decodable {
+public struct SignAndSendTransactionResponseData: Decodable, Sendable {
     public let signature: String
 }
 
-public struct SignAllTransactionsResponseData: Decodable {
+public struct SignAllTransactionsResponseData: Decodable, Sendable {
     public let transactions: [String]
 }
 
-public struct SignTransactionResponseData: Decodable {
+public struct SignTransactionResponseData: Decodable, Sendable {
     public let transaction: String
 }
 
-public struct SignMessageResponseData: Decodable {
+public struct SignMessageResponseData: Decodable, Sendable {
     public let signature: String
 }

@@ -16,7 +16,7 @@ public enum SolanaWalletAdapterError: Error {
 /// - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors
 /// - Backpack: https://docs.backpack.app/deeplinks/limitations#errors
 /// - Phantom: https://docs.phantom.com/solana/errors
-enum WalletError: Error, LocalizedError {
+enum WalletError: Error {
     case disconnected(message: String)
     case unauthorized(message: String)
     case userRejectedRequest(message: String)
