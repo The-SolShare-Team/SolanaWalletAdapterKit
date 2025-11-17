@@ -13,66 +13,64 @@ import SolanaTransactions
     import AppKit
 #endif
 
-public struct DiffieHellmanData: Codable {
-    let publicKey: Data
-    let privateKey: Data
-    let sharedKey: Data
+public struct DeeplinkWalletConnection: WalletConnection {
+    public struct DiffieHellmanData: Codable {
+        let publicKey: Data
+        let privateKey: Data
+        let sharedKey: Data
 
-    public init(publicKey: Data, privateKey: Data, sharedKey: Data) {
-        self.publicKey = publicKey
-        self.privateKey = privateKey
-        self.sharedKey = sharedKey
+        public init(publicKey: Data, privateKey: Data, sharedKey: Data) {
+            self.publicKey = publicKey
+            self.privateKey = privateKey
+            self.sharedKey = sharedKey
+        }
     }
-}
 
-public struct WalletConnection: Codable {
-    let encryption: DiffieHellmanData
-    public let walletPublicKey: String
-    let session: String  // TODO: Do the other fields also need to be public?
+    public let session: String
+    public let encryption: DiffieHellmanData
+    public let walletPublicKey: PublicKey
 
-    public init(encryption: DiffieHellmanData, walletPublicKey: String, session: String) {
+    public init(
+        session: String,
+        encryption: DiffieHellmanData,
+        walletPublicKey: PublicKey
+    ) {
+        self.session = session
         self.encryption = encryption
         self.walletPublicKey = walletPublicKey
-        self.session = session
     }
-}
-
-/// Protocol for Deeplink wallets.
-/// Note: Only classes can conform to this protocol.
-public protocol DeeplinkWallet: Wallet, AnyObject {
-    static var baseURL: URL { get }
-    var connection: WalletConnection? { get set }
-    func pair(walletEncryptionPublicKeyIdentifier: String) async throws
 }
 
 extension DeeplinkWallet {
-    var secureStorageKey: String { "\(appId.name)-\(appId.url.absoluteString)-\(cluster)" }
+    static var baseURL: URL
+    static var walletEncryptionPublicKeyIdentifier: String
+    var connection: DeeplinkWalletConnection?
 
     /**
         Pair with the wallet.
     */
-    public func pair(walletEncryptionPublicKeyIdentifier: String) async throws {
+    public func pair() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
-        let endpointUrl = Self.getEndpointUrl(path: "connect")
-
         let encryptionKeyPair = try SaltBox.keyPair()
-
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!  // TODO: Can I force here?
-        let queryItems = [
-            URLQueryItem(name: "app_url", value: appId.url.absoluteString),
-            URLQueryItem(
-                name: "dapp_encryption_public_key",
-                value: encryptionKeyPair.publicKey.base58EncodedString()),
-            URLQueryItem(name: "cluster", value: cluster.description),
-        ]
-        components.queryItems = queryItems
-        let deeplink = components.url!  // TODO: Can I force here?
+        let deeplink = {
+            let endpointURL = Self.baseURL.appendingPathComponent("connect")
+            var components = URLComponents(url: endpointURL, resolvingAgainstBaseURL: false)!
+            let queryItems = [
+                URLQueryItem(name: "app_url", value: appId.url.absoluteString),
+                URLQueryItem(
+                    name: "dapp_encryption_public_key",
+                    value: encryptionKeyPair.publicKey.base58EncodedString()),
+                URLQueryItem(name: "cluster", value: cluster.description),
+            ]
+            components.queryItems = queryItems
+            return components.url!
+        }()
 
         // Response
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link")
-        guard let walletEncryptionPublicKey = response[walletEncryptionPublicKeyIdentifier],
+        guard let walletEncryptionPublicKey = response[Self.walletEncryptionPublicKeyIdentifier],
             let nonce = response["nonce"],
             let data = response["data"],
             let decodedWalletEncryptionPublicKey = Data(base58Encoded: walletEncryptionPublicKey),
@@ -92,18 +90,15 @@ extension DeeplinkWallet {
             sharedKey: sharedSecretKey)
 
         // Set the connection property on the wallet
-        self.connection = WalletConnection(
-            encryption: DiffieHellmanData(
+        self.connection = DeeplinkWalletConnection(
+            session: decryptedData.session,
+            encryption: DeeplinkWalletConnection.DiffieHellmanData(
                 publicKey: encryptionKeyPair.publicKey,
                 privateKey: encryptionKeyPair.secretKey,
                 sharedKey: sharedSecretKey),
-            walletPublicKey: decryptedData.publicKey,
-            session: decryptedData.session)
+            walletPublicKey: PublicKey(decryptedData.publicKey))
 
-        // We force unwrap here because connection is set just above.
-        try await secureStorage.storeWalletConnection(
-            self.connection!,
-            key: self.secureStorageKey)
+        return self.connection
     }
 
     /**
@@ -125,10 +120,6 @@ extension DeeplinkWallet {
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link")
         try throwIfError(response: response)
-
-        // Clear secure storage and reset connection
-        try await secureStorage.clear(key: self.secureStorageKey)
-        self.connection = nil
     }
 
     /**
@@ -284,15 +275,6 @@ extension DeeplinkWallet {
     /// Check if the wallet is connected, otherwise crash
     func checkIsConnected() {
         precondition(connection != nil, "Wallet is not connected.")
-    }
-
-    /// Get endpoint URL by appending path to baseURL
-    static func getEndpointUrl(path: String) -> URL {
-        if #available(iOS 16.0, macOS 13, *) {
-            return Self.baseURL.appending(path: path, directoryHint: .notDirectory)
-        } else {
-            return Self.baseURL.appendingPathComponent(path)
-        }
     }
 
     /// Throws if the response is an error
