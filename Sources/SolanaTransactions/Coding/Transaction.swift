@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Transaction: Equatable {
+public struct Transaction: Equatable, Sendable {
     public let signatures: [Signature]
     public let message: VersionedMessage
 

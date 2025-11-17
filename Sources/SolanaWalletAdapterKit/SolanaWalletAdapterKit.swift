@@ -12,6 +12,11 @@ public enum SolanaWalletAdapter {
     }
 
     public static func registerCallbackScheme(_ scheme: String) {
+        if _fetcher != nil {
+            fatalError(
+                "SolanaWalletAdapter already initialized. Call registerCallbackScheme(_:) only once."
+            )
+        }
         _fetcher = DeeplinkFetcher(scheme: scheme)
     }
 

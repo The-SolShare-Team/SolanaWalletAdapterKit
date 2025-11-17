@@ -8,7 +8,7 @@ public struct SendOptions: Codable {
     public let skipPreflight: Bool?
 }
 
-public enum DisplayFormat: String {
+public enum MessageDisplayFormat: String {
     case hex = "hex"
     case utf8 = "utf-8"
 }
