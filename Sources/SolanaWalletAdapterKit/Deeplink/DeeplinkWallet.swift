@@ -40,6 +40,12 @@ public protocol DeeplinkWallet: Wallet {
     var connection: DeeplinkWalletConnection? { get set }
 }
 
+public protocol DeeplinkWallet: Wallet {
+    static var baseURL: URL { get }
+    static var walletEncryptionPublicKeyIdentifier: String { get }
+    var connection: DeeplinkWalletConnection? { get set }
+}
+
 extension DeeplinkWallet {
     public var publicKey: PublicKey? { connection?.publicKey }
 
@@ -148,6 +154,18 @@ extension DeeplinkWallet {
         {
             guard let errorCode = Int(errorCode) else {
                 throw SolanaWalletAdapterError.invalidResponse(response: response)
+            }
+            throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
+        }
+    }
+
+    /// Throws if the response is an error
+    func throwIfErrorResponse(response: [String: String]) throws {
+        if let errorCode = response["errorCode"],
+            let errorMessage = response["errorMessage"]
+        {
+            guard let errorCode = Int(errorCode) else {
+                throw SolanaWalletAdapterError.invalidResponse
             }
             throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
         }
