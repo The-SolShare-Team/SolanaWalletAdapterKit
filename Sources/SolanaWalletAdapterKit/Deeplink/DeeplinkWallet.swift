@@ -29,7 +29,6 @@ public struct DeeplinkWalletOptions: Sendable {
         self.walletEncryptionPublicKeyIdentifier = walletEncryptionPublicKeyIdentifier
         self.callbackParameter = callbackParameter
     }
-}
 
 public protocol DeeplinkWallet: Wallet {
     static var _deeplinkWalletOptions: DeeplinkWalletOptions { get }
