@@ -1,4 +1,4 @@
-public struct AddressTableLookup: Equatable {
+public struct AddressTableLookup: Equatable, Sendable {
     public let account: PublicKey
     public let writableIndexes: [UInt8]
     public let readOnlyIndexes: [UInt8]
