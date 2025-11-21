@@ -1,7 +1,7 @@
 import Foundation
 import SimpleKeychain
 
-public struct Keychain: SecureStorage {
+public struct KeychainStorage: SecureStorage {
     let keychain: SimpleKeychain
 
     public init(
@@ -11,7 +11,7 @@ public struct Keychain: SecureStorage {
         self.keychain = SimpleKeychain(service: service, accessibility: accessibility)
     }
 
-    public init(keychain: SimpleKeychain) {
+    public init(_ keychain: SimpleKeychain) {
         self.keychain = keychain
     }
 
