@@ -7,17 +7,26 @@ import SimpleKeychain
 import SolanaRPC
 import SolanaTransactions
 
+#if os(iOS)
+    import UIKit
+#elseif os(macOS)
+    import AppKit
+#endif
+
 public struct DeeplinkWalletOptions: Sendable {
     public let baseURL: URL
+    public let checkAvailableURL: URL?
     public let walletEncryptionPublicKeyIdentifier: String
     public let callbackParameter: String
 
     public init(
         baseURL: URL,
+        checkAvailableURL: URL?,
         walletEncryptionPublicKeyIdentifier: String,
         callbackParameter: String = "redirect_link"
     ) {
         self.baseURL = baseURL
+        self.checkAvailableURL = checkAvailableURL
         self.walletEncryptionPublicKeyIdentifier = walletEncryptionPublicKeyIdentifier
         self.callbackParameter = callbackParameter
     }
@@ -36,6 +45,18 @@ extension DeeplinkWallet {
             }
             return connection
         }
+    }
+
+    public static func isProbablyAvailable() -> Bool {
+        guard let checkAvailableURL = Self._deeplinkWalletOptions.checkAvailableURL else {
+            return false
+        }
+        #if os(iOS)
+            return UIApplication.shared.canOpenURL(checkAvailableURL)
+        #elseif os(macOS)
+            return NSWorkspace.shared.urlForApplication(toOpen: checkAvailableURL)
+                != nil
+        #endif
     }
 
     // ***********************************
