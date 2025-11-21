@@ -9,8 +9,10 @@ import SolanaTransactions
 
 public struct SolflareWallet: DeeplinkWallet {
     public static let identifier = "solflare_wallet"
-    public static let baseURL: URL = URL(string: "https://solflare.com/ul/v1")!
-    public static let walletEncryptionPublicKeyIdentifier: String = "solflare_encryption_public_key"
+    public static let _deeplinkWalletOptions = DeeplinkWalletOptions(
+        baseURL: URL(string: "https://solflare.com/ul/v1")!,
+        walletEncryptionPublicKeyIdentifier: "solflare_encryption_public_key"
+    )
 
     public typealias Connection = DeeplinkWalletConnection
 
