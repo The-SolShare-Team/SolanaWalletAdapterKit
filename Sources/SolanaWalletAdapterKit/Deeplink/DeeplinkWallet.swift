@@ -36,8 +36,7 @@ public protocol DeeplinkWallet: Wallet {
 }
 
 public protocol DeeplinkWallet: Wallet {
-    static var baseURL: URL { get }
-    static var walletEncryptionPublicKeyIdentifier: String { get }
+    static var _deeplinkWalletOptions: DeeplinkWalletOptions { get }
     var connection: DeeplinkWalletConnection? { get set }
 }
 
