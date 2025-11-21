@@ -28,6 +28,19 @@ import TweetNacl
     }
 #endif
 
+extension SaltUtil {
+    public static func generateNonce(bytes count: Int = 24) throws(NaclUtilError) -> Data {
+        var data = Data(count: count)
+        let status = data.withUnsafeMutableBytes { ptr -> OSStatus in
+            SecRandomCopyBytes(kSecRandomDefault, count, ptr.baseAddress!)
+        }
+        guard status == errSecSuccess else {
+            throw .internalError
+        }
+        return data
+    }
+}
+
 public typealias SaltBox = NaclBox
 public typealias SaltSign = NaclSign
 public typealias SaltSecretBox = NaclSecretBox

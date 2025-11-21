@@ -117,22 +117,35 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
-public enum Endpoint {
-    case mainnetBeta
+public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Codable {
+    case mainnet
     case testnet
     case devnet
-    case other(url: URL)
+    case other(name: String, url: URL)
 
     public var url: URL {
         switch self {
-        case .mainnetBeta:
+        case .mainnet:
             return URL(string: "https://api.mainnet-beta.solana.com")!
         case .testnet:
             return URL(string: "https://api.testnet.solana.com")!
         case .devnet:
             return URL(string: "https://api.devnet.solana.com")!
-        case .other(let url):
+        case .other(_, let url):
             return url
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .mainnet:
+            return "mainnet-beta"
+        case .testnet:
+            return "testnet"
+        case .devnet:
+            return "devnet"
+        case .other(let name, _):
+            return name
         }
     }
 }

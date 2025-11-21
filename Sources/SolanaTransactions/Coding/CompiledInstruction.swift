@@ -1,4 +1,4 @@
-public struct CompiledInstruction: Equatable {
+public struct CompiledInstruction: Equatable, Sendable {
     public let programIdIndex: UInt8
     public let accounts: [UInt8]
     public let data: [UInt8]

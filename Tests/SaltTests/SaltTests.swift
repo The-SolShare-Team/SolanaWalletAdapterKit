@@ -18,11 +18,11 @@ import Testing
 @Test func offCurve() {
     #expect(
         try! !SaltUtil.isOnCurve(
-            publicKey: Data(Base58.decode("616dEZzzvT4QX9oe8rDoNGi7AVjyXuSEDyosz5uXWN1K")!)))
+            publicKey: Data(base58Encoded: "616dEZzzvT4QX9oe8rDoNGi7AVjyXuSEDyosz5uXWN1K")!))
 }
 
 @Test func onCurve() {
     #expect(
         try! SaltUtil.isOnCurve(
-            publicKey: Data(Base58.decode("AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")!)))
+            publicKey: Data(base58Encoded: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")!))
 }

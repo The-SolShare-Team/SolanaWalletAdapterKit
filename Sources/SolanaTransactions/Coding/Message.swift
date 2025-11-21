@@ -1,9 +1,9 @@
-public enum VersionedMessage: Equatable {
+public enum VersionedMessage: Equatable, Sendable {
     case legacyMessage(LegacyMessage)
     case v0(V0Message)
 }
 
-public struct LegacyMessage: Equatable {
+public struct LegacyMessage: Equatable, Sendable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
@@ -12,7 +12,7 @@ public struct LegacyMessage: Equatable {
     let instructions: [CompiledInstruction]
 }
 
-public struct V0Message: Equatable {
+public struct V0Message: Equatable, Sendable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
