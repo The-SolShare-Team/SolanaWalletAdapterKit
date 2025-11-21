@@ -46,8 +46,8 @@ public protocol Wallet {
 
 public struct WalletConnection: Codable {
     let encryption: DiffieHellmanData
-    let walletPublicKey: String
-    let session: String
+    public var walletPublicKey: String
+    public var session: String
 
     public init(encryption: DiffieHellmanData, walletPublicKey: String, session: String) {
         self.encryption = encryption

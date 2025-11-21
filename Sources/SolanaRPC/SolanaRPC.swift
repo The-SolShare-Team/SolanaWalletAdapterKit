@@ -139,12 +139,12 @@ public enum Endpoint: Sendable {
     public var name: String {
         switch self {
         case .mainnet:
-            return "mainnet"
+            return "mainnet-beta"
         case .testnet:
             return "testnet"
         case .devnet:
             return "devnet"
-        case .other:  // TODO: Solflare does not support otehr though
+        case .other:  // TODO: Solflare does not support other though
             return "other"
         }
     }

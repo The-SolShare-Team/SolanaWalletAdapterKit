@@ -98,7 +98,7 @@ class DeeplinkFetcher {
         guard url.scheme == scheme else { return false }
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-
+//        print(url)
         if let host = url.host,
             let id = UUID(uuidString: host)
         {

@@ -1,7 +1,28 @@
-import Foundation
 
-public class BackpackWallet: BaseDeeplinkWallet {
-    public override var baseURL: URL {
-        URL(string: "https://backpack.app/ul/v1")!
+import Foundation
+import SolanaRPC
+
+public struct BackpackWallet: DeeplinkWallet {
+    public static var baseURL: URL = URL(string: "https://backpack.app/ul/v1")!
+    public static var name: String = "Backpack"
+    public var connection: WalletConnection?
+    public var appId: AppIdentity
+    public var cluster: SolanaRPC.Endpoint
+    public var secureStorage: SecureStorage
+
+    public init(
+        for appId: AppIdentity,
+        cluster: SolanaRPC.Endpoint,
+        restoreFrom secureStorage: SecureStorage
+    ) async throws {
+        self.appId = appId
+        self.cluster = cluster
+        self.secureStorage = secureStorage
+        self.connection = try await secureStorage.retrieveWalletConnection(
+            key: self.secureStorageKey)
+    }
+
+    public mutating func pair() async throws {
+        try await self.pair(walletEncryptionPublicKeyIdentifier: "wallet_encryption_public_key")
     }
 }
