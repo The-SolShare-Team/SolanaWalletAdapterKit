@@ -22,7 +22,7 @@ public struct DeeplinkWalletConnection: WalletConnection {
 
     public let session: String
     public let encryption: DiffieHellmanData
-    public let walletPublicKey: PublicKey
+    public let publicKey: PublicKey
 
     public init(
         session: String,
@@ -31,6 +31,6 @@ public struct DeeplinkWalletConnection: WalletConnection {
     ) {
         self.session = session
         self.encryption = encryption
-        self.walletPublicKey = walletPublicKey
+        self.publicKey = walletPublicKey
     }
 }

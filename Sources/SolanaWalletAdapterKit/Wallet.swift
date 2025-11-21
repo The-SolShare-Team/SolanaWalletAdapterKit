@@ -2,7 +2,9 @@ import Foundation
 import SolanaRPC
 import SolanaTransactions
 
-public protocol WalletConnection: Codable {}
+public protocol WalletConnection: Codable {
+    var publicKey: PublicKey { get }
+}
 
 public protocol Wallet: SendableMetatype {
     associatedtype Connection: WalletConnection
@@ -30,6 +32,8 @@ public protocol Wallet: SendableMetatype {
         async throws -> SignMessageResponseData
 
     nonmutating func browse(url: URL, ref: URL) async throws
+
+    static func isProbablyAvailable() -> Bool
 }
 
 extension Wallet {
@@ -42,7 +46,7 @@ extension Wallet {
     }
 }
 
-public struct AppIdentity: Sendable, Hashable, Codable {
+public struct AppIdentity: Sendable, Codable, Equatable {
     let name: String
     let url: URL
     let icon: String
