@@ -15,6 +15,7 @@ import SolanaTransactions
 
 public protocol DeeplinkWallet: Wallet {
     static var baseURL: URL { get }
+    static var name: String {get set}
     mutating func pair(walletEncryptionPublicKeyIdentifier: String) async throws
 }
 
@@ -55,22 +56,29 @@ extension DeeplinkWallet {
             throw WalletAdapterError.invalidResponse
         }
 
+    
         // Decrypt the data in the response
         let sharedSecretKey = try SaltBox.before(
             publicKey: Data(decodedWalletEncryptionPublicKey),
             secretKey: encryptionKeyPair.secretKey)
-        let decryptedData: ConnectResponse = try decryptPayload(
-            encryptedData: Data(decodedData),
-            nonce: Data(decodedNonce))
-
-        // Set the connection property on the wallet
+        
+        // Set the connection property on the wallet MARK: before we decrypt so that our connected precondition does not fail
         self.connection = WalletConnection(
             encryption: DiffieHellmanData(
                 publicKey: encryptionKeyPair.publicKey,
                 privateKey: encryptionKeyPair.secretKey,
                 sharedKey: sharedSecretKey),
-            walletPublicKey: decryptedData.publicKey,
-            session: decryptedData.session)
+            walletPublicKey: "",
+            session:""
+        )
+        
+        let decryptedData: ConnectResponse = try decryptPayload(
+            encryptedData: Data(decodedData),
+            nonce: Data(decodedNonce))
+        // set walletPublicKey and Session after receiving decryped data, force unwrap as we just set connection
+        self.connection!.walletPublicKey = decryptedData.publicKey
+        self.connection!.session = decryptedData.session
+        
 
         // We force unwrap here because connection is set just above.
         try await secureStorage.storeWalletConnection(
@@ -240,7 +248,7 @@ extension DeeplinkWallet {
 
         // TODO: Not if this is how we should handle it
         #if os(iOS)
-            let success = await UIApplication.shared.open(deeplink)
+            let success = await UIApplication.shared.open(URL(string: deeplink)!)
         #elseif os(macOS)
             if let deeplinkUrl = URL(string: deeplink) {
                 let success = NSWorkspace.shared.open(deeplinkUrl)
@@ -255,7 +263,7 @@ extension DeeplinkWallet {
     // ***********************************
 
     /// Check if the wallet is connected, otherwise crash
-    func checkIsConnected() {
+    public func checkIsConnected() {
         precondition(connection != nil, "Wallet is not connected.")
     }
 
