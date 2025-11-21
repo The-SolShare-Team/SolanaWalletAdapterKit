@@ -117,7 +117,7 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
-public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible {
+public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Codable {
     case mainnet
     case testnet
     case devnet
