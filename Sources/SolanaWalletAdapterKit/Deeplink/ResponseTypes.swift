@@ -1,5 +1,7 @@
+import SolanaTransactions
+
 public struct ConnectResponseData: Decodable {
-    public let publicKey: String
+    public let publicKey: PublicKey
     public let session: String
 
     enum CodingKeys: String, CodingKey {
@@ -9,7 +11,7 @@ public struct ConnectResponseData: Decodable {
 }
 
 public struct SignAndSendTransactionResponseData: Decodable, Sendable {
-    public let signature: String
+    public let signature: Signature
 }
 
 public struct SignAllTransactionsResponseData: Decodable, Sendable {
@@ -21,5 +23,5 @@ public struct SignTransactionResponseData: Decodable, Sendable {
 }
 
 public struct SignMessageResponseData: Decodable, Sendable {
-    public let signature: String
+    public let signature: Signature
 }

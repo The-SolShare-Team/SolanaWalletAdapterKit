@@ -4,10 +4,10 @@ import SolanaTransactions
 
 public protocol WalletConnection: Codable {}
 
-public protocol Wallet {
+public protocol Wallet: SendableMetatype {
     associatedtype Connection: WalletConnection
 
-    static var identifier: any Hashable { get }
+    static var identifier: String { get }
 
     init(for: AppIdentity, cluster: Endpoint, connection: Connection?)
 
@@ -18,7 +18,7 @@ public protocol Wallet {
     var isConnected: Bool { get }
 
     mutating func connect() async throws -> Connection?
-    mutating func disconnect() async throws -> Connection?
+    mutating func disconnect() async throws
 
     nonmutating func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?)
         async throws -> SignAndSendTransactionResponseData
@@ -42,7 +42,7 @@ extension Wallet {
     }
 }
 
-public struct AppIdentity: Sendable, Hashable {
+public struct AppIdentity: Sendable, Hashable, Codable {
     let name: String
     let url: URL
     let icon: String
