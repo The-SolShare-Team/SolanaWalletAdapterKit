@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SolanaWalletAdapterKit",
     platforms: [
-        .iOS(.v18),
+        .iOS(.v14),
         .macOS(.v11),
     ],
     products: [
@@ -35,7 +35,7 @@ let package = Package(
     targets: [
         .target(name: "Base58"),
         .testTarget(name: "Base58Tests", dependencies: ["Base58"]),
-        .target(name: "Base64"),
+
         .target(
             name: "Salt",
             dependencies: [
@@ -45,14 +45,8 @@ let package = Package(
         .testTarget(name: "SaltTests", dependencies: ["Salt"]),
 
         .target(
-            name: "SolanaWalletAdapterKit",
-            dependencies: [
-                "Base58",
-                "SimpleKeychain",
-                "SolanaRPC",
-                "Salt",
-                "SolanaTransactions",
-            ]),
+            name: "SolanaRPC",
+            dependencies: ["SwiftBorsh", "SolanaTransactions"]),
         .testTarget(
             name: "SolanaRPCTests",
             dependencies: ["SolanaRPC"]),
@@ -76,7 +70,7 @@ let package = Package(
                 "SimpleKeychain",
                 "SolanaRPC",
                 "Salt",
-                "SolanaTransactions", "Base64",
+                "SolanaTransactions",
             ]),
         .testTarget(
             name: "SolanaWalletAdapterKitTests",

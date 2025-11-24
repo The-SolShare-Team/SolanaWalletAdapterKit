@@ -16,7 +16,7 @@ public struct SolflareWallet: DeeplinkWallet {
     public let cluster: Endpoint
     public var connection: DeeplinkWalletConnection?
     public var publicKey: PublicKey? { connection?.publicKey }
-
+    public var storageIdentifier: String?
     public init(
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?
     ) {

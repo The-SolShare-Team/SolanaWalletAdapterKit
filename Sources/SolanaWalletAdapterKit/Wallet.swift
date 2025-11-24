@@ -4,21 +4,22 @@ import SolanaTransactions
 
 public protocol WalletConnection: Codable {
     var publicKey: PublicKey { get }
+    var session: String {get }
 }
 
 public protocol Wallet: SendableMetatype {
     associatedtype Connection: WalletConnection
-
+    
     static var identifier: String { get }
-
+    
     init(for: AppIdentity, cluster: Endpoint, connection: Connection?)
-
+    
     var appId: AppIdentity { get }
     var cluster: Endpoint { get }
-
+    var connection: Connection? {get set}
     var publicKey: PublicKey? { get }
     var isConnected: Bool { get }
-
+    var storageIdentifier: String? { get set }
     mutating func connect() async throws -> Connection?
     mutating func disconnect() async throws
 
@@ -38,7 +39,7 @@ public protocol Wallet: SendableMetatype {
 
 extension Wallet {
     init(for appIdentity: AppIdentity, cluster: Endpoint) {
-        self.init(for: appIdentity, cluster: cluster, connection: nil)
+        self.init(for: appIdentity, cluster: cluster, connection: nil as Connection?)
     }
 
     public var isConnected: Bool {
