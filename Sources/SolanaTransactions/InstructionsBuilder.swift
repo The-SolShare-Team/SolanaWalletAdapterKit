@@ -68,7 +68,7 @@ extension Transaction {
                 }
                 accounts.append(account.publicKey)
             }
-            accounts.append(instruction.programId)
+            accounts.append(instruction.programId)  // ProgramID needs to be at the end of the accounts array (otherwise, the transaction is invalid)
         }
 
         let signers = writableSigners.union(readOnlySigners)
@@ -81,7 +81,7 @@ extension Transaction {
         }
 
         signatures = signers.map { _ in
-            "1111111111111111111111111111111111111111111111111111111111111111"
+            "1111111111111111111111111111111111111111111111111111111111111111"  // 64-byte placeholder array for signatures (otherwise, the transaction is invalid)
         }
         message = .legacyMessage(
             LegacyMessage(
