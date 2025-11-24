@@ -26,7 +26,7 @@ public class WalletConnectionManager {
         self.storage = storage
     }
 
-    public func recoverWallets() async throws {
+    public func recoverWallets() async throws { 
         let decoder = JSONDecoder()
         decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey] =
             self.availableWalletsMap
@@ -49,6 +49,7 @@ public class WalletConnectionManager {
 
     public func pair<W: Wallet>(_ wallet: inout W) async throws {
         guard let connection = try await wallet.connect() else { return }
+        guard let publicKey = wallet.publicKey else { return }
         let savedConnection = SavedWalletConnection(wallet, connection: connection)
 
         let encoder = JSONEncoder()
@@ -60,15 +61,20 @@ public class WalletConnectionManager {
     }
 
     public func unpair<W: Wallet>(_ wallet: inout W) async throws {
-        guard let publicKey = wallet.publicKey else { throw SolanaWalletAdapterError.notConnected }
-        let identifier = try Self.walletIdentifier(
-            for: type(of: wallet), appIdentity: wallet.appId, cluster: wallet.cluster,
-            publicKey: publicKey)
-        try await wallet.disconnect()
+        guard let connection = wallet.connection, let publicKey = wallet.publicKey else { throw SolanaWalletAdapterError.notConnected }
+        let decoder = JSONDecoder()
+            decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey] = self.availableWalletsMap
+        
+        
         connectedWallets.removeAll {
             $0.appId == wallet.appId && $0.cluster == wallet.cluster && $0.publicKey == publicKey
                 && type(of: $0) == type(of: wallet)
         }
+        guard let identifier = wallet.storageIdentifier else {return}
+        print("Identifier to disconnect: ")
+        print(identifier)
+        print("All keys in storage:")
+        print(try await storage.retrieveAll().map(\.key))
         try await storage.clear(key: identifier)
     }
 

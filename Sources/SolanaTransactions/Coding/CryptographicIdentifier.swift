@@ -88,12 +88,3 @@ extension _CryptographicIdentifier {
         lhs.bytes == rhs.bytes
     }
 }
-
-extension PublicKey {
-    public init(_ string: String) throws {
-        let bytes = Base58.decode(string)
-        precondition(bytes != nil)
-        precondition(bytes!.count == Self.byteLength)
-        self.init(bytes: bytes!)
-    }
-}
