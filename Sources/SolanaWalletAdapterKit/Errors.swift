@@ -5,7 +5,7 @@ public enum SolanaWalletAdapterError: Error {
     case alreadyConnected
     case notConnected
     case invalidRequest
-    case invalidResponse
+    case invalidResponse(response: [String: String])
 
     // Errors wallets may return in a deeplink response.
     // - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors
