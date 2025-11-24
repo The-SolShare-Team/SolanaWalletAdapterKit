@@ -83,7 +83,7 @@ extension DeeplinkWallet {
             deeplink, callbackParameter: "redirect_link"
         )
         try throwIfErrorResponse(response: response)
-        guard let nonce = response["payload"],
+        guard let nonce = response["nonce"],
             let data = response["data"],
             let decodedNonce = Data(base58Encoded: nonce),
             let decodedData = Data(base58Encoded: data)
