@@ -147,7 +147,7 @@ extension DeeplinkWallet {
             let errorMessage = response["errorMessage"]
         {
             guard let errorCode = Int(errorCode) else {
-                throw SolanaWalletAdapterError.invalidResponse
+                throw SolanaWalletAdapterError.invalidResponse(response: response)
             }
             throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
         }
