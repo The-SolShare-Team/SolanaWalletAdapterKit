@@ -1,4 +1,5 @@
 import Collections
+import Foundation
 import SwiftBorsh
 import Base58
 
