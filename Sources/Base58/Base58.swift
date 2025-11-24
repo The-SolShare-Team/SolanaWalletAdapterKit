@@ -1,19 +1,26 @@
-public enum Base58 {
-    static let encodingTable = Array("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
+import Foundation
+
+let encodingTable = Array("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
+
+extension Data {
+    public func base58EncodedData() -> Data {
+        let string = self.base58EncodedString()
+        return Data(string.utf8)
+    }
 
     // Based on https://pub.dev/documentation/extension_data/latest/codec/base58Encode.html
-    public static func encode(_ input: [UInt8]) -> String {
-        guard !input.isEmpty else { return "" }
+    public func base58EncodedString() -> String {
+        guard !self.isEmpty else { return "" }
 
-        let zeroes = input.firstIndex(where: { $0 != 0 }) ?? input.count
-        let size = (input.count - zeroes) * 138 / 100 + 1
+        let zeroes = self.firstIndex(where: { $0 != 0 }) ?? self.count
+        let size = (self.count - zeroes) * 138 / 100 + 1
 
         var encoded = String(repeating: "1", count: zeroes)
 
         var buffer = [UInt8](repeating: 0, count: size)
         var length = 0
 
-        for byte in input.dropFirst(zeroes) {
+        for byte in self.dropFirst(zeroes) {
             var carry = UInt(byte)
             var i = 0
             while i < length || carry > 0 {
@@ -33,17 +40,25 @@ public enum Base58 {
         return encoded
     }
 
+    public init?(base58Encoded input: Data) {
+        guard let string = String(data: input, encoding: .utf8) else { return nil }
+        self.init(base58Encoded: string)
+    }
+
     // Based on https://pub.dev/documentation/extension_data/latest/codec/base58Decode.html
-    public static func decode(_ input: String) -> [UInt8]? {
-        guard !input.isEmpty else { return [] }
+    public init?(base58Encoded input: String) {
+        guard !input.isEmpty else {
+            self = Data()
+            return
+        }
 
         let zeroes = input.distance(
             from: input.startIndex, to: input.firstIndex(where: { $0 != "1" }) ?? input.endIndex)
         let size = (input.count - zeroes) * 733 / 1000 + 1
 
-        var decoded = [UInt8](repeating: 0, count: zeroes)
+        var decoded = Data(repeating: 0, count: zeroes)
 
-        var buffer = [UInt8](repeating: 0, count: size)
+        var buffer = Data(repeating: 0, count: size)
         var length = 0
 
         for char in input.dropFirst(zeroes) {
@@ -63,6 +78,6 @@ public enum Base58 {
         decoded.reserveCapacity(length)
         decoded.append(contentsOf: buffer.prefix(length).reversed())
 
-        return decoded
+        self = decoded
     }
 }

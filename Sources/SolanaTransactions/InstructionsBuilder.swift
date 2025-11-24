@@ -1,4 +1,5 @@
 import Collections
+import Foundation
 import SwiftBorsh
 import Base58
 
@@ -93,8 +94,10 @@ extension Transaction {
         }
 
         let signers = writableSigners.union(readOnlySigners)
-        
-        signatures = []
+
+        signatures = signers.map { _ in
+            "1111111111111111111111111111111111111111111111111111111111111111"
+        }
         message = .legacyMessage(
             LegacyMessage(
                 signatureCount: UInt8(signers.count),

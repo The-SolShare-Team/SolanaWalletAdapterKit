@@ -43,6 +43,7 @@ let package = Package(
                 .product(name: "TweetNacl", package: "tweetnacl-swiftwrap"),
             ]),
         .testTarget(name: "SaltTests", dependencies: ["Salt"]),
+
         .target(
             name: "SolanaWalletAdapterKit",
             dependencies: [
@@ -53,8 +54,9 @@ let package = Package(
                 "SolanaTransactions",
             ]),
         .testTarget(
-            name: "SolanaWalletAdapterKitTests",
-            dependencies: ["SolanaWalletAdapterKit"]),
+            name: "SolanaRPCTests",
+            dependencies: ["SolanaRPC"]),
+
         .target(
             name: "SolanaTransactions",
             dependencies: [
@@ -66,11 +68,18 @@ let package = Package(
         .testTarget(
             name: "SolanaTransactionsTests",
             dependencies: ["SolanaTransactions", "SwiftBorsh", "SolanaRPC"]),
+
         .target(
-            name: "SolanaRPC",
-            dependencies: ["SwiftBorsh", "SolanaTransactions", "Base64"]),
+            name: "SolanaWalletAdapterKit",
+            dependencies: [
+                "Base58",
+                "SimpleKeychain",
+                "SolanaRPC",
+                "Salt",
+                "SolanaTransactions", "Base64",
+            ]),
         .testTarget(
-            name: "SolanaRPCTests",
-            dependencies: ["SolanaRPC"]),
+            name: "SolanaWalletAdapterKitTests",
+            dependencies: ["SolanaWalletAdapterKit"]),
     ]
 )
