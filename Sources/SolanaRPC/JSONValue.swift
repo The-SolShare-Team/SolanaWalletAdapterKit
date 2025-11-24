@@ -1,4 +1,4 @@
-enum JSONValue: Codable {
+public enum JSONValue: Codable {
     case string(String)
     case number(Double)
     case object([String: JSONValue])
@@ -6,7 +6,7 @@ enum JSONValue: Codable {
     case bool(Bool)
     case null
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         if container.decodeNil() {
@@ -26,7 +26,7 @@ enum JSONValue: Codable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .string(let s): try container.encode(s)

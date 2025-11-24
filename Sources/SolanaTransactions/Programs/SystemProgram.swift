@@ -2,14 +2,14 @@ import SwiftBorsh
 
 @BorshEncodable
 private struct TransferData {
-    let index: Int32 = 0
-    let lamports: Int64
+    let index: UInt32 = 0
+    let lamports: UInt64
 }
 
 @BorshEncodable
 private struct CreateAccountData {
-    let index: Int32 = 2
-    let lamports: Int64
+    let index: UInt32 = 2
+    let lamports: UInt64
     let space: Int64
     let programId: PublicKey
 }
@@ -38,9 +38,9 @@ public enum SystemProgram: Program, Instruction {
 
     public var data: BorshEncodable {
         return switch self {
-        case .transfer(_, _, let lamports): TransferData(lamports: lamports)
+        case .transfer(_, _, let lamports): TransferData(lamports: UInt64(lamports))
         case .createAccount(_, _, let lamports, let space, let programId):
-            CreateAccountData(lamports: lamports, space: space, programId: programId)
+            CreateAccountData(lamports: UInt64(lamports), space: space, programId: programId)
         }
     }
 }

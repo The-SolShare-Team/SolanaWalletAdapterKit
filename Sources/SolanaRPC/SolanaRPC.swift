@@ -162,7 +162,18 @@ public struct SolanaRPCClient {
     public init(endpoint: Endpoint) {
         self.endpoint = endpoint
     }
-
+    
+    func fetchRaw<T: Decodable>(method: String, params: [Encodable], into: T.Type) async throws  -> T {
+        let request = RPCRequest(method: method, params: params)
+        var urlRequest = URLRequest(url: endpoint.url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.httpBody = try JSONEncoder().encode(request)
+        
+        let (data, _) = try await URLSession.shared.data(for: urlRequest)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+    
     func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T
