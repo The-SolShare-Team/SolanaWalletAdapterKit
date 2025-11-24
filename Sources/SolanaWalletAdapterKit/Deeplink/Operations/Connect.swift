@@ -8,7 +8,7 @@ import SolanaRPC
 import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Pair with the wallet.
+    /// Connect with the wallet.
     public mutating func connect() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
