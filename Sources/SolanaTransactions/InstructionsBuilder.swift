@@ -1,4 +1,5 @@
 import Collections
+import Foundation
 import SwiftBorsh
 
 public protocol Instruction {
@@ -58,7 +59,6 @@ extension Transaction {
         var accounts: OrderedSet<PublicKey> = []
 
         for instruction in instructions {
-            accounts.append(instruction.programId)
             for account in instruction.accounts {
                 switch (account.isSigner, account.isWritable) {
                 case (true, true): writableSigners.append(account.publicKey)
@@ -68,6 +68,7 @@ extension Transaction {
                 }
                 accounts.append(account.publicKey)
             }
+            accounts.append(instruction.programId)
         }
 
         let signers = writableSigners.union(readOnlySigners)
@@ -79,7 +80,9 @@ extension Transaction {
                 data: try BorshEncoder.encode($0.data))
         }
 
-        signatures = []
+        signatures = signers.map { _ in
+            "1111111111111111111111111111111111111111111111111111111111111111"
+        }
         message = .legacyMessage(
             LegacyMessage(
                 signatureCount: UInt8(signers.count),
