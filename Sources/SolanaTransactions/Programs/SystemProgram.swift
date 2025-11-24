@@ -38,9 +38,9 @@ public enum SystemProgram: Program, Instruction {
 
     public var data: BorshEncodable {
         return switch self {
-        case .transfer(_, _, let lamports): TransferData(lamports: lamports)
+        case .transfer(_, _, let lamports): TransferData(lamports: UInt64(lamports))
         case .createAccount(_, _, let lamports, let space, let programId):
-            CreateAccountData(lamports: lamports, space: space, programId: programId)
+            CreateAccountData(lamports: UInt64(lamports), space: space, programId: programId)
         }
     }
 }

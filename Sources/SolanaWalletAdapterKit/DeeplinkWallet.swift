@@ -53,6 +53,7 @@ extension DeeplinkWallet {
             let decodedNonce = Base58.decode(nonce),
             let decodedData = Base58.decode(data)
         else {
+            print("invalid pair response")
             throw WalletAdapterError.invalidResponse
         }
 
@@ -281,6 +282,7 @@ extension DeeplinkWallet {
         if let errorCode = response["errorCode"],
             let errorMessage = response["errorMessage"]
         {
+            print(errorCode + errorMessage)
             guard let errorCode = Int(errorCode) else {
                 throw WalletAdapterError.invalidResponse
             }
@@ -290,7 +292,8 @@ extension DeeplinkWallet {
 
     /// Process response for signing methods.
     func processSigningMethodResponse<T: Decodable>(response: [String: String]) throws -> T {
-        guard let nonce = response["payload"],
+        print(response)
+        guard let nonce = response["nonce"],
             let data = response["data"],
             let decodedNonce = Base58.decode(nonce),
             let decodedData = Base58.decode(data)
@@ -334,6 +337,7 @@ extension DeeplinkWallet {
         checkIsConnected()
 
         guard let encryptedData = encryptedData, let nonce = nonce else {
+            print("invalid payload or nonce")
             throw WalletAdapterError.invalidResponse
         }
 

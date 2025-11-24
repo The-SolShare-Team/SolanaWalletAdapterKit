@@ -1,4 +1,4 @@
-public enum JSONValue: Codable, Sendable{
+public enum JSONValue: Codable {
     case string(String)
     case number(Double)
     case object([String: JSONValue])
