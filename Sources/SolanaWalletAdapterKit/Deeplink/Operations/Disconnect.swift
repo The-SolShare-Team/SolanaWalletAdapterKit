@@ -8,7 +8,7 @@ import SolanaRPC
 import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Unpair from the wallet.
+    /// Disconnect from the wallet.
     public mutating func disconnect() async throws {
         let connection = try _activeConnection
 
