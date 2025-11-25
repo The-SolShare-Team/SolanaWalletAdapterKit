@@ -18,4 +18,9 @@ jobs:
       run: brew install periphery
 
     - name: Run Periphery
-      run: periphery scan
+      run: periphery scan --format github-markdown --write-results periphery.md
+    
+    - name: Add Periphery results to summary
+      run: |
+        echo "## 🧹 Periphery Unused Code Report" >> $GITHUB_STEP_SUMMARY
+        cat periphery.md >> $GITHUB_STEP_SUMMARY
