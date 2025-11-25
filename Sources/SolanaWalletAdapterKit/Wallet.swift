@@ -19,7 +19,6 @@ public protocol Wallet: SendableMetatype {
     var connection: Connection? {get set}
     var publicKey: PublicKey? { get }
     var isConnected: Bool { get }
-    var storageIdentifier: String? { get set }
     mutating func connect() async throws -> Connection?
     mutating func disconnect() async throws
 

@@ -10,7 +10,7 @@ public class WalletConnectionManager {
     public let availableWallets: [any Wallet.Type]
     private var storage: any SecureStorage
 
-    public private(set) var connectedWallets: [any Wallet] = []
+    public internal(set) var connectedWallets: [any Wallet] = []
 
     public init(
         availableWallets: [any Wallet.Type] = [SolflareWallet.self], storage: any SecureStorage
@@ -51,13 +51,12 @@ public class WalletConnectionManager {
         let encoder = JSONEncoder()
         let data = try encoder.encode(savedConnection)
         let identifier = try savedConnection.identifier()
-        wallet.storageIdentifier = identifier
         try await storage.store(data, key: identifier)
-        print("Saved Connection Identifier: " +  identifier)
-        print("All keys in storage:")
-        print(try await storage.retrieveAll().map(\.key))
-        print("Retrieving from Storage Identifier: " +  identifier)
-        print(try await storage.retrieve(key: identifier))
+//        print("Saved Connection Identifier: " +  identifier)
+//        print("All keys in storage:")
+//        print(try await storage.retrieveAll().map(\.key))
+//        print("Retrieving from Storage Identifier: " +  identifier)
+//        print(try await storage.retrieve(key: identifier))
         connectedWallets.append(wallet)
     }
 
@@ -71,11 +70,11 @@ public class WalletConnectionManager {
             $0.appId == wallet.appId && $0.cluster == wallet.cluster && $0.publicKey == publicKey
                 && type(of: $0) == type(of: wallet)
         }
-        guard let identifier = wallet.storageIdentifier else {return}
-        print("Identifier to disconnect: ")
-        print(identifier)
-        print("All keys in storage:")
-        print(try await storage.retrieveAll().map(\.key))
+        let identifier = try WalletConnectionManager.walletIdentifier(for: type(of: wallet), appIdentity: wallet.appId, cluster: wallet.cluster, publicKey: publicKey)
+//        print("Identifier to disconnect: ")
+//        print(identifier)
+//        print("All keys in storage:")
+//        print(try await storage.retrieveAll().map(\.key))
         try await storage.clear(key: identifier)
     }
 
@@ -95,6 +94,7 @@ public class WalletConnectionManager {
             walletType: walletType.identifier, appIdentity: appIdentity, cluster: cluster,
             publicKey: publicKey)
         let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
         let encoded = try encoder.encode(identifier)
         let hash = SHA256.hash(data: encoded)
         return hash.compactMap { String(format: "%02x", $0) }.joined()
