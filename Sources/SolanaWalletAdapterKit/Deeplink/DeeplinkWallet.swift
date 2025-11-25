@@ -88,7 +88,7 @@ extension DeeplinkWallet {
             let decodedNonce = Data(base58Encoded: nonce),
             let decodedData = Data(base58Encoded: data)
         else {
-            throw SolanaWalletAdapterError.invalidResponse(response: response)
+            throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
         }
         return try decryptPayload(
             encryptedData: decodedData,
@@ -130,7 +130,7 @@ extension DeeplinkWallet {
             let errorMessage = response["errorMessage"]
         {
             guard let errorCode = Int(errorCode) else {
-                throw SolanaWalletAdapterError.invalidResponse(response: response)
+                throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
             }
             throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
         }
