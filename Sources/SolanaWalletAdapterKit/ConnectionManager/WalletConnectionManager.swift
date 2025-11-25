@@ -13,7 +13,12 @@ public class WalletConnectionManager {
     public private(set) var connectedWallets: [any Wallet] = []
 
     public init(
-        availableWallets: [any Wallet.Type] = [SolflareWallet.self], storage: any SecureStorage
+        availableWallets: [any Wallet.Type] = [
+            SolflareWallet.self,
+            BackpackWallet.self,
+            PhantomWallet.self,
+        ],
+        storage: any SecureStorage
     ) {
         self.availableWallets = availableWallets
         self.availableWalletsMap = Dictionary(
