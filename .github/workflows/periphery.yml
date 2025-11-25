@@ -1,0 +1,21 @@
+name: Periphery
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  periphery:
+    name: Run Periphery
+    runs-on:  macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Periphery
+      run: brew install periphery
+
+    - name: Run Periphery
+      run: periphery scan
