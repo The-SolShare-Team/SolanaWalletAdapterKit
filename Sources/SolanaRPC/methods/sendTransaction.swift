@@ -1,3 +1,4 @@
+import Foundation
 import Base58
 import Base64
 import SolanaTransactions
@@ -35,11 +36,13 @@ extension SolanaRPCClient {
         var params: [Encodable] = []
 
         let serializedTransaction = try transaction.encode()
-        let encodedTransaction =
-            switch options?.encoding ?? .base58 {
-            case .base58: Base58.encode(serializedTransaction)
-            case .base64: Base64.encode(serializedTransaction)
-            }
+        let encodedTransaction: String
+        switch options?.encoding ?? .base58 {
+        case .base58:
+            encodedTransaction = serializedTransaction.base58EncodedString()
+        case .base64:
+            encodedTransaction = serializedTransaction.base64EncodedString()
+        }
         params.append(encodedTransaction)
 
         if let options = options {
