@@ -28,9 +28,11 @@ jobs:
     - name: Read markdown into output
       id: periphery
       run: |
-        echo "report<<EOF" >> $GITHUB_OUTPUT
-        cat periphery.md >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        {
+          echo 'report<<EOF'
+          cat periphery.md
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
 
     - name: Find Comment
       uses: peter-evans/find-comment@v3
