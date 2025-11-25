@@ -1,14 +1,14 @@
 import Base58
-import Base64
 import SolanaTransactions
 import SwiftBorsh
+import Foundation
 
 public struct TransactionOptions: Encodable, Equatable {
-    public let encoding: TransactionEncoding?
-    public let skipPreflight: Bool?
-    public let preflightCommitment: Commitment?
-    public let maxRetries: Int?
-    public let minContextSlot: Int?
+    public var encoding: TransactionEncoding?
+    public var skipPreflight: Bool?
+    public var preflightCommitment: Commitment?
+    public var maxRetries: Int?
+    public var minContextSlot: Int?
 
     public init(
         encoding: TransactionEncoding? = nil, skipPreflight: Bool? = nil,
@@ -37,8 +37,8 @@ extension SolanaRPCClient {
         let serializedTransaction = try transaction.encode()
         let encodedTransaction =
             switch options?.encoding ?? .base58 {
-            case .base58: Base58.encode(serializedTransaction)
-            case .base64: Base64.encode(serializedTransaction)
+            case .base58: Data(serializedTransaction).base58EncodedString()
+            case .base64: Data(serializedTransaction).base64EncodedString()
             }
         params.append(encodedTransaction)
 
