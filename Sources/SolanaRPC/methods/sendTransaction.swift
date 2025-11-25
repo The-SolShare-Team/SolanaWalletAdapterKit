@@ -1,6 +1,7 @@
 import Base58
 import SolanaTransactions
 import SwiftBorsh
+import Foundation
 
 extension SolanaRPCClient {
     public struct SendTransactionConfiguration: Encodable {
