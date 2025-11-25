@@ -9,6 +9,7 @@ private struct ResponseData: Decodable {
 }
 
 extension SolanaRPCClient {
+    /// https://solana.com/docs/rpc/http/getversion
     public func getVersion() async throws(RPCError) -> (
         solanaCore: String, featureSet: UInt32
     ) {
