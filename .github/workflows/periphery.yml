@@ -9,8 +9,6 @@ jobs:
   periphery:
     name: Run Periphery
     runs-on:  macos-26
-    permissions:
-        pull-requests: write
 
     steps:
     - name: Checkout code
@@ -28,19 +26,3 @@ jobs:
     
     - name: Add Periphery results to summary
       run: cat periphery.md >> $GITHUB_STEP_SUMMARY
-
-    - name: Find Comment
-      uses: peter-evans/find-comment@v3
-      id: fc
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        comment-author: 'github-actions[bot]'
-        body-includes: 🧹 Periphery Unused Code Report
-
-    - name: Create or update comment
-      uses: peter-evans/create-or-update-comment@v5
-      with:
-        comment-id: ${{ steps.fc.outputs.comment-id }}
-        issue-number: ${{ github.event.pull_request.number }}
-        body-path: 'periphery.md'
-        edit-mode: replace
