@@ -24,7 +24,7 @@ extension InitializeMintData: BorshEncodable {
 
 @BorshEncodable
 private struct InitializeAccountData {
-    let index: UInt8 = 1
+    let index: UInt8 = 2
 }
 
 @BorshEncodable

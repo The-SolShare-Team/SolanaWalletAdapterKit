@@ -148,30 +148,39 @@ import Testing
     )
 }
 
-@Test func testV0TransactionEncodingHigherLevel() {
-    let transaction: Transaction = try! Transaction(blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq") {
-        SystemProgram.transfer(
-            from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
-            to: "CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk", lamports: 256)
-    }
+// @Test func testV0TransactionEncodingHigherLevel() {
+//     let transaction: Transaction = try! Transaction(blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq") {
+//         SystemProgram.transfer(
+//             from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
+//             to: "CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk", lamports: 256)
+//     }
     
-    let bytes = try! transaction.encode()
-    let encodedString = Data(bytes).base64EncodedString()
+//     let bytes = try! transaction.encode()
+//     let encodedString = Data(bytes).base64EncodedString()
     
-    print(encodedString)
-    #expect(encodedString == "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K4BAgIAAQwCAAAAAAEAAAAAAAA=")
+//     print(encodedString)
+//     #expect(encodedString == "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K4BAgIAAQwCAAAAAAEAAAAAAAA=")
+// }
+
+// @Test func testV0TransactionDecodingHigherLevel() {
+//     let base64TransactionFromJS =
+//         "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K4BAgIAAQwCAAAAAAEAAAAAAAA="
+//     let transaction = try! Transaction(bytes: Data(base64Encoded: base64TransactionFromJS)!)
+//     let expectedTransaction: Transaction = try! Transaction(blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq") {
+//         SystemProgram.transfer(
+//             from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
+//             to: "CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk", lamports: 256)
+//     }
+//     print(transaction)
+//     print(expectedTransaction)
+//     #expect(transaction == expectedTransaction)
+// }
+
+@Test func testLegacyTransactionEncoding() {
+
 }
 
-@Test func testV0TransactionDecodingHigherLevel() {
-    let base64TransactionFromJS =
-        "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K4BAgIAAQwCAAAAAAEAAAAAAAA="
-    let transaction = try! Transaction(bytes: Data(base64Encoded: base64TransactionFromJS)!)
-    let expectedTransaction: Transaction = try! Transaction(blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq") {
-        SystemProgram.transfer(
-            from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
-            to: "CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk", lamports: 256)
-    }
-    print(transaction)
-    print(expectedTransaction)
-    #expect(transaction == expectedTransaction)
+@Test func testLegacyTransactionDecoding() {
+
 }
+

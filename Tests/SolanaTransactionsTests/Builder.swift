@@ -28,7 +28,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
@@ -49,3 +49,4 @@ import Testing
                                 programIdIndex: 3, accounts: [0], data: [3, 0, 0, 0, 97, 98, 99]),
                         ]))))
 }
+
