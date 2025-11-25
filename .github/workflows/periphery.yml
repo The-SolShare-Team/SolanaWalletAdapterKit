@@ -21,7 +21,7 @@ jobs:
 
     - name: Run Periphery
       run: |
-        periphery scan --format github-markdown --write-results periphery.md
+        periphery scan --disable-redundant-public-analysis --format github-markdown --write-results periphery.md
         sed -i '' '1i\
         ## 🧹 Periphery Unused Code Report
         ' periphery.md
