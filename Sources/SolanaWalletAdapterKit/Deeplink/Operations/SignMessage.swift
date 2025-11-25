@@ -5,7 +5,6 @@ extension DeeplinkWallet {
         async throws -> SignMessageResponseData
     {
         let connection = try _activeConnection
-
         let encodedMessage = message.base58EncodedString()
         let payload = SignMessageRequestPayload(
             message: encodedMessage,
