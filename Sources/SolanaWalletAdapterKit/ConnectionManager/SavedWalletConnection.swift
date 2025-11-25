@@ -1,7 +1,7 @@
 import SolanaRPC
 import SolanaTransactions
 
-public struct SavedWalletConnection: Codable {
+struct SavedWalletConnection: Codable {
     let walletType: any Wallet.Type
     let connection: any WalletConnection
     let appIdentity: AppIdentity
@@ -12,16 +12,16 @@ public struct SavedWalletConnection: Codable {
         case appIdentity
         case cluster
         case connection
-    }   
+    }
 
-    public init<W: Wallet>(_ wallet: W, connection: W.Connection) {
+    init<W: Wallet>(_ wallet: W, connection: W.Connection) {
         self.walletType = type(of: wallet)
         self.connection = connection
         self.appIdentity = wallet.appId
         self.cluster = wallet.cluster
     }
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let walletIdentifier = try container.decode(String.self, forKey: .walletType)
 
@@ -38,7 +38,7 @@ public struct SavedWalletConnection: Codable {
         self.cluster = try container.decode(Endpoint.self, forKey: .cluster)
     }
 
-    public func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(walletType.identifier, forKey: .walletType)
         try container.encode(appIdentity, forKey: .appIdentity)
@@ -46,11 +46,11 @@ public struct SavedWalletConnection: Codable {
         try container.encode(connection, forKey: .connection)
     }
 
-    public func recover() -> any Wallet {
+    func recover() -> any Wallet {
         walletType.recover(for: appIdentity, cluster: cluster, connection: connection)
     }
 
-    public func identifier() throws -> String {
+    func identifier() throws -> String {
         try WalletConnectionManager.walletIdentifier(
             for: walletType, appIdentity: appIdentity, cluster: cluster,
             publicKey: connection.publicKey)

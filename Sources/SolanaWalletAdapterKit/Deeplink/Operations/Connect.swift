@@ -40,7 +40,7 @@ extension DeeplinkWallet {
             let decodedNonce = Data(base58Encoded: nonce),
             let decodedData = Data(base58Encoded: data)
         else {
-            throw SolanaWalletAdapterError.invalidResponse(response: response)
+            throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
         }
 
         // Decrypt the data in the response

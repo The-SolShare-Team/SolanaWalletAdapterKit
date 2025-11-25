@@ -12,8 +12,6 @@ protocol CryptographicIdentifier: ExpressibleByArrayLiteral, ExpressibleByString
 }
 
 extension CryptographicIdentifier {
-    
-    
     public init?(bytes: Data) {
         if bytes.count != Self.byteLength { return nil }
         self.init(bytes: bytes)

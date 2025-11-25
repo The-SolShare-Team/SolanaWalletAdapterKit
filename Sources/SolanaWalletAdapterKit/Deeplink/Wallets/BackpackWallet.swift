@@ -7,7 +7,7 @@ public struct BackpackWallet: DeeplinkWallet {
     public static let _deeplinkWalletOptions = DeeplinkWalletOptions(
         baseURL: URL(string: "https://backpack.app/ul/v1")!,
         checkAvailableURL: URL(string: "backpack://hello")!,
-        walletEncryptionPublicKeyIdentifier: "wallet_encryption_public_key"
+        walletEncryptionPublicKeyIdentifier: "wallet_xxx"
     )
 
     public typealias Connection = DeeplinkWalletConnection
@@ -16,6 +16,7 @@ public struct BackpackWallet: DeeplinkWallet {
     public let cluster: Endpoint
     public var connection: DeeplinkWalletConnection?
     public var publicKey: PublicKey? { connection?.publicKey }
+
     public init(
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?
     ) {

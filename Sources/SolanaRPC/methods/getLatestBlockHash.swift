@@ -11,6 +11,7 @@ private struct ResponseData: Decodable {
 }
 
 extension SolanaRPCClient {
+    /// https://solana.com/docs/rpc/http/getlatestblockhash
     public func getLatestBlockhash(
         configuration: (commitment: Commitment?, minContextSlot: Int?)? = nil
     )
