@@ -9,6 +9,8 @@ jobs:
   periphery:
     name: Run Periphery
     runs-on:  macos-26
+    permissions:
+        pull-requests: write
 
     steps:
     - name: Checkout code
@@ -38,7 +40,6 @@ jobs:
     - name: Create or update comment
       uses: peter-evans/create-or-update-comment@v5
       with:
-        token: ${{ secrets.GH_PAT }}
         comment-id: ${{ steps.fc.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         body-path: 'periphery.md'
