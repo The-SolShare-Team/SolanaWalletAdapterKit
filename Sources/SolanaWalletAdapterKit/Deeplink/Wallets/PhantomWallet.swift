@@ -42,7 +42,7 @@ public struct PhantomWallet: DeeplinkWallet {
         let transaction = try Transaction(bytes: transactionData)
         let signature = try await rpcClient.sendTransaction(
             transaction: transaction,
-            configuration: TransactionOptions(sendOptions: sendOptions, encoding: .base58)
+            transactionOptions: TransactionOptions(sendOptions: sendOptions, encoding: .base58)
         )
         return SignAndSendTransactionResponseData(signature: signature)
     }
