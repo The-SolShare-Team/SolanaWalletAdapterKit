@@ -1,0 +1,28 @@
+name: Periphery
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  periphery:
+    name: Run Periphery
+    runs-on:  macos-26
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Periphery
+      run: brew install periphery
+
+    - name: Run Periphery
+      run: |
+        periphery scan --format github-markdown --write-results periphery.md
+        sed -i '' '1i\
+        ## 🧹 Periphery Unused Code Report
+        ' periphery.md
+    
+    - name: Add Periphery results to summary
+      run: cat periphery.md >> $GITHUB_STEP_SUMMARY
