@@ -4,6 +4,7 @@ import SolanaTransactions
 
 public protocol WalletConnection: Codable {
     var publicKey: PublicKey { get }
+    var session: String { get }
 }
 
 public protocol Wallet: SendableMetatype {
@@ -18,7 +19,7 @@ public protocol Wallet: SendableMetatype {
 
     var publicKey: PublicKey? { get }
     var isConnected: Bool { get }
-
+    var connection: Connection? { get }
     mutating func connect() async throws -> Connection?
     mutating func disconnect() async throws
 
