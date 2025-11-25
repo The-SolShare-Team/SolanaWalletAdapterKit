@@ -218,7 +218,6 @@ public struct SolanaRPCClient {
                 data: error
             )
         }
-
         if response.id != request.id {
             throw RPCError(
                 message: "Decoding error",

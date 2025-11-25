@@ -1,7 +1,6 @@
 import Base58
 import SolanaTransactions
 import SwiftBorsh
-
 public struct TransactionOptions: Encodable, Equatable {
     public var encoding: TransactionEncoding?
     public var skipPreflight: Bool?
@@ -41,21 +40,22 @@ extension SolanaRPCClient {
             case .base58: serializedTransaction.base58EncodedString()
             case .base64: serializedTransaction.base64EncodedString()
             }
-
+        var params: [Encodable] = []
+        params.append(encodedTransaction)
+        if let config = configuration {
+            params.append(
+                TransactionOptions(
+                    encoding: config.encoding,
+                    skipPreflight: config.skipPreflight,
+                    preflightCommitment: config.preflightCommitment,
+                    maxRetries: config.maxRetries,
+                    minContextSlot: config.minContextSlot
+                )
+            )
+        }
         return try await fetch(
             method: "sendTransaction",
-            params: [
-                encodedTransaction,
-                configuration.map {
-                    TransactionOptions(
-                        encoding: $0.encoding,
-                        skipPreflight: $0.skipPreflight,
-                        preflightCommitment: $0.preflightCommitment,
-                        maxRetries: $0.maxRetries,
-                        minContextSlot: $0.minContextSlot
-                    )
-                },
-            ],
+            params: params,
             into: Signature.self
         )
     }
