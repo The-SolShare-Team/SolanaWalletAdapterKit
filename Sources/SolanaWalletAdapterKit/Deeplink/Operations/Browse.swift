@@ -40,7 +40,6 @@ extension DeeplinkWallet {
             ]
             return components.url!  // TODO: Is it safe to force unwrap here?
         }()
-
         #if os(iOS)
         let success = await UIApplication.shared.open(deeplink)
             if !success { throw DeeplinkFetchingError.unableToOpen }  // TODO: Not sure about this error

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SolanaWalletAdapterError: Error {
+public enum SolanaWalletAdapterError: Error, Equatable{
     // Library errors
     case alreadyConnected
     case notConnected

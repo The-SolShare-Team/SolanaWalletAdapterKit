@@ -57,7 +57,7 @@ public struct SendOptions: Codable {
 
 public enum MessageDisplayFormat: String, Encodable, Sendable {
     case hex = "hex"
-    case utf8 = "utf8"
+    case utf8 = "utf8" // should NOT be utf-8
 }
 
 extension TransactionOptions {
