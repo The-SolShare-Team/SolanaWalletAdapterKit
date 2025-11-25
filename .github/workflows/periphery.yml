@@ -32,12 +32,34 @@ jobs:
       uses: actions/github-script@v8
       if: github.event_name == 'pull_request'
       with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
           const fs = require('fs');
           const body = "## 🧹 Periphery Unused Code Report\n\n" + fs.readFileSync('periphery.md', 'utf8')
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+
+          // Check for existing comment with marker
+          const existingComments = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: body
-          })
+            issue_number: context.issue.number
+          });
+          const marker = '<!-- periphery-report -->';
+          const existing = existingComments.data.find(c => c.body.includes(marker));
+
+          if (existing) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body: marker + "\n" + body
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: marker + "\n" + body
+            });
+          }
