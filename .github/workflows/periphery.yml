@@ -20,11 +20,12 @@ jobs:
     - name: Run Periphery
       run: |
         periphery scan --format github-markdown --write-results periphery.md
-        sed -i '1i ## 🧹 Periphery Unused Code Report' periphery.md
+        sed -i '' '1i\
+        ## 🧹 Periphery Unused Code Report
+        ' periphery.md
     
     - name: Add Periphery results to summary
-      run: |
-        cat periphery.md >> $GITHUB_STEP_SUMMARY
+      run: cat periphery.md >> $GITHUB_STEP_SUMMARY
 
     - name: Find Comment
       uses: peter-evans/find-comment@v3
