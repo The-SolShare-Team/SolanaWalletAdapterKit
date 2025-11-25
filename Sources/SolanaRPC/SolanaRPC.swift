@@ -156,6 +156,10 @@ public enum Commitment: String, Codable {
     case finalized
 }
 
+public enum TransactionEncoding: String, Codable {
+    case base58, base64
+}
+
 
 public struct SolanaRPCClient {
     public let endpoint: Endpoint

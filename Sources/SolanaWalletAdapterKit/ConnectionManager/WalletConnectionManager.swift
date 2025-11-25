@@ -70,11 +70,11 @@ public class WalletConnectionManager {
             $0.appId == wallet.appId && $0.cluster == wallet.cluster && $0.publicKey == publicKey
                 && type(of: $0) == type(of: wallet)
         }
-        guard let identifier = wallet.storageIdentifier else {return}
-        print("Identifier to disconnect: ")
-        print(identifier)
-        print("All keys in storage:")
-        print(try await storage.retrieveAll().map(\.key))
+        let identifier = try WalletConnectionManager.walletIdentifier(for: type(of: wallet), appIdentity: wallet.appId, cluster: wallet.cluster, publicKey: publicKey)
+//        print("Identifier to disconnect: ")
+//        print(identifier)
+//        print("All keys in storage:")
+//        print(try await storage.retrieveAll().map(\.key))
         try await storage.clear(key: identifier)
     }
 
