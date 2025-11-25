@@ -32,7 +32,6 @@ extension DeeplinkWallet {
             ]
             return components.url!
         }()
-
         #if os(iOS)
             let success = await UIApplication.shared.open(deeplink)
         #elseif os(macOS)
