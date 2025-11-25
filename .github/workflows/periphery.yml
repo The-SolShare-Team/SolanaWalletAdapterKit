@@ -27,3 +27,17 @@ jobs:
       run: |
         echo "## 🧹 Periphery Unused Code Report" >> $GITHUB_STEP_SUMMARY
         cat periphery.md >> $GITHUB_STEP_SUMMARY
+
+    - name: Add comment to Pull Request
+      uses: actions/github-script@v8
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          const body = "## 🧹 Periphery Unused Code Report\n\n" + fs.readFileSync('periphery.md', 'utf8')
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          })
