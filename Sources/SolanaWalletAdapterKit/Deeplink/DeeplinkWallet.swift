@@ -77,7 +77,6 @@ extension DeeplinkWallet {
             endpointUrl: endpointURL,
             payload: payload
         )
-
         // Response
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link"
