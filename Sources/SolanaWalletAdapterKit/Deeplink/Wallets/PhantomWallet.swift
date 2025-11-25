@@ -40,16 +40,9 @@ public struct PhantomWallet: DeeplinkWallet {
             throw SolanaWalletAdapterError.responseDecodingFailure
         }
         let transaction = try Transaction(bytes: transactionData)
-
         let signature = try await rpcClient.sendTransaction(
             transaction: transaction,
-            configuration: (
-                encoding: .base58,
-                skipPreflight: sendOptions?.skipPreflight,
-                preflightCommitment: sendOptions?.preflightCommitment,
-                maxRetries: sendOptions?.maxRetries,
-                minContextSlot: sendOptions?.minContextSlot
-            )
+            configuration: TransactionOptions(sendOptions: sendOptions, encoding: .base58)
         )
         return SignAndSendTransactionResponseData(signature: signature)
     }

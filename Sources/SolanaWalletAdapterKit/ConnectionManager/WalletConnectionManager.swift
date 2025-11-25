@@ -10,7 +10,7 @@ public class WalletConnectionManager {
     public let availableWallets: [any Wallet.Type]
     private var storage: any SecureStorage
 
-    public private(set) var connectedWallets: [any Wallet] = []
+    public internal(set) var connectedWallets: [any Wallet] = []
 
     public init(
         availableWallets: [any Wallet.Type] = [
