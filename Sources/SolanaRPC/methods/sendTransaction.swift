@@ -35,20 +35,22 @@ extension SolanaRPCClient {
             case .base64: Base64.encode(serializedTransaction)
             }
 
+        var params: [Encodable] = [encodedTransaction]
+        if let configuration {
+            params.append(
+                RequestConfiguration(
+                    encoding: configuration.encoding,
+                    skipPreflight: configuration.skipPreflight,
+                    preflightCommitment: configuration.preflightCommitment,
+                    maxRetries: configuration.maxRetries,
+                    minContextSlot: configuration.minContextSlot
+                )
+            )
+        }
+
         return try await fetch(
             method: "sendTransaction",
-            params: [
-                encodedTransaction,
-                configuration.map {
-                    RequestConfiguration(
-                        encoding: $0.encoding,
-                        skipPreflight: $0.skipPreflight,
-                        preflightCommitment: $0.preflightCommitment,
-                        maxRetries: $0.maxRetries,
-                        minContextSlot: $0.minContextSlot
-                    )
-                },
-            ],
+            params: params,
             into: Signature.self
         )
     }
