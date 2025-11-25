@@ -1,7 +1,13 @@
-public struct CompiledInstruction: Equatable {
+public struct CompiledInstruction: Equatable, Sendable {
     public let programIdIndex: UInt8
     public let accounts: [UInt8]
     public let data: [UInt8]
+
+    public init(programIdIndex: UInt8, accounts: [UInt8], data: [UInt8]) {
+        self.programIdIndex = programIdIndex
+        self.accounts = accounts
+        self.data = data
+    }
 }
 
 extension CompiledInstruction: SolanaTransactionCodable {

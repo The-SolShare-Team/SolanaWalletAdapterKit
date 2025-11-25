@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/The-SolShare-Team/SwiftBorsh",
-            .upToNextMajor(from: "0.0.0")),
+            .upToNextMajor(from: "0.0.1")),
         .package(
             url: "https://github.com/The-SolShare-Team/Salkt.swift",
             .upToNextMajor(from: "0.0.0")),
@@ -28,11 +28,14 @@ let package = Package(
         .package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMajor(from: "1.0.0")),
+        .package(
+            url: "https://github.com/auth0/SimpleKeychain.git",
+            .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .target(name: "Base58"),
         .testTarget(name: "Base58Tests", dependencies: ["Base58"]),
-        .target(name: "Base64"),
+
         .target(
             name: "Salt",
             dependencies: [
@@ -40,11 +43,14 @@ let package = Package(
                 .product(name: "TweetNacl", package: "tweetnacl-swiftwrap"),
             ]),
         .testTarget(name: "SaltTests", dependencies: ["Salt"]),
+
         .target(
-            name: "SolanaWalletAdapterKit"),
+            name: "SolanaRPC",
+            dependencies: ["SwiftBorsh", "SolanaTransactions"]),
         .testTarget(
-            name: "SolanaWalletAdapterKitTests",
-            dependencies: ["SolanaWalletAdapterKit"]),
+            name: "SolanaRPCTests",
+            dependencies: ["SolanaRPC"]),
+
         .target(
             name: "SolanaTransactions",
             dependencies: [
@@ -56,11 +62,18 @@ let package = Package(
         .testTarget(
             name: "SolanaTransactionsTests",
             dependencies: ["SolanaTransactions", "SwiftBorsh", "SolanaRPC"]),
+
         .target(
-            name: "SolanaRPC",
-            dependencies: ["SwiftBorsh", "SolanaTransactions", "Base64"]),
+            name: "SolanaWalletAdapterKit",
+            dependencies: [
+                "Base58",
+                "SimpleKeychain",
+                "SolanaRPC",
+                "Salt",
+                "SolanaTransactions",
+            ]),
         .testTarget(
-            name: "SolanaRPCTests",
-            dependencies: ["SolanaRPC"]),
+            name: "SolanaWalletAdapterKitTests",
+            dependencies: ["SolanaWalletAdapterKit"]),
     ]
 )

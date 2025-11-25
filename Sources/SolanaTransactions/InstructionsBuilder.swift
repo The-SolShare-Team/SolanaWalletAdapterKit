@@ -8,9 +8,9 @@ public protocol Instruction {
 }
 
 public struct AccountMeta {
-    let publicKey: PublicKey
-    let isSigner: Bool
-    let isWritable: Bool
+    public let publicKey: PublicKey
+    public let isSigner: Bool
+    public let isWritable: Bool
 
     public init(publicKey: PublicKey, isSigner: Bool, isWritable: Bool) {
         self.publicKey = publicKey
@@ -58,7 +58,6 @@ extension Transaction {
         var accounts: OrderedSet<PublicKey> = []
 
         for instruction in instructions {
-            accounts.append(instruction.programId)
             for account in instruction.accounts {
                 switch (account.isSigner, account.isWritable) {
                 case (true, true): writableSigners.append(account.publicKey)
@@ -68,6 +67,7 @@ extension Transaction {
                 }
                 accounts.append(account.publicKey)
             }
+            accounts.append(instruction.programId)  // ProgramID needs to be at the end of the accounts array (otherwise, the transaction is invalid)
         }
 
         let signers = writableSigners.union(readOnlySigners)
@@ -79,7 +79,9 @@ extension Transaction {
                 data: try BorshEncoder.encode($0.data))
         }
 
-        signatures = []
+        signatures = signers.map { _ in
+            "1111111111111111111111111111111111111111111111111111111111111111"  // 64-byte placeholder array for signatures (otherwise, the transaction is invalid)
+        }
         message = .legacyMessage(
             LegacyMessage(
                 signatureCount: UInt8(signers.count),

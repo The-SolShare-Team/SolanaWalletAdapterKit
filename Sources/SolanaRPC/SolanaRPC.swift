@@ -1,4 +1,5 @@
 import Foundation
+import SolanaTransactions
 import SwiftBorsh
 
 struct RPCRequest: Encodable {
@@ -39,7 +40,6 @@ struct RPCResponseError<T: Decodable>: Decodable {
     let message: String
     let data: T?
 }
-
 struct RPCResponseContext: Decodable {
     let slot: UInt64
     let apiVersion: String?
@@ -78,7 +78,7 @@ public struct RPCError: Error, CustomStringConvertible {
                 self = .invalidParams
             case -32603:
                 self = .internalError
-            case -32000 ... -32099:
+            case -32099 ... -32000:
                 self = .serverError
             default:
                 self = .unknown(code: code)
@@ -117,31 +117,45 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
-public enum Endpoint {
-    case mainnetBeta
+public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Codable {
+    case mainnet
     case testnet
     case devnet
-    case other(url: URL)
+    case other(name: String, url: URL)
 
     public var url: URL {
         switch self {
-        case .mainnetBeta:
+        case .mainnet:
             return URL(string: "https://api.mainnet-beta.solana.com")!
         case .testnet:
             return URL(string: "https://api.testnet.solana.com")!
         case .devnet:
             return URL(string: "https://api.devnet.solana.com")!
-        case .other(let url):
+        case .other(_, let url):
             return url
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .mainnet:
+            return "mainnet-beta"
+        case .testnet:
+            return "testnet"
+        case .devnet:
+            return "devnet"
+        case .other(let name, _):
+            return name
         }
     }
 }
 
-public enum Commitment: Codable {
+public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
 }
+
 
 public struct SolanaRPCClient {
     public let endpoint: Endpoint
@@ -149,7 +163,18 @@ public struct SolanaRPCClient {
     public init(endpoint: Endpoint) {
         self.endpoint = endpoint
     }
-
+    
+    func fetchRaw<T: Decodable>(method: String, params: [Encodable], into: T.Type) async throws  -> T {
+        let request = RPCRequest(method: method, params: params)
+        var urlRequest = URLRequest(url: endpoint.url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.httpBody = try JSONEncoder().encode(request)
+        
+        let (data, _) = try await URLSession.shared.data(for: urlRequest)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+    
     func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T
@@ -183,9 +208,9 @@ public struct SolanaRPCClient {
             )
         }
 
-        let response: RPCResponse<T, String>
+        let response: RPCResponse<T, JSONValue>
         do {
-            response = try JSONDecoder().decode(RPCResponse<T, String>.self, from: data)
+            response = try JSONDecoder().decode(RPCResponse<T, JSONValue>.self, from: data)
         } catch {
             throw RPCError(
                 message: "Decoding error",
@@ -193,7 +218,6 @@ public struct SolanaRPCClient {
                 data: error
             )
         }
-
         if response.id != request.id {
             throw RPCError(
                 message: "Decoding error",

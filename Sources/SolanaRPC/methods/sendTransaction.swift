@@ -1,14 +1,20 @@
 import Base58
-import Base64
 import SolanaTransactions
 import SwiftBorsh
-
-private struct RequestConfiguration: Encodable {
-    let encoding: TransactionEncoding?
-    let skipPreflight: Bool?
-    let preflightCommitment: Commitment?
-    let maxRetries: Int?
-    let minContextSlot: Int?
+public struct TransactionOptions: Encodable, Equatable {
+    public var encoding: TransactionEncoding?
+    public var skipPreflight: Bool?
+    public var preflightCommitment: Commitment?
+    public var maxRetries: Int?
+    public var minContextSlot: Int?
+    
+    public init(encoding: TransactionEncoding? = nil, skipPreflight: Bool? = nil, preflightCommitment: Commitment? = nil, maxRetries: Int? = nil, minContextSlot: Int? = nil) {
+        self.encoding = encoding
+        self.skipPreflight = skipPreflight
+        self.preflightCommitment = preflightCommitment
+        self.maxRetries = maxRetries
+        self.minContextSlot = minContextSlot
+    }
 }
 
 public enum TransactionEncoding: String, Codable {
@@ -31,25 +37,46 @@ extension SolanaRPCClient {
         let serializedTransaction = try transaction.encode()
         let encodedTransaction =
             switch configuration?.encoding ?? .base58 {
-            case .base58: Base58.encode(serializedTransaction)
-            case .base64: Base64.encode(serializedTransaction)
+            case .base58: serializedTransaction.base58EncodedString()
+            case .base64: serializedTransaction.base64EncodedString()
             }
-
+        var params: [Encodable] = []
+        params.append(encodedTransaction)
+        if let config = configuration {
+            params.append(
+                TransactionOptions(
+                    encoding: config.encoding,
+                    skipPreflight: config.skipPreflight,
+                    preflightCommitment: config.preflightCommitment,
+                    maxRetries: config.maxRetries,
+                    minContextSlot: config.minContextSlot
+                )
+            )
+        }
         return try await fetch(
             method: "sendTransaction",
-            params: [
-                encodedTransaction,
-                configuration.map {
-                    RequestConfiguration(
-                        encoding: $0.encoding,
-                        skipPreflight: $0.skipPreflight,
-                        preflightCommitment: $0.preflightCommitment,
-                        maxRetries: $0.maxRetries,
-                        minContextSlot: $0.minContextSlot
-                    )
-                },
-            ],
+            params: params,
             into: Signature.self
+        )
+    }
+    
+    public func sendTransaction(
+        transaction: Transaction,
+        transactionOptions: TransactionOptions
+    ) async throws -> Signature {
+        // Convert the struct to a tuple and call the original function
+        let tupleConfig =
+        (
+            encoding: transactionOptions.encoding,
+            skipPreflight: transactionOptions.skipPreflight,
+            preflightCommitment: transactionOptions.preflightCommitment,
+            maxRetries: transactionOptions.maxRetries,
+            minContextSlot: transactionOptions.minContextSlot
+        )
+
+        return try await self.sendTransaction(
+            transaction: transaction,
+            configuration: tupleConfig
         )
     }
 }

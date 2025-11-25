@@ -1,9 +1,9 @@
-public enum VersionedMessage: Equatable {
+public enum VersionedMessage: Equatable, Sendable {
     case legacyMessage(LegacyMessage)
     case v0(V0Message)
 }
 
-public struct LegacyMessage: Equatable {
+public struct LegacyMessage: Equatable, Sendable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
@@ -12,7 +12,7 @@ public struct LegacyMessage: Equatable {
     let instructions: [CompiledInstruction]
 }
 
-public struct V0Message: Equatable {
+public struct V0Message: Equatable, Sendable {
     let signatureCount: UInt8
     let readOnlyAccounts: UInt8
     let readOnlyNonSigners: UInt8
@@ -20,6 +20,20 @@ public struct V0Message: Equatable {
     let blockhash: Blockhash
     let instructions: [CompiledInstruction]
     let addressTableLookups: [AddressTableLookup]
+
+    public init(
+        signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8,
+        accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction],
+        addressTableLookups: [AddressTableLookup]
+    ) {
+        self.signatureCount = signatureCount
+        self.readOnlyAccounts = readOnlyAccounts
+        self.readOnlyNonSigners = readOnlyNonSigners
+        self.accounts = accounts
+        self.blockhash = blockhash
+        self.instructions = instructions
+        self.addressTableLookups = addressTableLookups
+    }
 }
 
 extension VersionedMessage: SolanaTransactionCodable {
