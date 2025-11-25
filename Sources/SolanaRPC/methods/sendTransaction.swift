@@ -8,6 +8,14 @@ public struct TransactionOptions: Encodable, Equatable {
     public var preflightCommitment: Commitment?
     public var maxRetries: Int?
     public var minContextSlot: Int?
+    
+    public init(encoding: TransactionEncoding? = nil, skipPreflight: Bool? = nil, preflightCommitment: Commitment? = nil, maxRetries: Int? = nil, minContextSlot: Int? = nil) {
+        self.encoding = encoding
+        self.skipPreflight = skipPreflight
+        self.preflightCommitment = preflightCommitment
+        self.maxRetries = maxRetries
+        self.minContextSlot = minContextSlot
+    }
 }
 
 public enum TransactionEncoding: String, Codable {

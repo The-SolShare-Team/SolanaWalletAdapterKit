@@ -64,16 +64,12 @@ public enum MessageDisplayFormat: String, Encodable, Sendable {
 
 extension TransactionOptions {
     public init(sendOptions: SendOptions? = nil, encoding: TransactionEncoding? = nil) {
-        // 1. Create a temporary, default instance.
-        var newOptions = TransactionOptions()
-        // 2. Set the properties on the temporary instance.
-        newOptions.encoding = encoding
-        newOptions.skipPreflight = sendOptions?.skipPreflight
-        newOptions.preflightCommitment = sendOptions?.preflightCommitment
-        newOptions.maxRetries = sendOptions?.maxRetries
-        newOptions.minContextSlot = sendOptions?.minContextSlot
-
-        // 3. Assign the configured instance to self.
-        self = newOptions
+        self.init(
+            encoding: encoding,
+            skipPreflight: sendOptions?.skipPreflight,
+            preflightCommitment: sendOptions?.preflightCommitment,
+            maxRetries: sendOptions?.maxRetries,
+            minContextSlot: sendOptions?.minContextSlot
+        )
     }
 }
