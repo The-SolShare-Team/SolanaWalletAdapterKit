@@ -16,11 +16,8 @@ jobs:
 
     - name: Install Periphery
       run: brew install periphery
-    
-    - name: Run Periphery (PR annotations)
-      run: periphery scan --format xcode
 
-    - name: Run Periphery (Markdown)
+    - name: Run Periphery
       run: periphery scan --format github-markdown --write-results periphery.md
     
     - name: Add Periphery results to summary
@@ -28,38 +25,24 @@ jobs:
         echo "## 🧹 Periphery Unused Code Report" >> $GITHUB_STEP_SUMMARY
         cat periphery.md >> $GITHUB_STEP_SUMMARY
 
-    - name: Add comment to Pull Request
-      uses: actions/github-script@v8
-      if: github.event_name == 'pull_request'
+    - name: Read markdown into output
+      id: periphery
+      run: echo "report<<$(cat periphery.md)" >> $GITHUB_OUTPUT
+
+    - name: Find Comment
+      uses: peter-evans/find-comment@v3
+      id: fc
       with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          const fs = require('fs');
-          const body = "## 🧹 Periphery Unused Code Report\n\n" + fs.readFileSync('periphery.md', 'utf8')
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: 🧹 Periphery Unused Code Report
 
-          // Check for existing comment with marker
-          const existingComments = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number
-          });
-          const marker = '<!-- periphery-report -->';
-          const existing = existingComments.data.find(c => c.body.includes(marker));
-
-          if (existing) {
-            // Update existing comment
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: existing.id,
-              body: marker + "\n" + body
-            });
-          } else {
-            // Create new comment
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: marker + "\n" + body
-            });
-          }
+    - name: Create or update comment
+      uses: peter-evans/create-or-update-comment@v5
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          ## 🧹 Periphery Unused Code Report
+          ${{ steps.periphery.outputs.report }}
+        edit-mode: replace
