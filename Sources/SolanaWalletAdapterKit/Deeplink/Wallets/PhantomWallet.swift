@@ -35,17 +35,7 @@ public struct PhantomWallet: DeeplinkWallet {
     public func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions? = nil)
         async throws -> SignAndSendTransactionResponseData
     {
-        let connection = try _activeConnection
-
-        let encodedTransaction = try transaction.encode().base58EncodedString()
-        let payload = SignTransactionRequestPayload(
-            transaction: encodedTransaction,
-            session: connection.session)
-
-        let response: SignTransactionResponseData = try await performSigningCall(
-            endpoint: "signTransaction",
-            payload: payload
-        )
+        let response = try await self.signTransaction(transaction: transaction)
         guard let transactionData = Data(base58Encoded: response.transaction) else {
             throw SolanaWalletAdapterError.responseDecodingFailure
         }

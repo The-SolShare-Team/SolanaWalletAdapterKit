@@ -3,7 +3,7 @@ import SolanaRPC
 import SolanaTransactions
 
 public struct BackpackWallet: DeeplinkWallet {
-    public static let identifier = "phantom_wallet"
+    public static let identifier = "backpack_wallet"
     public static let _deeplinkWalletOptions = DeeplinkWalletOptions(
         baseURL: URL(string: "https://backpack.app/ul/v1")!,
         checkAvailableURL: URL(string: "backpack://hello")!,
