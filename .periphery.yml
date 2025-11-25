@@ -1,2 +1,2 @@
 retain_public: true
-retain_encodable_properties: true
+retain_codable_properties: true
