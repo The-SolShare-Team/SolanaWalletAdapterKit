@@ -56,17 +56,18 @@ extension SolanaRPCClient {
     
     public func sendTransaction(
         transaction: Transaction,
-        transactionOptions: TransactionOptions
+        configuration: TransactionOptions? = nil
     ) async throws -> Signature {
         // Convert the struct to a tuple and call the original function
-        let tupleConfig =
-        (
-            encoding: transactionOptions.encoding,
-            skipPreflight: transactionOptions.skipPreflight,
-            preflightCommitment: transactionOptions.preflightCommitment,
-            maxRetries: transactionOptions.maxRetries,
-            minContextSlot: transactionOptions.minContextSlot
-        )
+        let tupleConfig = configuration.map { options in
+            (
+                encoding: options.encoding,
+                skipPreflight: options.skipPreflight,
+                preflightCommitment: options.preflightCommitment,
+                maxRetries: options.maxRetries,
+                minContextSlot: options.minContextSlot
+            )
+        }
 
         return try await self.sendTransaction(
             transaction: transaction,
