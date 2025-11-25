@@ -8,7 +8,6 @@ import SolanaRPC
 import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Connect with the wallet.
     public mutating func connect() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 

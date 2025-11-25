@@ -8,7 +8,6 @@ import SolanaRPC
 import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Sign a message.
     public func signMessage(message: Data, display: MessageDisplayFormat? = nil)
         async throws -> SignMessageResponseData
     {

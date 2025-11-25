@@ -14,7 +14,6 @@ import SolanaTransactions
 #endif
 
 extension DeeplinkWallet {
-    /// Browse to a URL.
     @MainActor
     public func browse(url: URL, ref: URL) async throws {
         guard
@@ -42,7 +41,7 @@ extension DeeplinkWallet {
         }()
 
         #if os(iOS)
-        let success = await UIApplication.shared.open(deeplink)
+            let success = await UIApplication.shared.open(deeplink)
             if !success { throw DeeplinkFetchingError.unableToOpen }  // TODO: Not sure about this error
         #elseif os(macOS)
             let success = NSWorkspace.shared.open(deeplink)
