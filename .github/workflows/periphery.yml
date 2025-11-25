@@ -16,8 +16,11 @@ jobs:
 
     - name: Install Periphery
       run: brew install periphery
+    
+    - name: Run Periphery (PR annotations)
+      run: periphery scan --format xcode
 
-    - name: Run Periphery
+    - name: Run Periphery (Markdown)
       run: periphery scan --format github-markdown --write-results periphery.md
     
     - name: Add Periphery results to summary
