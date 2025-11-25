@@ -31,8 +31,8 @@ extension SolanaRPCClient {
         let serializedTransaction = try transaction.encode()
         let encodedTransaction =
             switch configuration?.encoding ?? .base58 {
-            case .base58: Base58.encode(serializedTransaction)
-            case .base64: Base64.encode(serializedTransaction)
+            case .base58: serializedTransaction.base58EncodedString()
+            case .base64: serializedTransaction.base64EncodedString()
             }
 
         return try await fetch(
