@@ -1,5 +1,4 @@
 import Base58
-import Base64
 import SolanaTransactions
 import SwiftBorsh
 

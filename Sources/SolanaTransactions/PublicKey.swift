@@ -9,7 +9,7 @@ public struct PublicKey: CryptographicIdentifier {
     public init(bytes: Data) {
         self.bytes = bytes
     }
-
+    
     public static let zero = PublicKey(bytes: Data(repeating: 0, count: PublicKey.byteLength))
 }
 
