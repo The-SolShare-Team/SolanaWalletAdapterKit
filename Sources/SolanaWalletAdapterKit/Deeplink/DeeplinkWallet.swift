@@ -4,7 +4,6 @@ import Foundation
 import Salt
 import Security
 import SimpleKeychain
-import SolanaRPC
 import SolanaTransactions
 
 #if os(iOS)
@@ -38,6 +37,8 @@ public protocol DeeplinkWallet: Wallet {
 }
 
 extension DeeplinkWallet {
+    public var publicKey: PublicKey? { connection?.publicKey }
+
     var _activeConnection: DeeplinkWalletConnection {
         get throws {
             guard let connection else {
@@ -77,6 +78,7 @@ extension DeeplinkWallet {
             endpointUrl: endpointURL,
             payload: payload
         )
+
         // Response
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link"
@@ -110,7 +112,7 @@ extension DeeplinkWallet {
             payload: payload,
             nonce: nonce)
 
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!  // TODO: Can I force here?
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         let queryItems = [
             URLQueryItem(
                 name: "dapp_encryption_public_key",
@@ -120,7 +122,7 @@ extension DeeplinkWallet {
         ]
         components.queryItems = queryItems
 
-        return components.url!  // TODO: Can I force here?
+        return components.url!
     }
 
     /// Throws if the response is an error

@@ -1,6 +1,5 @@
 import Foundation
 import SolanaRPC
-import SolanaTransactions
 
 public struct BackpackWallet: DeeplinkWallet {
     public static let identifier = "backpack_wallet"
@@ -15,7 +14,6 @@ public struct BackpackWallet: DeeplinkWallet {
     public let appId: AppIdentity
     public let cluster: Endpoint
     public var connection: DeeplinkWalletConnection?
-    public var publicKey: PublicKey? { connection?.publicKey }
 
     public init(
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?

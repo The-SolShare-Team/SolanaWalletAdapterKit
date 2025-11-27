@@ -4,7 +4,6 @@ import SolanaTransactions
 
 public protocol WalletConnection: Codable {
     var publicKey: PublicKey { get }
-    var session: String { get }
 }
 
 public protocol Wallet: SendableMetatype {
@@ -19,19 +18,30 @@ public protocol Wallet: SendableMetatype {
 
     var publicKey: PublicKey? { get }
     var isConnected: Bool { get }
-    var connection: Connection? { get }
+
+    /// Connect to the wallet.
     mutating func connect() async throws -> Connection?
+
+    /// Disconnect from the wallet.
     mutating func disconnect() async throws
 
+    /// Sign and send a transaction using the wallet.
     nonmutating func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?)
         async throws -> SignAndSendTransactionResponseData
+
+    /// Sign all transactions using the wallet.
     nonmutating func signAllTransactions(transactions: [Transaction])
         async throws -> SignAllTransactionsResponseData
+
+    /// Sign a transaction using the wallet.
     nonmutating func signTransaction(transaction: Transaction)
         async throws -> SignTransactionResponseData
+
+    /// Sign a message using the wallet.
     nonmutating func signMessage(message: Data, display: MessageDisplayFormat?)
         async throws -> SignMessageResponseData
 
+    /// Open a URL using the wallet's in-app browser.
     nonmutating func browse(url: URL, ref: URL) async throws
 
     static func isProbablyAvailable() -> Bool
@@ -48,9 +58,9 @@ extension Wallet {
 }
 
 public struct AppIdentity: Sendable, Codable, Equatable {
-    let name: String
-    let url: URL
-    let icon: String
+    public let name: String
+    public let url: URL
+    public let icon: String
 
     public init(name: String, url: URL, icon: String) {
         self.name = name

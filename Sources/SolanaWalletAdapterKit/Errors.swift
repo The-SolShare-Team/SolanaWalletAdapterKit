@@ -1,12 +1,12 @@
 import Foundation
 
-public enum SolanaWalletAdapterError: Error, Equatable{
+public enum SolanaWalletAdapterError: Error {
     // Library errors
     case alreadyConnected
     case notConnected
     case invalidRequest
     case invalidResponseFormat(response: [String: String])
-    case responseDecodingFailure
+    case browsingFailure
 
     // Errors wallets may return in a deeplink response.
     // - Solflare: https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors

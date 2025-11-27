@@ -48,14 +48,16 @@ public enum InstructionsBuilder {
 
 extension Transaction {
     public init(
+        feePayer: PublicKey,
         blockhash: Blockhash, @InstructionsBuilder _ instructionsBuilder: () -> [Instruction]
     ) throws {
         let instructions = instructionsBuilder()
 
-        var writableSigners: OrderedSet<PublicKey> = []
+        // Fee payer is always a writable signer, and must be the first account
+        var writableSigners: OrderedSet<PublicKey> = [feePayer]
         var readOnlySigners: OrderedSet<PublicKey> = []
         var readOnlyNonSigners: OrderedSet<PublicKey> = []
-        var accounts: OrderedSet<PublicKey> = []
+        var accounts: OrderedSet<PublicKey> = [feePayer]
 
         for instruction in instructions {
             for account in instruction.accounts {
@@ -67,7 +69,9 @@ extension Transaction {
                 }
                 accounts.append(account.publicKey)
             }
-            accounts.append(instruction.programId)  // ProgramID needs to be at the end of the accounts array (otherwise, the transaction is invalid)
+            // ProgramID needs to be at the end of the accounts array (otherwise, the transaction is invalid)
+            readOnlyNonSigners.append(instruction.programId)
+            accounts.append(instruction.programId)
         }
 
         let signers = writableSigners.union(readOnlySigners)

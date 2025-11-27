@@ -1,14 +1,6 @@
-import Base58
-import CryptoKit
 import Foundation
-import Salt
-import Security
-import SimpleKeychain
-import SolanaRPC
-import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Disconnect from the wallet.
     public mutating func disconnect() async throws {
         let connection = try _activeConnection
 
@@ -24,5 +16,6 @@ extension DeeplinkWallet {
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link")
         try throwIfErrorResponse(response: response)
+        self.connection = nil
     }
 }
