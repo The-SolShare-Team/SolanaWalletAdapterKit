@@ -10,7 +10,7 @@ public class WalletConnectionManager {
     public let availableWallets: [any Wallet.Type]
     private var storage: any SecureStorage
 
-    public private(set) var connectedWallets: [any Wallet] = []
+    public internal(set) var connectedWallets: [any Wallet] = []
 
     public init(
         availableWallets: [any Wallet.Type] = [
@@ -37,11 +37,13 @@ public class WalletConnectionManager {
         }
     }
 
+    @discardableResult
     public func pair<W: Wallet>(_ wallet: W.Type, for appIdentity: AppIdentity, cluster: Endpoint)
-        async throws
+        async throws -> any Wallet
     {
         var walletInstance = wallet.init(for: appIdentity, cluster: cluster)
         try await pair(&walletInstance)
+        return walletInstance
     }
 
     public func pair<W: Wallet>(_ wallet: inout W) async throws {
@@ -84,6 +86,7 @@ public class WalletConnectionManager {
             walletType: walletType.identifier, appIdentity: appIdentity, cluster: cluster,
             publicKey: publicKey)
         let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
         let encoded = try encoder.encode(identifier)
         let hash = SHA256.hash(data: encoded)
         return hash.compactMap { String(format: "%02x", $0) }.joined()
