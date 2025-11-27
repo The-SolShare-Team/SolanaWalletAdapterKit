@@ -18,10 +18,14 @@ jobs:
       run: brew install periphery
 
     - name: Run Periphery
-      run: periphery scan --strict --format github-markdown --write-results periphery.md
+      run: periphery scan --strict --format github-markdown --relative-results --write-results periphery.md
     
     - name: Add Periphery results to summary
       if: always()
       run: |
         echo "## Periphery Report" >> $GITHUB_STEP_SUMMARY
-        cat periphery.md >> $GITHUB_STEP_SUMMARY
+        if [ -f periphery.md ]; then
+          cat periphery.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo -e "| 0 Results |\n| :- |\n" >> $GITHUB_STEP_SUMMARY
+        fi
