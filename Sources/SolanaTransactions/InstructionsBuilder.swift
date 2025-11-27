@@ -1,5 +1,4 @@
 import Collections
-import Foundation
 import SwiftBorsh
 
 public protocol Instruction {
