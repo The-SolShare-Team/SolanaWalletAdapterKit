@@ -4,11 +4,11 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func testTokenProgramInitializeMintEncodingDecoding() {
+@Test func testTokenProgramInitializeMintEncodingDecoding() throws {
     let mint: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -20,7 +20,7 @@ import Testing
     //errors w following test: 
     //do we assume that the mint and the feePayer are from the same account? in web3.js we have the option to specify a different feePayer
     //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
@@ -45,12 +45,12 @@ import Testing
 //problems with test: need to flip both the mint account and account meta
 //signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3 BIG ONE 
 //accounts indexes are wrong, a little worried about that one
-@Test func testTokenProgramInitializeAccountEncodingDecoding() {
+@Test func testTokenProgramInitializeAccountEncodingDecoding() throws {
     let account = PublicKey("CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu")
     let mint = PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo")
     let owner = PublicKey("7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5")
 
-    let tx = try! Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.initializeAccount(
             account: account,
             mint: mint,
@@ -58,7 +58,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
 
     let expectedTransaction = Transaction(
         signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
@@ -88,12 +88,12 @@ import Testing
 }
 
 //Error here:  once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3
-@Test func testTokenProgramTransferEncodingDecoding() {
+@Test func testTokenProgramTransferEncodingDecoding() throws {
     let from: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let to: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.transfer(
             from: from,
             to: to,
@@ -102,7 +102,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
@@ -123,12 +123,12 @@ import Testing
 }
 
 //Error here:  once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3
-@Test func testTokenProgramMintToEncodingDecoding() {
+@Test func testTokenProgramMintToEncodingDecoding() throws {
     let mint: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let dest: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let mintAuth: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.mintTo(
             mint: mint,
             destination: dest,
@@ -137,7 +137,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
 
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
@@ -159,12 +159,12 @@ import Testing
 
 //error: once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 2, readOnlyAccounts: 1, readOnlyNonSigners: 1,
 
-@Test func testTokenProgramCloseAccountEncodingDecoding() {
+@Test func testTokenProgramCloseAccountEncodingDecoding() throws {
     let account: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let dest: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.closeAccount(
             account: account,
             destination: dest,
@@ -172,7 +172,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
 
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
@@ -193,7 +193,7 @@ import Testing
 }
 
 //error once again signatureCount: 2, readOnlyAccounts: 1, readOnlyNonSigners: 2,
-@Test func testTokenProgramTransferCheckedEncodingDecoding() {
+@Test func testTokenProgramTransferCheckedEncodingDecoding() throws {
     let from: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let to: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
@@ -210,7 +210,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
 
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
@@ -231,12 +231,12 @@ import Testing
                         ]))))
 }
 
-@Test func testTokenProgramInitializeMintEncodingDecodingWithFreezeAuthority() {
+@Test func testTokenProgramInitializeMintEncodingDecodingWithFreezeAuthority() throws {
     let mint: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
     let freezeAuthority: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
 
-    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -248,7 +248,7 @@ import Testing
     //errors w following test: 
     //do we assume that the mint and the feePayer are from the same account? in web3.js we have the option to specify a different feePayer
     //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
@@ -268,6 +268,7 @@ import Testing
                                 29,98,30,206,108,29,32,40,203,50,124,35,22,183,54]),
                         ]))))
 }
+
 
 
 

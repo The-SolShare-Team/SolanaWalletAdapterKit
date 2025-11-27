@@ -4,8 +4,8 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func testAssociatedTokenProgramCreateAccount() {
-    let tx = try! Transaction(feePayer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG", blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+@Test func testAssociatedTokenProgramCreateAccount() throws {
+    let tx = try Transaction(feePayer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG", blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         AssociatedTokenProgram.createAssociatedTokenAccount(
             mint: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
             associatedAccount: "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5",
@@ -15,7 +15,7 @@ import Testing
     }
 
     //read only signers error again
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(

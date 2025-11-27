@@ -4,8 +4,8 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func testSystemProgramCreateAccount() {
-    let tx = try! Transaction(feePayer: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo", blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+@Test func testSystemProgramCreateAccount() throws {
+    let tx = try Transaction(feePayer: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo", blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         SystemProgram.createAccount(
             from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo", 
             newAccount: "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5", 
@@ -15,7 +15,7 @@ import Testing
         )
     }
 
-    let decoded = try! Transaction(bytes: try! tx.encode())
+    let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
