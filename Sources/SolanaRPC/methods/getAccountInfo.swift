@@ -2,31 +2,13 @@ import Foundation
 import SolanaTransactions
 import SwiftBorsh
 
-public struct AccountInfoConfig: Codable, Equatable {
-    public let commitment: Commitment?
-    public let encoding: TransactionEncoding?
-    public let dataSlice: DataSlice?
-    public let minContextSlot: UInt64?
-
-    public init(
-        commitment: Commitment? = nil,
-        encoding: TransactionEncoding? = nil,
-        dataSlice: DataSlice? = nil,
-        minContextSlot: UInt64? = nil
-    ) {
-        self.commitment = commitment
-        self.encoding = encoding
-        self.dataSlice = dataSlice
-        self.minContextSlot = minContextSlot
-    }
+private struct AccountInfoConfig: Encodable {
+     let commitment: Commitment?
+     let encoding: TransactionEncoding?
+     let dataSlice: DataSlice?
+     let minContextSlot: UInt64?
 }
-
-public struct DataSlice: Codable, Equatable {
-    public let offset: UInt64
-    public let length: UInt64
-}
-
-public struct AccountInfoResult: Codable, Equatable {
+private struct AccountInfoResult: Decodable {
     public let data: AccountData
     public let executable: Bool
     public let lamports: UInt64
@@ -34,8 +16,13 @@ public struct AccountInfoResult: Codable, Equatable {
     public let rentEpoch: UInt64
     public let space: UInt64
 }
+public struct DataSlice: Codable {
+    public let offset: UInt64
+    public let length: UInt64
+}
 
-public enum AccountData: Codable, Equatable {
+
+public enum AccountData: Codable {
     case string(String)
     case encoded([String])
     case object([String: String])
@@ -51,7 +38,7 @@ public enum AccountData: Codable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(
                 in: container,
-                debugDescription: "Invalid data format for AccountData"
+                debugDescription: "Invalid AccountData format"
             )
         }
     }
@@ -59,22 +46,40 @@ public enum AccountData: Codable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case .string(let value): try container.encode(value)
-        case .encoded(let array): try container.encode(array)
-        case .object(let dict): try container.encode(dict)
+        case .string(let v): try container.encode(v)
+        case .encoded(let v): try container.encode(v)
+        case .object(let v): try container.encode(v)
         }
     }
 }
 
+// MARK: - getAccountInfo returning a tuple
 extension SolanaRPCClient {
     public func getAccountInfo(
         for account: PublicKey,
-        config: AccountInfoConfig? = nil
-    ) async throws -> AccountInfoResult? {
-        try await fetch(
+        config: (commitment: Commitment, encoding: TransactionEncoding, dataSlice: DataSlice, minContextSlot: UInt64)? = nil
+    )
+        async throws(RPCError) -> (
+            data: AccountData, executable: Bool, lamports: UInt64, owner: String, rentEpoch: UInt64, space: UInt64
+        )
+    {
+        let response = try await fetch(
             method: "getAccountInfo",
-            params: [account, config ?? AccountInfoConfig()],
-            into: RPCResponseResult<AccountInfoResult?>.self
-        ).value
+            params: [
+                config.map {
+                    AccountInfoConfig(
+                        commitment: $0.commitment,
+                        encoding: $0.encoding,
+                        dataSlice: $0.dataSlice,
+                        minContextSlot: $0.minContextSlot,
+
+                    )
+                }
+            ],
+
+            into: RPCResponseResult<AccountInfoResult>.self)
+
+        return (response.value.data, response.value.executable, response.value.lamports, response.value.owner, response.value.rentEpoch, response.value.space)
+
     }
 }

@@ -17,9 +17,6 @@ import Testing
         )
     }
 
-    //errors w following test: 
-    //do we assume that the mint and the feePayer are from the same account? in web3.js we have the option to specify a different feePayer
-    //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
     let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
@@ -42,9 +39,6 @@ import Testing
                         ]))))
 }
 
-//problems with test: need to flip both the mint account and account meta
-//signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3 BIG ONE 
-//accounts indexes are wrong, a little worried about that one
 @Test func testTokenProgramInitializeAccountEncodingDecoding() throws {
     let account = PublicKey("CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu")
     let mint = PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo")
@@ -87,7 +81,6 @@ import Testing
     #expect(decoded == expectedTransaction)
 }
 
-//Error here:  once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3
 @Test func testTokenProgramTransferEncodingDecoding() throws {
     let from: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let to: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
@@ -122,7 +115,6 @@ import Testing
 
 }
 
-//Error here:  once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 3
 @Test func testTokenProgramMintToEncodingDecoding() throws {
     let mint: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let dest: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
@@ -156,8 +148,6 @@ import Testing
                                 data: [7,136,19,0,0,0,0,0,0]),
                         ]))))
 }
-
-//error: once again signatureCount and readOnlyNonSigners differ from actual, should be signatureCount: 2, readOnlyAccounts: 1, readOnlyNonSigners: 1,
 
 @Test func testTokenProgramCloseAccountEncodingDecoding() throws {
     let account: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
@@ -245,9 +235,6 @@ import Testing
         )
     }
 
-    //errors w following test: 
-    //do we assume that the mint and the feePayer are from the same account? in web3.js we have the option to specify a different feePayer
-    //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
     let decoded = try Transaction(bytes: try tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
