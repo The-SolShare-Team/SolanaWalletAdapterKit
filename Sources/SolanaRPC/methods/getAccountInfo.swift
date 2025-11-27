@@ -56,7 +56,6 @@ public enum AccountData: Codable {
 // MARK: - getAccountInfo returning a tuple
 extension SolanaRPCClient {
     public func getAccountInfo(
-        for account: PublicKey,
         config: (commitment: Commitment, encoding: TransactionEncoding, dataSlice: DataSlice, minContextSlot: UInt64)? = nil
     )
         async throws(RPCError) -> (
