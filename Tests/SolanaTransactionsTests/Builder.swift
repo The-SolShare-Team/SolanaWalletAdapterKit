@@ -7,7 +7,7 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func encodeDecode() {
+@Test func encodeDecodeFullTransaction() {
     let tr = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         for i in 0..<3 {
             SystemProgram.transfer(
