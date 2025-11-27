@@ -18,11 +18,10 @@ jobs:
       run: brew install periphery
 
     - name: Run Periphery
-      run: |
-        periphery scan --format github-markdown --write-results periphery.md
-        sed -i '' '1i\
-        ## 🧹 Periphery Unused Code Report
-        ' periphery.md
+      run: periphery scan --strict --format github-markdown --write-results periphery.md
     
     - name: Add Periphery results to summary
-      run: cat periphery.md >> $GITHUB_STEP_SUMMARY
+      if: always()
+      run: |
+        echo "## Periphery Report" >> $GITHUB_STEP_SUMMARY
+        cat periphery.md >> $GITHUB_STEP_SUMMARY
