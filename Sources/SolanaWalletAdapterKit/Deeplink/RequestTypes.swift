@@ -56,18 +56,6 @@ public struct SendOptions: Codable {
 }
 
 public enum MessageDisplayFormat: String, Encodable, Sendable {
-    case hex = "hex"
-    case utf8 = "utf8" // should NOT be utf-8
-}
-
-extension TransactionOptions {
-    public init(sendOptions: SendOptions? = nil, encoding: TransactionEncoding? = nil) {
-        self.init(
-            encoding: encoding,
-            skipPreflight: sendOptions?.skipPreflight,
-            preflightCommitment: sendOptions?.preflightCommitment,
-            maxRetries: sendOptions?.maxRetries,
-            minContextSlot: sendOptions?.minContextSlot
-        )
-    }
+    case hex
+    case utf8
 }
