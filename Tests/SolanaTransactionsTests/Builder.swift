@@ -4,8 +4,8 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func encodeDecode() {
-    let tr = try! Transaction(
+@Test func encodeDecode() throws {
+    let tr = try Transaction(
         feePayer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
         blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk"
     ) {
@@ -21,7 +21,7 @@ import Testing
     }
 
     #expect(
-        try! Transaction(bytes: try! tr.encode())
+        try Transaction(bytes: try tr.encode())
             == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(

@@ -60,10 +60,7 @@ class DeeplinkFetcher {
             return components.url!
         }()
 
-        let result = await withCheckedContinuation {
-            (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>)
-            in
-
+        let result = await withCheckedContinuation { (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>) in
             // Create the timeout task first
             let timeoutTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64((timeout * 1_000_000_000).rounded()))

@@ -1,0 +1,10 @@
+{
+    "multilineTrailingCommaBehavior": "alwaysUsed",
+    "multiElementCollectionTrailingCommas": true,
+    "reflowMultilineStringLiterals": "onlyLinesOverLength",
+    "indentation": {
+        "spaces": 4
+    },
+    "lineLength": 200,
+    "version": 1
+}

@@ -3,50 +3,55 @@ import Testing
 
 @testable import SolanaTransactions
 
-@Test func shortInt1() {
+@Test func shortInt1() throws {
     var buffer = SolanaTransactionBuffer(bytes: [0x03])
-    #expect(try! UInt16(fromSolanaTransaction: &buffer) == 3)
+    #expect(try UInt16(fromSolanaTransaction: &buffer) == 3)
 }
 
-@Test func shortInt2() {
+@Test func shortInt2() throws {
     var buffer = SolanaTransactionBuffer(bytes: [0x80, 0x01])
-    #expect(try! UInt16(fromSolanaTransaction: &buffer) == 128)
+    #expect(try UInt16(fromSolanaTransaction: &buffer) == 128)
 }
 
-@Test func shortInt3() {
+@Test func shortInt3() throws {
     var buffer = SolanaTransactionBuffer()
-    try! UInt16(3).solanaTransactionEncode(to: &buffer)
+    try UInt16(3).solanaTransactionEncode(to: &buffer)
     #expect(buffer.readBytes(length: buffer.readableBytes) == [0x03])
 }
 
-@Test func shortInt4() {
+@Test func shortInt4() throws {
     var buffer = SolanaTransactionBuffer()
-    try! UInt16(128).solanaTransactionEncode(to: &buffer)
+    try UInt16(128).solanaTransactionEncode(to: &buffer)
     #expect(buffer.readBytes(length: buffer.readableBytes) == [0x80, 0x01])
 }
 
-@Test func shortInt5() {
+@Test func shortInt5() throws {
     var buffer = SolanaTransactionBuffer()
     for i in 0...UInt16.max {
-        try! UInt16(i).solanaTransactionEncode(to: &buffer)
+        try UInt16(i).solanaTransactionEncode(to: &buffer)
     }
     for i in 0...UInt16.max {
-        #expect(try! UInt16(fromSolanaTransaction: &buffer) == i)
+        #expect(try UInt16(fromSolanaTransaction: &buffer) == i)
     }
 }
 
-@Test func array() {
+@Test func array() throws {
     var buffer = SolanaTransactionBuffer()
     let original: [UInt8] = [1, 2, 3, 4, 5, 6]
-    try! original.solanaTransactionEncode(to: &buffer)
-    #expect(try! [UInt8].init(fromSolanaTransaction: &buffer) == original)
+    try original.solanaTransactionEncode(to: &buffer)
+    #expect(try [UInt8].init(fromSolanaTransaction: &buffer) == original)
 }
 
-@Test func transaction() {
+@Test func transaction() throws {
     let base64Transaction =
-        "AVY2OiCW17TmRtYkLf5hXChKiLI426BCzVvm3HVWbfc9jB/bbeXBdr44qqHonxaXU72IujL8UxMHINFxdbiZrAaAAQABA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUdYh7ObB0gKMsyfCMWtzYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7ozykFkocGm47yXhDkJOG244K5sAQICAAEMAgAAAICWmAAAAAAAAA=="
+        """
+        AVY2OiCW17TmRtYkLf5hXChKiLI426BCzVvm3HVWbfc9jB/bbeXBdr44qqHonxaXU72IujL8UxMHINFx\
+        dbiZrAaAAQABA406Qf3ITsphmePq8Dhvj5KuE1qYX1hOPOf02gP1OnSxqj7yZT8FPL8rBX8RYTg1teUd\
+        Yh7ObB0gKMsyfCMWtzYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL7kT4hrkBAe9WQXo7oz\
+        ykFkocGm47yXhDkJOG244K5sAQICAAEMAgAAAICWmAAAAAAAAA==
+        """
 
-    let transaction = try! Transaction(bytes: Data(base64Encoded: base64Transaction)!)
+    let transaction = try Transaction(bytes: Data(base64Encoded: base64Transaction)!)
 
     #expect(
         transaction
