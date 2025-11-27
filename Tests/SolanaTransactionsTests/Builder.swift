@@ -5,7 +5,10 @@ import Testing
 @testable import SolanaTransactions
 
 @Test func encodeDecode() {
-    let tr = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tr = try! Transaction(
+        feePayer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
+        blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk"
+    ) {
         for i in 0..<3 {
             SystemProgram.transfer(
                 from: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
@@ -23,7 +26,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",

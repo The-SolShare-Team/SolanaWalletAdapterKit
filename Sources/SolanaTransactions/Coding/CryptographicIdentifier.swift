@@ -65,7 +65,7 @@ extension CryptographicIdentifier {
         let string = try container.decode(String.self)
         guard let bytes = Data(base58Encoded: string) else {
             throw DecodingError.dataCorruptedError(
-                in: container, debugDescription: "Invalid Base58 public key: \(string)")
+                in: container, debugDescription: "Invalid Base58 string: \(string)")
         }
         self.init(bytes: bytes)
     }

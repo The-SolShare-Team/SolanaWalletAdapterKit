@@ -24,11 +24,22 @@ struct SavedWalletConnection: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let walletIdentifier = try container.decode(String.self, forKey: .walletType)
 
-        let availableWallets =
-            decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey]
-            as! [String: any Wallet.Type]
+        guard
+            let availableWallets =
+                decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey]
+                as? [String: any Wallet.Type]
+        else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .walletType, in: container,
+                debugDescription: "Missing or invalid availableWallets in decoder.userInfo")
+        }
 
-        self.walletType = availableWallets[walletIdentifier]!
+        guard let walletType = availableWallets[walletIdentifier] else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .walletType, in: container,
+                debugDescription: "Unknown wallet identifier: \(walletIdentifier)")
+        }
+        self.walletType = walletType
 
         self.connection = try container.decode(
             walletType.ConnectionType.self, forKey: .connection)

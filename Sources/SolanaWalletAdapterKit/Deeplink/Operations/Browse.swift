@@ -30,15 +30,14 @@ extension DeeplinkWallet {
             components.queryItems = [
                 URLQueryItem(name: "ref", value: encodedRefURL)
             ]
-            return components.url!  // TODO: Is it safe to force unwrap here?
+            return components.url!
         }()
 
         #if os(iOS)
             let success = await UIApplication.shared.open(deeplink)
-            if !success { throw DeeplinkFetchingError.unableToOpen }  // TODO: Not sure about this error
         #elseif os(macOS)
             let success = NSWorkspace.shared.open(deeplink)
-            if !success { throw DeeplinkFetchingError.unableToOpen }  // TODO: Not sure about this error
         #endif
+        if !success { throw SolanaWalletAdapterError.browsingFailure }
     }
 }

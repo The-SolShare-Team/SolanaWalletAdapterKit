@@ -33,7 +33,7 @@ public protocol Wallet: SendableMetatype {
     nonmutating func signAllTransactions(transactions: [Transaction])
         async throws -> SignAllTransactionsResponseData
 
-    /// Sign a transactions using the wallet.
+    /// Sign a transaction using the wallet.
     nonmutating func signTransaction(transaction: Transaction)
         async throws -> SignTransactionResponseData
 
@@ -58,9 +58,9 @@ extension Wallet {
 }
 
 public struct AppIdentity: Sendable, Codable, Equatable {
-    let name: String
-    let url: URL
-    let icon: String
+    public let name: String
+    public let url: URL
+    public let icon: String
 
     public init(name: String, url: URL, icon: String) {
         self.name = name
