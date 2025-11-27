@@ -1,38 +1,37 @@
 import SolanaTransactions
 
-private struct RequestConfiguration: Encodable {
-    let commitment: Commitment?
-    let minContextSlot: Int?
-}
-
-private struct ResponseData: Decodable {
-    let blockhash: Blockhash
-    let lastValidBlockHeight: UInt64
-}
-
 extension SolanaRPCClient {
+    public struct GetLatestBlockhashConfiguration: Encodable {
+        let commitment: Commitment?
+        let minContextSlot: Int?
+
+        public init(
+            commitment: Commitment? = nil,
+            minContextSlot: Int? = nil
+        ) {
+            self.commitment = commitment
+            self.minContextSlot = minContextSlot
+        }
+    }
+
+    public struct GetLatestBlockhashResponse: Decodable {
+        let blockhash: Blockhash
+        let lastValidBlockHeight: UInt64
+    }
+
     /// https://solana.com/docs/rpc/http/getlatestblockhash
     public func getLatestBlockhash(
-        configuration: (commitment: Commitment?, minContextSlot: Int?)? = nil
-    )
-        async throws(RPCError) -> (
-            blockhash: Blockhash, lastValidBlockHeight: UInt64
-        )
-    {
+        configuration: GetLatestBlockhashConfiguration? = nil
+    ) async throws(RPCError) -> GetLatestBlockhashResponse {
         var params: [Encodable] = []
-
-        if let configuration = configuration {
-            params.append(
-                RequestConfiguration(
-                    commitment: configuration.commitment,
-                    minContextSlot: configuration.minContextSlot
-                ))
+        if let configuration {
+            params.append(configuration)
         }
 
-        let response = try await fetch(
+        return try await fetch(
             method: "getLatestBlockhash",
             params: params,
-            into: RPCResponseResult<ResponseData>.self)
-        return (response.value.blockhash, response.value.lastValidBlockHeight)
+            into: RPCResponseResult<GetLatestBlockhashResponse>.self
+        ).value
     }
 }
