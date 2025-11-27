@@ -3,6 +3,12 @@ import Testing
 
 @testable import SolanaTransactions
 
+@Test func publicKey() throws {
+    let data = try #require(Data(base58Encoded: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG"))
+    let publicKey = PublicKey(bytes: [UInt8](data))
+    #expect(publicKey == "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")
+}
+
 @Test func shortInt1() throws {
     var buffer = SolanaTransactionBuffer(bytes: [0x03])
     #expect(try UInt16(fromSolanaTransaction: &buffer) == 3)
