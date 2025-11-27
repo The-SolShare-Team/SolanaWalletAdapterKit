@@ -16,7 +16,7 @@ extension SolanaRPCClient {
     public func getMinBalanceForRentExemption(
         accountDataLength: UInt64,
         configuration: GetMinBalanceForRentExemptionConfiguration? = nil
-    ) async throws -> UInt64 {
+    ) async throws(RPCError) -> UInt64 {
         var params: [Encodable] = [accountDataLength]
         if let configuration {
             params.append(configuration)
