@@ -3,18 +3,28 @@ import ByteBuffer
 import Foundation
 import SwiftBorsh
 
-protocol CryptographicIdentifier: ExpressibleByArrayLiteral, ExpressibleByStringLiteral,
-    SolanaTransactionCodable, Hashable, Sendable, CustomStringConvertible, BorshCodable, Codable
+// This pair of protocols works in tandem to provide a clean public interface, whilst
+// staying compatible with the Swift visibility rules. This, for example, allows
+// to expose a safe public initializer, based on the automatically synthesized
+// initializer of the consuming structs. Both protocols should be adopted by the
+// consuming structs.
+
+public protocol CryptographicIdentifier: ExpressibleByArrayLiteral, ExpressibleByStringLiteral,
+    Sendable, CustomStringConvertible, BorshCodable, Codable, Equatable, Hashable
 {
     static var byteLength: Int { get }
     var bytes: Data { get }
+    init?<Bytes: Collection>(bytes: Bytes) where Bytes.Element == UInt8
+}
+
+protocol _CryptographicIdentifier: SolanaTransactionCodable, CryptographicIdentifier {
     init(bytes: Data)
 }
 
-extension CryptographicIdentifier {
-    public init?(bytes: Data) {
+extension _CryptographicIdentifier {
+    public init?<Bytes: Collection>(bytes: Bytes) where Bytes.Element == UInt8 {
         if bytes.count != Self.byteLength { return nil }
-        self.init(bytes: bytes)
+        self.init(bytes: Data(bytes))
     }
 
     public init(arrayLiteral elements: UInt8...) {
@@ -72,5 +82,9 @@ extension CryptographicIdentifier {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(bytes)
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.bytes == rhs.bytes
     }
 }
