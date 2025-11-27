@@ -4,14 +4,14 @@ extension Array: SolanaTransactionCodable where Element: SolanaTransactionCodabl
     {
         let count = Int(try UInt16(fromSolanaTransaction: &buffer))
         do {
-            try self.init(unsafeUninitializedCapacity: count) {
-                array, initializedCount in
+            try self.init(unsafeUninitializedCapacity: count) { array, initializedCount in
                 for i in 0..<count {
                     defer { initializedCount += 1 }
                     array[i] = try Element(fromSolanaTransaction: &buffer)
                 }
             }
         } catch {
+            // swiftlint:disable:next force_cast
             throw error as! SolanaTransactionCodingError
         }
     }

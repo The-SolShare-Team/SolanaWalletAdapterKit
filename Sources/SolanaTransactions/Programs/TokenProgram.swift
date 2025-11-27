@@ -59,29 +59,29 @@ public enum TokenProgram: Program, Instruction {
         mintAccount: PublicKey,
         decimals: UInt8,
         mintAuthority: PublicKey,
-        freezeAuthority: PublicKey? = nil
+        freezeAuthority: PublicKey? = nil,
     )
     case initializeAccount(
         account: PublicKey,
         mint: PublicKey,
-        owner: PublicKey
+        owner: PublicKey,
     )
     case transfer(
         from: PublicKey,
         to: PublicKey,
         amount: Int64,
-        owner: PublicKey
+        owner: PublicKey,
     )
     case mintTo(
         mint: PublicKey,
         destination: PublicKey,
         mintAuthority: PublicKey,
-        amount: Int64
+        amount: Int64,
     )
     case closeAccount(
         account: PublicKey,
         destination: PublicKey,
-        owner: PublicKey
+        owner: PublicKey,
     )
     case transferChecked(
         from: PublicKey,
@@ -89,7 +89,7 @@ public enum TokenProgram: Program, Instruction {
         amount: Int64,
         decimals: UInt8,
         owner: PublicKey,
-        mint: PublicKey
+        mint: PublicKey,
     )
 
     public var accounts: [AccountMeta] {

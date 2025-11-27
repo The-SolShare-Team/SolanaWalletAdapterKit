@@ -1,3 +1,16 @@
+disabled_rules:
+    - opening_brace
+    - trailing_comma
+    - large_tuple
+
 included: 
-  - Sources
-  - Tests
+    - Sources
+    - Tests
+
+identifier_name:
+    min_length: 1
+    allowed_symbols: ["_"]
+
+line_length:
+    warning: 200
+    error: 200

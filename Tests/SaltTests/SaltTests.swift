@@ -4,9 +4,9 @@ import Testing
 
 @testable import Salt
 
-@Test func noFatalError() {
+@Test func noFatalError() throws {
     #expect(
-        try! !SaltUtil.isOnCurve(
+        try !SaltUtil.isOnCurve(
             publicKey: Data([
                 1, 2, 3, 4, 5, 6, 7, 8,
                 9, 10, 11, 12, 13, 14, 15, 16,
@@ -15,14 +15,14 @@ import Testing
             ])))
 }
 
-@Test func offCurve() {
+@Test func offCurve() throws {
     #expect(
-        try! !SaltUtil.isOnCurve(
+        try !SaltUtil.isOnCurve(
             publicKey: Data(base58Encoded: "616dEZzzvT4QX9oe8rDoNGi7AVjyXuSEDyosz5uXWN1K")!))
 }
 
-@Test func onCurve() {
+@Test func onCurve() throws {
     #expect(
-        try! SaltUtil.isOnCurve(
+        try SaltUtil.isOnCurve(
             publicKey: Data(base58Encoded: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")!))
 }

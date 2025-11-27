@@ -9,8 +9,7 @@ public struct ProgramDerivedAddress: Sendable {
     @concurrent
     public static func create(programId: PublicKey, seeds: [[UInt8]]) async throws -> PublicKey {
         // Concatenate all seed bytes and validate their length
-        let concatenatedSeeds: [UInt8] = try seeds.enumerated().reduce(into: [UInt8]()) {
-            acc, next in
+        let concatenatedSeeds: [UInt8] = try seeds.enumerated().reduce(into: [UInt8]()) { acc, next in
             let (index, seed) = next
             guard seed.count <= 32 else {
                 throw ProgramDerivedAddressError.seedTooLong(

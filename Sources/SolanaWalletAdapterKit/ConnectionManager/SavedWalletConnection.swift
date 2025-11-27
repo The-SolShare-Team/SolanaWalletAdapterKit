@@ -76,6 +76,7 @@ extension Wallet {
     fileprivate static func recover(
         for appIdentity: AppIdentity, cluster: Endpoint, connection: WalletConnection
     ) -> Self {
+        // swiftlint:disable:next force_cast
         self.init(for: appIdentity, cluster: cluster, connection: (connection as! Connection))
     }
 }
