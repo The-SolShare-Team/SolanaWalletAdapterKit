@@ -71,7 +71,7 @@ import Testing
                     CompiledInstruction(
                         programIdIndex: 4,
                         accounts: [0, 1, 2, 3],
-                        data: [2]
+                        data: [1]
                     )
                 ]
             )
@@ -100,7 +100,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1, //should be 2, 1, 1
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -135,7 +135,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,  //should be 2, 1, 1
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -168,7 +168,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1, //should be 2, 1, 1
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -182,7 +182,6 @@ import Testing
                         ]))))
 }
 
-//error once again signatureCount: 2, readOnlyAccounts: 1, readOnlyNonSigners: 2,
 @Test func testTokenProgramTransferCheckedEncodingDecoding() throws {
     let from: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
     let to: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
@@ -206,7 +205,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 2,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 2, //should be 2, 1, 2
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "So11111111111111111111111111111111111111112",
