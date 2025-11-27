@@ -116,13 +116,24 @@ import Testing
     let bytes = try transaction.encode()
     let encodedString = Data(bytes).base64EncodedString()
     
-    #expect(encodedString == "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA")
+    #expect(encodedString == """
+    AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+Sr
+    hNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuR
+    PiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+    """
+    )
 }
 
 //use lower version transaction from JS to test decoding
 @Test func testV0TransactionDecodingMatchesJS() throws {
     let base64TransactionFromJS =
-        "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA"
+        """
+        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+Sr
+        hNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuR
+        PiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+        """
     let transaction = try Transaction(bytes: Data(base64Encoded: base64TransactionFromJS)!)
     let expectedAccounts: [PublicKey] = [
         PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"),

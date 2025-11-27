@@ -199,7 +199,7 @@ import Testing
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
     let mint: PublicKey = "So11111111111111111111111111111111111111112"
 
-    let tx = try! Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.transferChecked(
             from: from,
             to: to,

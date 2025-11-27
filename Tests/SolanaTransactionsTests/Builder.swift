@@ -20,7 +20,7 @@ import Testing
         }
     }
 
-    let transaction = try! Transaction(bytes: try! tr.encode())
+    let transaction = try Transaction(bytes: try tr.encode())
     print(transaction)
     #expect(
         try Transaction(bytes: try tr.encode())
