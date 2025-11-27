@@ -27,11 +27,27 @@ import Testing
 
 @Test func shortInt5() throws {
     var buffer = SolanaTransactionBuffer()
+    
+    // Encode all UInt16 values
     for i in 0...UInt16.max {
         try UInt16(i).solanaTransactionEncode(to: &buffer)
     }
+    
+    // Decode all UInt16 values with guard
     for i in 0...UInt16.max {
-        #expect(try UInt16(fromSolanaTransaction: &buffer) == i)
+        let value: UInt16
+        do {
+            value = try UInt16(fromSolanaTransaction: &buffer)
+        } catch {
+            fatalError("Decoding failed for i = \(i): \(error)")
+        }
+        
+        guard value == i else {
+            fatalError("Decoded value \(value) does not match expected \(i)")
+        }
+        
+        // Optional: #expect if you still want Testing syntax
+        #expect(value == i)
     }
 }
 
@@ -115,24 +131,25 @@ import Testing
     
     let bytes = try transaction.encode()
     let encodedString = Data(bytes).base64EncodedString()
+    let expectedEncodedString = """
+        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA\
+        gONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+\
+        8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGu\
+        QEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+        """
     
-    #expect(encodedString == """
-    AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+Sr
-    hNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuR
-    PiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
-    """
-    )
+    #expect(encodedString == expectedEncodedString)
 }
 
 //use lower version transaction from JS to test decoding
 @Test func testV0TransactionDecodingMatchesJS() throws {
-    let base64TransactionFromJS =
-        """
-        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+Sr
-        hNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuR
-        PiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+    let base64TransactionFromJS = """
+        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA\
+        gONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+\
+        8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGu\
+        QEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
         """
     let transaction = try Transaction(bytes: Data(base64Encoded: base64TransactionFromJS)!)
     let expectedAccounts: [PublicKey] = [
