@@ -22,7 +22,7 @@ import Testing
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 6,  //should be 1, 0, 5
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 6,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
                             "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5",
