@@ -8,7 +8,7 @@ import Testing
     let mint: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -18,7 +18,9 @@ import Testing
     }
 
     let decoded = try Transaction(bytes: try tx.encode())
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
@@ -26,16 +28,18 @@ import Testing
                         accounts: [
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                             "SysvarRent111111111111111111111111111111111",
-                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                          ], blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk",
+                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        ], blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk",
                         instructions: [
                             CompiledInstruction(
-                                programIdIndex: 2, accounts: [0,1],
-                                data: [0, 6, 97, 66, 146, 246, 170, 235, 0, 229, 233, 69, 131, 
-                                155, 212, 213, 43, 89, 124, 249, 126, 26, 231, 153, 150, 115, 
-                                122, 164, 85, 200, 72, 35, 230, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-                                0, 0, 0]),
+                                programIdIndex: 2, accounts: [0, 1],
+                                data: [
+                                    0, 6, 97, 66, 146, 246, 170, 235, 0, 229, 233, 69, 131,
+                                    155, 212, 213, 43, 89, 124, 249, 126, 26, 231, 153, 150, 115,
+                                    122, 164, 85, 200, 72, 35, 230, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0, 0, 0,
+                                ])
                         ]))))
 }
 
@@ -64,7 +68,7 @@ import Testing
                     "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                     "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5",
                     "SysvarRent111111111111111111111111111111111",
-                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
                 ],
                 blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk",
                 instructions: [
@@ -96,11 +100,13 @@ import Testing
     }
 
     let decoded = try Transaction(bytes: try tx.encode())
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1, //should be 2, 1, 1
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,  //should be 2, 1, 1
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -110,7 +116,7 @@ import Testing
                         instructions: [
                             CompiledInstruction(
                                 programIdIndex: 3, accounts: [0, 1, 2],
-                                data: [3,57,48,0,0,0,0,0,0]),
+                                data: [3, 57, 48, 0, 0, 0, 0, 0, 0])
                         ]))))
 
 }
@@ -131,7 +137,9 @@ import Testing
 
     let decoded = try Transaction(bytes: try tx.encode())
 
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
@@ -145,7 +153,7 @@ import Testing
                         instructions: [
                             CompiledInstruction(
                                 programIdIndex: 3, accounts: [0, 1, 2],
-                                data: [7,136,19,0,0,0,0,0,0]),
+                                data: [7, 136, 19, 0, 0, 0, 0, 0, 0])
                         ]))))
 }
 
@@ -164,11 +172,13 @@ import Testing
 
     let decoded = try Transaction(bytes: try tx.encode())
 
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1, //should be 2, 1, 1
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,  //should be 2, 1, 1
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -178,7 +188,7 @@ import Testing
                         instructions: [
                             CompiledInstruction(
                                 programIdIndex: 3, accounts: [0, 1, 2],
-                                data: [9]),
+                                data: [9])
                         ]))))
 }
 
@@ -201,11 +211,13 @@ import Testing
 
     let decoded = try Transaction(bytes: try tx.encode())
 
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 2, //should be 2, 1, 2
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 2,  //should be 2, 1, 2
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "So11111111111111111111111111111111111111112",
@@ -216,7 +228,7 @@ import Testing
                         instructions: [
                             CompiledInstruction(
                                 programIdIndex: 4, accounts: [0, 1, 2, 3],
-                                data: [12, 232, 3, 0, 0, 0, 0, 0, 0, 2]),
+                                data: [12, 232, 3, 0, 0, 0, 0, 0, 0, 2])
                         ]))))
 }
 
@@ -225,7 +237,7 @@ import Testing
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
     let freezeAuthority: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
 
-    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -235,7 +247,9 @@ import Testing
     }
 
     let decoded = try Transaction(bytes: try tx.encode())
-    #expect(decoded == Transaction(
+    #expect(
+        decoded
+            == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
@@ -243,20 +257,16 @@ import Testing
                         accounts: [
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                             "SysvarRent111111111111111111111111111111111",
-                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                          ], blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk",
+                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        ], blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk",
                         instructions: [
                             CompiledInstruction(
-                                programIdIndex: 2, accounts: [0,1],
-                                data: [0,6,97,66,146,246,170,235,0,229,233,69,131,155,212,213,
-                                43,89,124,249,126,26,231,153,150,115,122,164,85,200,72,35,230,
-                                84,1,170,62,242,101,63,5,60,191,43,5,127,17,97,56,53,181,229,
-                                29,98,30,206,108,29,32,40,203,50,124,35,22,183,54]),
+                                programIdIndex: 2, accounts: [0, 1],
+                                data: [
+                                    0, 6, 97, 66, 146, 246, 170, 235, 0, 229, 233, 69, 131, 155, 212, 213,
+                                    43, 89, 124, 249, 126, 26, 231, 153, 150, 115, 122, 164, 85, 200, 72, 35, 230,
+                                    84, 1, 170, 62, 242, 101, 63, 5, 60, 191, 43, 5, 127, 17, 97, 56, 53, 181, 229,
+                                    29, 98, 30, 206, 108, 29, 32, 40, 203, 50, 124, 35, 22, 183, 54,
+                                ])
                         ]))))
 }
-
-
-
-
-
-

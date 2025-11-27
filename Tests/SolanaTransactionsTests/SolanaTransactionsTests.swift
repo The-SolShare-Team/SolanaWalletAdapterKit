@@ -27,12 +27,12 @@ import Testing
 
 @Test func shortInt5() throws {
     var buffer = SolanaTransactionBuffer()
-    
+
     // Encode all UInt16 values
     for i in 0...UInt16.max {
         try UInt16(i).solanaTransactionEncode(to: &buffer)
     }
-    
+
     // Decode all UInt16 values with guard
     for i in 0...UInt16.max {
         let value: UInt16
@@ -41,11 +41,11 @@ import Testing
         } catch {
             fatalError("Decoding failed for i = \(i): \(error)")
         }
-        
+
         guard value == i else {
             fatalError("Decoded value \(value) does not match expected \(i)")
         }
-        
+
         // Optional: #expect if you still want Testing syntax
         #expect(value == i)
     }
@@ -84,7 +84,7 @@ import Testing
                             "11111111111111111111111111111111",
                         ], blockhash: "DrAP91wtHVsYp64PYyhGLJXtbYMQt7Sss47YdKUV1Xzj",
                         instructions: [
-                        CompiledInstruction(  // Transfer Lamports Amount: 10000000n
+                            CompiledInstruction(  // Transfer Lamports Amount: 10000000n
                                 programIdIndex: 2, accounts: [0, 1],
                                 data: [2, 0, 0, 0, 128, 150, 152, 0, 0, 0, 0, 0])
                         ],
@@ -99,17 +99,17 @@ import Testing
         PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"),
         PublicKey("CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk"),
     ]
-    
+
     // === Blockhash ===
     let blockhash = Blockhash("13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq")
-    
+
     // === Compiled Instruction ===
     let instruction = CompiledInstruction(
         programIdIndex: 0,
         accounts: [1],
         data: [0, 1]
     )
-    
+
     // === Construct V0Message ===
     let message: V0Message = V0Message(
         signatureCount: 1,
@@ -120,15 +120,15 @@ import Testing
         instructions: [instruction],
         addressTableLookups: []
     )
-    
+
     let placeholderSignature = Signature(bytes: Data(repeating: UInt8(0), count: 64))
     let signatures: [Signature] = [placeholderSignature]
-    
+
     let transaction = Transaction(
         signatures: signatures,
         message: .v0(message)
     )
-    
+
     let bytes = try transaction.encode()
     let encodedString = Data(bytes).base64EncodedString()
     let expectedEncodedString = """
@@ -138,7 +138,7 @@ import Testing
         8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGu\
         QEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
         """
-    
+
     #expect(encodedString == expectedEncodedString)
 }
 
@@ -180,4 +180,3 @@ import Testing
             )
     )
 }
-

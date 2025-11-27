@@ -2,10 +2,10 @@ import Foundation
 import SwiftBorsh
 
 private struct AccountInfoConfig: Encodable {
-     let commitment: Commitment?
-     let encoding: TransactionEncoding?
-     let dataSlice: DataSlice?
-     let minContextSlot: UInt64?
+    let commitment: Commitment?
+    let encoding: TransactionEncoding?
+    let dataSlice: DataSlice?
+    let minContextSlot: UInt64?
 }
 private struct AccountInfoResult: Decodable {
     public let data: AccountData
@@ -19,7 +19,6 @@ public struct DataSlice: Codable {
     public let offset: UInt64
     public let length: UInt64
 }
-
 
 public enum AccountData: Codable {
     case string(String)
