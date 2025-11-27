@@ -18,14 +18,11 @@ jobs:
       run: brew install swiftlint
     
     - name: Run SwiftLint (GitHub Actions Logging)
-      run: swiftlint --reporter github-actions-logging || true
+      run: swiftlint --reporter github-actions-logging
 
     - name: SwiftLint (Markdown Summary)
+      if: always()
       run: |
         swiftlint --reporter markdown > swiftlint_output.md || true
-
-        echo "## 🧹 SwiftLint Report" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "## SwiftLint Report" >> $GITHUB_STEP_SUMMARY
         cat swiftlint_output.md >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
