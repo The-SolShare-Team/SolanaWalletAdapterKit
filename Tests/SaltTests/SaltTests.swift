@@ -26,3 +26,18 @@ import Testing
         try SaltUtil.isOnCurve(
             publicKey: Data(base58Encoded: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")!))
 }
+
+@Test func generateNonce() throws {
+    let nonce = try SaltUtil.generateNonce()
+    #expect(nonce.count == 24)
+}
+
+@Test func generateNonces() throws {
+    for _ in 0..<100 {
+        let nonce1 = try SaltUtil.generateNonce()
+        let nonce2 = try SaltUtil.generateNonce()
+        #expect(nonce1 != nonce2)
+        #expect(nonce1.count == 24)
+        #expect(nonce2.count == 24)
+    }
+}

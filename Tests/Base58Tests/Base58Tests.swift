@@ -53,6 +53,15 @@ import Testing
 
 @Test func testDecodeInvalidCharacter() {
     let invalidInput = "0OIl"  // invalid Base58 characters
-
     #expect(Data(base58Encoded: invalidInput) == nil)
+}
+
+@Test func encodeData() {
+    let input = Data([0, 255, 128, 64, 32, 16, 8, 4, 2, 1])
+    #expect(input.base58EncodedString() == String(bytes: input.base58EncodedData(), encoding: .utf8))
+}
+
+@Test func decodeData() {
+    let input = "1cWB"
+    #expect(Data(base58Encoded: input) == Data(base58Encoded: Data(input.utf8)))
 }
