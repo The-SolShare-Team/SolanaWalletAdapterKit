@@ -15,7 +15,6 @@ public struct PhantomWallet: DeeplinkWallet {
     public let appId: AppIdentity
     public let cluster: Endpoint
     public var connection: DeeplinkWalletConnection?
-    public var publicKey: PublicKey? { connection?.publicKey }
 
     private let rpcClient: SolanaRPCClient
 
@@ -36,13 +35,15 @@ public struct PhantomWallet: DeeplinkWallet {
         async throws -> SignAndSendTransactionResponseData
     {
         let response = try await self.signTransaction(transaction: transaction)
-        guard let transactionData = Data(base58Encoded: response.transaction) else {
-            throw SolanaWalletAdapterError.responseDecodingFailure
-        }
-        let transaction = try Transaction(bytes: transactionData)
         let signature = try await rpcClient.sendTransaction(
-            transaction: transaction,
-            transactionOptions: TransactionOptions(sendOptions: sendOptions, encoding: .base58)
+            transaction: response.transaction,
+            configuration: SolanaRPCClient.SendTransactionConfiguration(
+                encoding: .base58,
+                skipPreflight: sendOptions?.skipPreflight,
+                preflightCommitment: sendOptions?.preflightCommitment,
+                maxRetries: sendOptions?.maxRetries,
+                minContextSlot: sendOptions?.minContextSlot
+            )
         )
         return SignAndSendTransactionResponseData(signature: signature)
     }
