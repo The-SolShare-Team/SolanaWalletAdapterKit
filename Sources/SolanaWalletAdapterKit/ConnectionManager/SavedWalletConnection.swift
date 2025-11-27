@@ -1,5 +1,4 @@
 import SolanaRPC
-import SolanaTransactions
 
 struct SavedWalletConnection: Codable {
     let walletType: any Wallet.Type

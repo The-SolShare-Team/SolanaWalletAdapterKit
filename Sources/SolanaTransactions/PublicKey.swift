@@ -1,4 +1,3 @@
-import Base58
 import ByteBuffer
 import Foundation
 import SwiftBorsh

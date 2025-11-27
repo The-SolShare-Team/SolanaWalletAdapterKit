@@ -4,8 +4,6 @@ import Foundation
 import Salt
 import Security
 import SimpleKeychain
-import SolanaRPC
-import SolanaTransactions
 
 #if os(iOS)
     import UIKit

@@ -1,11 +1,4 @@
-import Base58
-import CryptoKit
 import Foundation
-import Salt
-import Security
-import SimpleKeychain
-import SolanaRPC
-import SolanaTransactions
 
 extension DeeplinkWallet {
     public func signMessage(message: Data, display: MessageDisplayFormat? = nil)
