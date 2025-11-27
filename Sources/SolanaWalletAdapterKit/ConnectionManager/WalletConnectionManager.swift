@@ -37,8 +37,9 @@ public class WalletConnectionManager {
         }
     }
 
+    @discardableResult
     public func pair<W: Wallet>(_ wallet: W.Type, for appIdentity: AppIdentity, cluster: Endpoint)
-        async throws-> any Wallet
+        async throws -> any Wallet
     {
         var walletInstance = wallet.init(for: appIdentity, cluster: cluster)
         try await pair(&walletInstance)
