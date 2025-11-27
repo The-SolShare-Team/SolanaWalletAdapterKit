@@ -1,6 +1,5 @@
 import Foundation
 import SwiftBorsh
-import SolanaTransactions
 
 extension SolanaRPCClient {
     public func getMinBalanceForRentExemption(

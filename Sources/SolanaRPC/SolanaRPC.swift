@@ -1,5 +1,4 @@
 import Foundation
-import SolanaTransactions
 import SwiftBorsh
 
 struct RPCRequest: Encodable {
