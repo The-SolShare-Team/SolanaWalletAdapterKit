@@ -1,27 +1,34 @@
-//import SolanaKit
-//import CryptoKit
-//
-//public func hello() -> String {
-//    let privateKey = Curve25519.Signing.PrivateKey()
-//    let publicKey = privateKey.publicKey
-//    
-//    let solanaKey = SolanaPublicKey(bytes: ByteArrayKt.toByteArray(publicKey.rawRepresentation))
-//    return solanaKey.address
-//}
-//
-//public func test() async {
-//    // Setup RPC driver
-//    let rpcUrl = "https://api.endpoint.com"
-//    let rpcDriver = RpccoreRpc20Driver(url: rpcUrl, httpDriver: NetworkDriver())
-//    
-//    // Build RPC request
-//    let requestId = UUID().uuidString
-//    let requestMethod = "getTheThing"
-//    let rpcRequest = RpccoreJsonRpc20Request(method: requestMethod, params: nil, id: requestId)
-//    
-//    // Send the request and get response
-//    let rpcResponse = try? await rpcDriver.makeRequest(
-//        request: rpcRequest,
-//        resultSerializer: Kotlinx_serialization_jsonJsonElement.companion.serializer()
-//    )
-//}
+import Foundation
+
+@MainActor
+public enum SolanaWalletAdapter {
+    private static var _fetcher: DeeplinkFetcher?
+    private static var fetcher: DeeplinkFetcher {
+        guard let fetcher = _fetcher else {
+            fatalError(
+                "SolanaWalletAdapter not initialized. Call registerCallbackScheme(_:) first.")
+        }
+        return fetcher
+    }
+
+    public static func registerCallbackScheme(_ scheme: String) {
+        if _fetcher != nil {
+            fatalError(
+                "SolanaWalletAdapter already initialized. Call registerCallbackScheme(_:) only once."
+            )
+        }
+        _fetcher = DeeplinkFetcher(scheme: scheme)
+    }
+
+    public static func handleOnOpenURL(_ url: URL) -> Bool {
+        return fetcher.handleCallback(url)
+    }
+
+    public static func deeplinkFetch(
+        _ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0
+    )
+        async throws(DeeplinkFetchingError) -> [String: String]
+    {
+        try await fetcher.fetch(url, callbackParameter: callbackParameter, timeout: timeout)
+    }
+}
