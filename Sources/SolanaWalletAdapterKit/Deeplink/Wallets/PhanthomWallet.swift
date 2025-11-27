@@ -37,7 +37,7 @@ public struct PhantomWallet: DeeplinkWallet {
         let response = try await self.signTransaction(transaction: transaction)
         let signature = try await rpcClient.sendTransaction(
             transaction: response.transaction,
-            configuration: (
+            configuration: SolanaRPCClient.SendTransactionConfiguration(
                 encoding: .base58,
                 skipPreflight: sendOptions?.skipPreflight,
                 preflightCommitment: sendOptions?.preflightCommitment,
