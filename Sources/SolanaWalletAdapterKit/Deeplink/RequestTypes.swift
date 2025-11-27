@@ -60,8 +60,8 @@ public enum MessageDisplayFormat: String, Encodable, Sendable {
     case utf8
 }
 
-extension TransactionOptions {
-    public init(sendOptions: SendOptions? = nil, encoding: TransactionEncoding? = nil) {
+extension SolanaRPCClient.SendTransactionConfiguration {
+    public init(sendOptions: SendOptions? = nil, encoding: SolanaRPCClient.TransactionEncoding? = nil) {
         self.init(
             encoding: encoding,
             skipPreflight: sendOptions?.skipPreflight,
