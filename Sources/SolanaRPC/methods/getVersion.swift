@@ -1,22 +1,19 @@
-private struct ResponseData: Decodable {
-    let solanaCore: String
-    let featureSet: UInt32
-
-    enum CodingKeys: String, CodingKey {
-        case solanaCore = "solana-core"
-        case featureSet = "feature-set"
-    }
-}
-
 extension SolanaRPCClient {
+    public struct GetVersionResponse: Decodable {
+        let solanaCore: String
+        let featureSet: UInt32
+
+        enum CodingKeys: String, CodingKey {
+            case solanaCore = "solana-core"
+            case featureSet = "feature-set"
+        }
+    }
+
     /// https://solana.com/docs/rpc/http/getversion
-    public func getVersion() async throws(RPCError) -> (
-        solanaCore: String, featureSet: UInt32
-    ) {
-        let response = try await fetch(
+    public func getVersion() async throws(RPCError) -> GetVersionResponse {
+        try await fetch(
             method: "getVersion",
             params: [],
-            into: ResponseData.self)
-        return (response.solanaCore, response.featureSet)
+            into: GetVersionResponse.self)
     }
 }
