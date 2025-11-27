@@ -95,7 +95,7 @@ class DeeplinkFetcher {
     }
 
     func handleCallback(_ url: URL) -> Bool {
-        guard url.scheme == scheme else { return false }
+        guard url.scheme?.lowercased() == scheme.lowercased() else { return false }
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
 

@@ -19,7 +19,7 @@ extension SolanaRPCClient {
         to address: PublicKey,
         lamports: UInt64,
         configuration: RequestAirdropConfiguration? = nil
-    ) async throws -> Signature {
+    ) async throws(RPCError) -> Signature {
         var params: [Encodable] = [address, lamports]
         if let configuration {
             params.append(configuration)
