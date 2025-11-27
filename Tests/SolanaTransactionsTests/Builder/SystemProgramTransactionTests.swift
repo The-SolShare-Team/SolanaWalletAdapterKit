@@ -8,7 +8,7 @@ import Testing
 @testable import SolanaTransactions
 
 @Test func testSystemProgramCreateAccount() {
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try! Transaction(feePayer: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo", blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         SystemProgram.createAccount(
             from: "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo", 
             newAccount: "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5", 
@@ -18,13 +18,12 @@ import Testing
         )
     }
 
-    //read only signers error again
     let decoded = try! Transaction(bytes: try! tx.encode())
     #expect(decoded == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                             "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5",

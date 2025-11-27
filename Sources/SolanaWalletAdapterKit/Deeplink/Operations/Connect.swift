@@ -1,14 +1,7 @@
-import Base58
-import CryptoKit
 import Foundation
 import Salt
-import Security
-import SimpleKeychain
-import SolanaRPC
-import SolanaTransactions
 
 extension DeeplinkWallet {
-    /// Connect with the wallet.
     public mutating func connect() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
@@ -40,7 +33,7 @@ extension DeeplinkWallet {
             let decodedNonce = Data(base58Encoded: nonce),
             let decodedData = Data(base58Encoded: data)
         else {
-            throw SolanaWalletAdapterError.invalidResponse(response: response)
+            throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
         }
 
         // Decrypt the data in the response

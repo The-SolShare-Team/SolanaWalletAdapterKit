@@ -1,14 +1,14 @@
-import Base58
 import CryptoKit
 import Foundation
-import Salt
-import SolanaRPC
 import Testing
 
 @testable import SolanaTransactions
 
-@Test func encodeDecodeFullTransaction() {
-    let tr = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+@Test func encodeDecode() throws {
+    let tr = try Transaction(
+        feePayer: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
+        blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk"
+    ) {
         for i in 0..<3 {
             SystemProgram.transfer(
                 from: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
@@ -23,12 +23,12 @@ import Testing
     let transaction = try! Transaction(bytes: try! tr.encode())
     print(transaction)
     #expect(
-        transaction
+        try Transaction(bytes: try tr.encode())
             == Transaction(
                 signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",

@@ -13,7 +13,12 @@ public class WalletConnectionManager {
     public private(set) var connectedWallets: [any Wallet] = []
 
     public init(
-        availableWallets: [any Wallet.Type] = [SolflareWallet.self], storage: any SecureStorage
+        availableWallets: [any Wallet.Type] = [
+            SolflareWallet.self,
+            BackpackWallet.self,
+            PhantomWallet.self,
+        ],
+        storage: any SecureStorage
     ) {
         self.availableWallets = availableWallets
         self.availableWalletsMap = Dictionary(
@@ -25,8 +30,6 @@ public class WalletConnectionManager {
         let decoder = JSONDecoder()
         decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey] =
             self.availableWalletsMap
-
-        print(try await storage.retrieveAll())
 
         self.connectedWallets = try await storage.retrieveAll().compactMap {
             let saved = try? decoder.decode(SavedWalletConnection.self, from: $0.value)
@@ -48,8 +51,7 @@ public class WalletConnectionManager {
         let encoder = JSONEncoder()
         let data = try encoder.encode(savedConnection)
         try await storage.store(data, key: try savedConnection.identifier())
-        print(try savedConnection.identifier())
-        print(try await storage.retrieve(key: try savedConnection.identifier()))
+
         connectedWallets.append(wallet)
     }
 
@@ -66,7 +68,7 @@ public class WalletConnectionManager {
         try await storage.clear(key: identifier)
     }
 
-    static func walletIdentifier(  // TODO: Make this not random
+    static func walletIdentifier(
         for walletType: any Wallet.Type, appIdentity: AppIdentity, cluster: Endpoint,
         publicKey: PublicKey
     ) throws

@@ -42,7 +42,7 @@ let package = Package(
                 "Salkt.swift",
                 .product(name: "TweetNacl", package: "tweetnacl-swiftwrap"),
             ]),
-        .testTarget(name: "SaltTests", dependencies: ["Salt"]),
+        .testTarget(name: "SaltTests", dependencies: ["Salt", "Base58"]),
 
         .target(
             name: "SolanaRPC",
@@ -72,8 +72,5 @@ let package = Package(
                 "Salt",
                 "SolanaTransactions",
             ]),
-        .testTarget(
-            name: "SolanaWalletAdapterKitTests",
-            dependencies: ["SolanaWalletAdapterKit"]),
     ]
 )

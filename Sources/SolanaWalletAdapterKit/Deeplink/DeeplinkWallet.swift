@@ -4,7 +4,6 @@ import Foundation
 import Salt
 import Security
 import SimpleKeychain
-import SolanaRPC
 import SolanaTransactions
 
 #if os(iOS)
@@ -38,6 +37,8 @@ public protocol DeeplinkWallet: Wallet {
 }
 
 extension DeeplinkWallet {
+    public var publicKey: PublicKey? { connection?.publicKey }
+
     var _activeConnection: DeeplinkWalletConnection {
         get throws {
             guard let connection else {
@@ -88,7 +89,7 @@ extension DeeplinkWallet {
             let decodedNonce = Data(base58Encoded: nonce),
             let decodedData = Data(base58Encoded: data)
         else {
-            throw SolanaWalletAdapterError.invalidResponse(response: response)
+            throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
         }
         return try decryptPayload(
             encryptedData: decodedData,
@@ -111,7 +112,7 @@ extension DeeplinkWallet {
             payload: payload,
             nonce: nonce)
 
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!  // TODO: Can I force here?
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         let queryItems = [
             URLQueryItem(
                 name: "dapp_encryption_public_key",
@@ -121,7 +122,7 @@ extension DeeplinkWallet {
         ]
         components.queryItems = queryItems
 
-        return components.url!  // TODO: Can I force here?
+        return components.url!
     }
 
     /// Throws if the response is an error
@@ -130,7 +131,7 @@ extension DeeplinkWallet {
             let errorMessage = response["errorMessage"]
         {
             guard let errorCode = Int(errorCode) else {
-                throw SolanaWalletAdapterError.invalidResponse(response: response)
+                throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
             }
             throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
         }

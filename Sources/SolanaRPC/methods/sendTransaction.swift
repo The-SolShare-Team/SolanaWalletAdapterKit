@@ -1,26 +1,13 @@
-import Foundation
 import Base58
-import Base64
 import SolanaTransactions
 import SwiftBorsh
 
-public struct TransactionOptions: Encodable, Equatable {
-    public let encoding: TransactionEncoding?
-    public let skipPreflight: Bool?
-    public let preflightCommitment: Commitment?
-    public let maxRetries: Int?
-    public let minContextSlot: Int?
-
-    public init(
-        encoding: TransactionEncoding? = nil, skipPreflight: Bool? = nil,
-        preflightCommitment: Commitment? = nil, maxRetries: Int? = nil, minContextSlot: Int? = nil
-    ) {
-        self.encoding = encoding
-        self.skipPreflight = skipPreflight
-        self.preflightCommitment = preflightCommitment
-        self.maxRetries = maxRetries
-        self.minContextSlot = minContextSlot
-    }
+private struct RequestConfiguration: Encodable {
+    let encoding: TransactionEncoding?
+    let skipPreflight: Bool?
+    let preflightCommitment: Commitment?
+    let maxRetries: Int?
+    let minContextSlot: Int?
 }
 
 public enum TransactionEncoding: String, Codable {
@@ -29,24 +16,35 @@ public enum TransactionEncoding: String, Codable {
 }
 
 extension SolanaRPCClient {
+    /// https://solana.com/docs/rpc/http/sendtransaction
     public func sendTransaction(
         transaction: Transaction,
-        options: TransactionOptions? = nil
+        configuration: (
+            encoding: TransactionEncoding?,
+            skipPreflight: Bool?,
+            preflightCommitment: Commitment?,
+            maxRetries: Int?,
+            minContextSlot: Int?,
+        )? = nil
     ) async throws -> Signature {
-        var params: [Encodable] = []
-
         let serializedTransaction = try transaction.encode()
-        let encodedTransaction: String
-        switch options?.encoding ?? .base58 {
-        case .base58:
-            encodedTransaction = serializedTransaction.base58EncodedString()
-        case .base64:
-            encodedTransaction = serializedTransaction.base64EncodedString()
-        }
-        params.append(encodedTransaction)
+        let encodedTransaction =
+            switch configuration?.encoding ?? .base58 {
+            case .base58: serializedTransaction.base58EncodedString()
+            case .base64: serializedTransaction.base64EncodedString()
+            }
 
-        if let options = options {
-            params.append(options)
+        var params: [Encodable] = [encodedTransaction]
+        if let configuration {
+            params.append(
+                RequestConfiguration(
+                    encoding: configuration.encoding,
+                    skipPreflight: configuration.skipPreflight,
+                    preflightCommitment: configuration.preflightCommitment,
+                    maxRetries: configuration.maxRetries,
+                    minContextSlot: configuration.minContextSlot
+                )
+            )
         }
 
         return try await fetch(

@@ -27,6 +27,15 @@ class DeeplinkFetcher {
         let timeoutTask: Task<Void, Never>
     }
 
+    private func resumeRequestTask(
+        _ id: UUID, _ result: Result<URLComponents, DeeplinkFetchingError>
+    ) {
+        guard let request = pendingRequests.removeValue(forKey: id) else { return }
+        request.timeoutTask.cancel()
+        request.continuation.resume(returning: result)
+    }
+
+    // periphery:ignore
     @available(iOS 16.0, macOS 13.0, *)
     func fetch(_ url: URL, callbackParameter: String, timeout: Duration)
         async throws(DeeplinkFetchingError) -> [String: String]
@@ -35,12 +44,6 @@ class DeeplinkFetcher {
             url, callbackParameter: callbackParameter,
             timeout: Double(timeout.components.seconds) + Double(timeout.components.attoseconds)
                 / 1_000_000_000_000_000_000)
-    }
-
-    func resumeOnce(_ id: UUID, _ result: Result<URLComponents, DeeplinkFetchingError>) {
-        guard let request = pendingRequests.removeValue(forKey: id) else { return }
-        request.timeoutTask.cancel()
-        request.continuation.resume(returning: result)
     }
 
     func fetch(_ url: URL, callbackParameter: String, timeout: TimeInterval = 30.0)
@@ -57,14 +60,11 @@ class DeeplinkFetcher {
             return components.url!
         }()
 
-        let result = await withCheckedContinuation {
-            (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>)
-            in
-
+        let result = await withCheckedContinuation { (continuation: CheckedContinuation<Result<URLComponents, DeeplinkFetchingError>, Never>) in
             // Create the timeout task first
             let timeoutTask = Task {
                 try? await Task.sleep(nanoseconds: UInt64((timeout * 1_000_000_000).rounded()))
-                resumeOnce(id, .failure(.timeout))
+                resumeRequestTask(id, .failure(.timeout))
             }
 
             // Store pending request so handleCallback can complete it
@@ -79,7 +79,7 @@ class DeeplinkFetcher {
                 #endif
 
                 if !success {
-                    resumeOnce(id, .failure(.timeout))
+                    resumeRequestTask(id, .failure(.unableToOpen))
                 }
             }
         }
@@ -102,7 +102,7 @@ class DeeplinkFetcher {
         if let host = url.host,
             let id = UUID(uuidString: host)
         {
-            resumeOnce(id, .success(components))
+            resumeRequestTask(id, .success(components))
         }
 
         return true

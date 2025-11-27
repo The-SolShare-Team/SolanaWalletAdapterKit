@@ -11,7 +11,7 @@ import Testing
     let mint: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -25,10 +25,10 @@ import Testing
     //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
     let decoded = try! Transaction(bytes: try! tx.encode())
     #expect(decoded == Transaction(
-                signatures: [],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 0, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                             "SysvarRent111111111111111111111111111111111",
@@ -53,7 +53,7 @@ import Testing
     let mint = PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo")
     let owner = PublicKey("7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5")
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try! Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.initializeAccount(
             account: account,
             mint: mint,
@@ -64,10 +64,10 @@ import Testing
     let decoded = try! Transaction(bytes: try! tx.encode())
 
     let expectedTransaction = Transaction(
-        signatures: [],
+        signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
         message: VersionedMessage.legacyMessage(
             LegacyMessage(
-                signatureCount: 0, readOnlyAccounts: 0, readOnlyNonSigners: 2,
+                signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 3,
                 accounts: [
                     "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                     "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -96,7 +96,7 @@ import Testing
     let to: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try! Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.transfer(
             from: from,
             to: to,
@@ -107,10 +107,10 @@ import Testing
 
     let decoded = try! Transaction(bytes: try! tx.encode())
     #expect(decoded == Transaction(
-                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -131,7 +131,7 @@ import Testing
     let dest: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let mintAuth: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.mintTo(
             mint: mint,
             destination: dest,
@@ -143,10 +143,10 @@ import Testing
     let decoded = try! Transaction(bytes: try! tx.encode())
 
     #expect(decoded == Transaction(
-                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -167,7 +167,7 @@ import Testing
     let dest: PublicKey = "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try! Transaction(feePayer: account, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.closeAccount(
             account: account,
             destination: dest,
@@ -178,10 +178,10 @@ import Testing
     let decoded = try! Transaction(bytes: try! tx.encode())
 
     #expect(decoded == Transaction(
-                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 0,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
@@ -202,7 +202,7 @@ import Testing
     let owner: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
     let mint: PublicKey = "So11111111111111111111111111111111111111112"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
+    let tx = try! Transaction(feePayer: from, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {
         TokenProgram.transferChecked(
             from: from,
             to: to,
@@ -216,10 +216,10 @@ import Testing
     let decoded = try! Transaction(bytes: try! tx.encode())
 
     #expect(decoded == Transaction(
-                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111", "1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
                             "So11111111111111111111111111111111111111112",
@@ -239,7 +239,7 @@ import Testing
     let authority: PublicKey = "7YfRf9e2p1k9At7nVwPKhQ76YDK9W3szWjmV7iLzPzF5"
     let freezeAuthority: PublicKey = "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu"
 
-    let tx = try! Transaction(blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
+    let tx = try! Transaction(feePayer: mint, blockhash: "HjtwhQ8dv67Uj9DCSWT8N3pgCuFpumXSk4ZyJk2EvwHk") {        
         TokenProgram.initializeMint(
             mintAccount: mint,
             decimals: 6,
@@ -253,10 +253,10 @@ import Testing
     //signatureAccount and readOnylNonSigners differ from actual, should be signatureCount: 1, readOnlyNonSigners: 2
     let decoded = try! Transaction(bytes: try! tx.encode())
     #expect(decoded == Transaction(
-                signatures: [],
+                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
-                        signatureCount: 0, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
                         accounts: [
                             "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
                             "SysvarRent111111111111111111111111111111111",
