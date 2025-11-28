@@ -56,25 +56,26 @@ extension Transaction {
         // Fee payer is always a writable signer, and must be the first account
         var writableSigners: OrderedSet<PublicKey> = [feePayer]
         var readOnlySigners: OrderedSet<PublicKey> = []
+        var writableNonSigners: OrderedSet<PublicKey> = []
         var readOnlyNonSigners: OrderedSet<PublicKey> = []
-        var accounts: OrderedSet<PublicKey> = [feePayer]
+        var programIds: OrderedSet<PublicKey> = []
 
         for instruction in instructions {
             for account in instruction.accounts {
                 switch (account.isSigner, account.isWritable) {
                 case (true, true): writableSigners.append(account.publicKey)
                 case (true, false): readOnlySigners.append(account.publicKey)
-                case (false, true): break
+                case (false, true): writableNonSigners.append(account.publicKey)
                 case (false, false): readOnlyNonSigners.append(account.publicKey)
                 }
-                accounts.append(account.publicKey)
             }
-            // ProgramID needs to be at the end of the accounts array (otherwise, the transaction is invalid)
-            readOnlyNonSigners.append(instruction.programId)
-            accounts.append(instruction.programId)
+            programIds.append(instruction.programId)
         }
 
+        readOnlyNonSigners.formUnion(programIds)
+
         let signers = writableSigners.union(readOnlySigners)
+        let accounts = signers.union(writableNonSigners).union(readOnlyNonSigners).union(programIds)
 
         let compiledInstructions = try instructions.map {
             CompiledInstruction(
@@ -87,6 +88,7 @@ extension Transaction {
         signatures = signers.map { _ in
             "1111111111111111111111111111111111111111111111111111111111111111"
         }
+
         message = .legacyMessage(
             LegacyMessage(
                 signatureCount: UInt8(signers.count),
