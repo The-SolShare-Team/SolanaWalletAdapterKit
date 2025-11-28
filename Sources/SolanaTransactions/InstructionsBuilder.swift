@@ -1,5 +1,4 @@
 import Collections
-import Foundation
 import SwiftBorsh
 
 public protocol Instruction {
@@ -9,9 +8,9 @@ public protocol Instruction {
 }
 
 public struct AccountMeta {
-    public let publicKey: PublicKey
-    public let isSigner: Bool
-    public let isWritable: Bool
+    let publicKey: PublicKey
+    let isSigner: Bool
+    let isWritable: Bool
 
     public init(publicKey: PublicKey, isSigner: Bool, isWritable: Bool) {
         self.publicKey = publicKey
@@ -74,31 +73,19 @@ extension Transaction {
             readOnlyNonSigners.append(instruction.programId)
             accounts.append(instruction.programId)
         }
-        let orderedAccounts = [
-            writableSigners.elements,
-            readOnlySigners.elements,
-            writableNonSigners.elements,
-            readOnlyNonSigners.elements,
-            programIds.elements
-        ].flatMap { $0 }
-        
-        print("=== DEBUG: Transaction Message Builder ===")
-        print("Final Ordered Accounts: \(try orderedAccounts.map { Base58.encode($0.bytes)})")
-        print("Signature Count (Required Signers): \(writableSigners.union(readOnlySigners).count)")
-        print("Read-only Signers Count: \(readOnlySigners.count)")
-        print("Read-only Non-signers Count: \(readOnlyNonSigners.count)")
-        print("========================================")
+
+        let signers = writableSigners.union(readOnlySigners)
 
         let compiledInstructions = try instructions.map {
             CompiledInstruction(
-                programIdIndex: UInt8(orderedAccounts.firstIndex(of: $0.programId)!),
-                accounts: $0.accounts.map { UInt8(orderedAccounts.firstIndex(of: $0.publicKey)!) },
+                programIdIndex: UInt8(accounts.firstIndex(of: $0.programId)!),
+                accounts: $0.accounts.map { UInt8(accounts.firstIndex(of: $0.publicKey)!) },
                 data: try BorshEncoder.encode($0.data))
         }
 
         // 64-byte placeholder array for signatures (otherwise, the transaction is invalid)
         signatures = signers.map { _ in
-            "1111111111111111111111111111111111111111111111111111111111111111"  // 64-byte placeholder array for signatures (otherwise, the transaction is invalid)
+            "1111111111111111111111111111111111111111111111111111111111111111"
         }
         message = .legacyMessage(
             LegacyMessage(

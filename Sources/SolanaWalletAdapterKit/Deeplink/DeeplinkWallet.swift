@@ -29,15 +29,6 @@ public struct DeeplinkWalletOptions: Sendable {
         self.walletEncryptionPublicKeyIdentifier = walletEncryptionPublicKeyIdentifier
         self.callbackParameter = callbackParameter
     }
-
-public protocol DeeplinkWallet: Wallet {
-    static var _deeplinkWalletOptions: DeeplinkWalletOptions { get }
-    var connection: DeeplinkWalletConnection? { get set }
-}
-
-public protocol DeeplinkWallet: Wallet {
-    static var _deeplinkWalletOptions: DeeplinkWalletOptions { get }
-    var connection: DeeplinkWalletConnection? { get set }
 }
 
 public protocol DeeplinkWallet: Wallet {
@@ -87,6 +78,7 @@ extension DeeplinkWallet {
             endpointUrl: endpointURL,
             payload: payload
         )
+
         // Response
         let response = try await SolanaWalletAdapter.deeplinkFetch(
             deeplink, callbackParameter: "redirect_link"
@@ -131,30 +123,6 @@ extension DeeplinkWallet {
         components.queryItems = queryItems
 
         return components.url!
-    }
-
-    /// Throws if the response is an error
-    func throwIfErrorResponse(response: [String: String]) throws {
-        if let errorCode = response["errorCode"],
-            let errorMessage = response["errorMessage"]
-        {
-            guard let errorCode = Int(errorCode) else {
-                throw SolanaWalletAdapterError.invalidResponseFormat(response: response)
-            }
-            throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
-        }
-    }
-
-    /// Throws if the response is an error
-    func throwIfErrorResponse(response: [String: String]) throws {
-        if let errorCode = response["errorCode"],
-            let errorMessage = response["errorMessage"]
-        {
-            guard let errorCode = Int(errorCode) else {
-                throw SolanaWalletAdapterError.invalidResponse(response: response)
-            }
-            throw SolanaWalletAdapterError(walletErrorCode: errorCode, message: errorMessage)
-        }
     }
 
     /// Throws if the response is an error

@@ -60,14 +60,14 @@ public enum MessageDisplayFormat: String, Encodable, Sendable {
     case utf8
 }
 
-extension TransactionOptions {
-    public init(sendOptions: SendOptions? = nil, encoding: TransactionEncoding? = nil) {
-        self.init(
-            encoding: encoding,
-            skipPreflight: sendOptions?.skipPreflight,
-            preflightCommitment: sendOptions?.preflightCommitment,
-            maxRetries: sendOptions?.maxRetries,
-            minContextSlot: sendOptions?.minContextSlot
-        )
-    }
-}
+//extension TransactionOptions {
+//    public init(sendOptions: SendOptions? = nil, encoding: TransactionEncoding? = nil) {
+//        self.init(
+//            encoding: encoding,
+//            skipPreflight: sendOptions?.skipPreflight,
+//            preflightCommitment: sendOptions?.preflightCommitment,
+//            maxRetries: sendOptions?.maxRetries,
+//            minContextSlot: sendOptions?.minContextSlot
+//        )
+//    }
+//}
