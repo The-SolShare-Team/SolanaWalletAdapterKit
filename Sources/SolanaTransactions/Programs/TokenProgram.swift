@@ -103,33 +103,33 @@ public enum TokenProgram: Program, Instruction {
             [
                 AccountMeta(publicKey: account, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: mintAccount, isSigner: false, isWritable: false),
-                AccountMeta(publicKey: owner, isSigner: false, isWritable: true),
+                AccountMeta(publicKey: owner, isSigner: false, isWritable: false),
                 AccountMeta(publicKey: Self.sysvarRentPubkey, isSigner: false, isWritable: false),
             ]
         case .transfer(let from, let to, _, let owner):
             [
                 AccountMeta(publicKey: from, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: to, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: owner, isSigner: true, isWritable: true),
+                AccountMeta(publicKey: owner, isSigner: true, isWritable: false),
             ]
         case .mintTo(let mint, let destination, let mintAuthority, _):
             [
                 AccountMeta(publicKey: mint, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: destination, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: mintAuthority, isSigner: true, isWritable: true),
+                AccountMeta(publicKey: mintAuthority, isSigner: true, isWritable: false),
             ]
         case .closeAccount(let account, let destination, let owner):
             [
                 AccountMeta(publicKey: account, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: destination, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: owner, isSigner: true, isWritable: true),
+                AccountMeta(publicKey: owner, isSigner: true, isWritable: false),
             ]
         case .transferChecked(let from, let to, _, _, let owner, let mint):
             [
                 AccountMeta(publicKey: from, isSigner: false, isWritable: true),
                 AccountMeta(publicKey: mint, isSigner: false, isWritable: false),
                 AccountMeta(publicKey: to, isSigner: false, isWritable: true),
-                AccountMeta(publicKey: owner, isSigner: true, isWritable: true),
+                AccountMeta(publicKey: owner, isSigner: true, isWritable: false),
             ]
         }
     }
