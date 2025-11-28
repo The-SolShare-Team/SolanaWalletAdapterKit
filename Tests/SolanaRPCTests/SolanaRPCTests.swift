@@ -20,7 +20,7 @@ import Testing
         account: "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
         configuration: config)
 
-    #expect(balance > 0)
+    #expect(balance == 5000000000)
 
 }
 
@@ -29,7 +29,7 @@ import Testing
     let blockhashResponse: SolanaRPCClient.GetLatestBlockhashResponse = try await rpc.getLatestBlockhash()
     let balance = try await rpc.getBalance(
         account: "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu")
-    #expect(balance > 0)
+    #expect(balance == 5000000000)
     #expect(!(blockhashResponse.blockhash.bytes.count == 0))
 }
 
@@ -42,7 +42,7 @@ import Testing
     let balance = try await rpc.getBalance(
         account: "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
         configuration: balanceConfig)
-    #expect(balance > 0)
+    #expect(balance == 5000000000)
     #expect(!(blockhashResponse.blockhash.bytes.count == 0))
 }
 
