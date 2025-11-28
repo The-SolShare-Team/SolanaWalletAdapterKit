@@ -2,6 +2,7 @@ import Foundation
 import Salt
 
 extension DeeplinkWallet {
+    @discardableResult
     public mutating func connect() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
 
