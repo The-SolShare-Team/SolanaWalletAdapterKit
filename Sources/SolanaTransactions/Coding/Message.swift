@@ -4,12 +4,12 @@ public enum VersionedMessage: Equatable, Sendable {
 }
 
 public struct LegacyMessage: Equatable, Sendable {
-    let signatureCount: UInt8
-    let readOnlyAccounts: UInt8
-    let readOnlyNonSigners: UInt8
-    let accounts: [PublicKey]
-    let blockhash: Blockhash
-    let instructions: [CompiledInstruction]
+    public let signatureCount: UInt8
+    public let readOnlyAccounts: UInt8
+    public let readOnlyNonSigners: UInt8
+    public let accounts: [PublicKey]
+    public let blockhash: Blockhash
+    public let instructions: [CompiledInstruction]
 
     public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {
         self.signatureCount = signatureCount
@@ -22,13 +22,13 @@ public struct LegacyMessage: Equatable, Sendable {
 }
 
 public struct V0Message: Equatable, Sendable {
-    let signatureCount: UInt8
-    let readOnlyAccounts: UInt8
-    let readOnlyNonSigners: UInt8
-    let accounts: [PublicKey]
-    let blockhash: Blockhash
-    let instructions: [CompiledInstruction]
-    let addressTableLookups: [AddressTableLookup]
+    public let signatureCount: UInt8
+    public let readOnlyAccounts: UInt8
+    public let readOnlyNonSigners: UInt8
+    public let accounts: [PublicKey]
+    public let blockhash: Blockhash
+    public let instructions: [CompiledInstruction]
+    public let addressTableLookups: [AddressTableLookup]
 
     public init(
         signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8,
