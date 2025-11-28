@@ -20,6 +20,7 @@ public protocol Wallet: SendableMetatype {
     var isConnected: Bool { get }
 
     /// Connect to the wallet.
+    @discardableResult
     mutating func connect() async throws -> Connection?
 
     /// Disconnect from the wallet.
