@@ -14,10 +14,18 @@ public struct ConnectResponseData: Decodable {
 
 public struct SignAndSendTransactionResponseData: Decodable, Sendable {
     public let signature: Signature
+
+    public init(signature: Signature) {
+        self.signature = signature
+    }
 }
 
 public struct SignAllTransactionsResponseData: Decodable, Sendable {
     public let transactions: [Transaction]
+
+    public init(transactions: [Transaction]) {
+        self.transactions = transactions
+    }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -42,6 +50,10 @@ public struct SignAllTransactionsResponseData: Decodable, Sendable {
 
 public struct SignTransactionResponseData: Decodable, Sendable {
     public let transaction: Transaction
+
+    public init(transaction: Transaction) {
+        self.transaction = transaction
+    }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
