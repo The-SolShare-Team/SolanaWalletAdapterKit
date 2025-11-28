@@ -84,10 +84,7 @@ extension Transaction {
                 data: try BorshEncoder.encode($0.data))
         }
 
-        // 64-byte placeholder array for signatures (otherwise, the transaction is invalid)
-        signatures = signers.map { _ in
-            "1111111111111111111111111111111111111111111111111111111111111111"
-        }
+        signatures = Array(repeating: Signature.placeholder, count: signers.count)
 
         message = .legacyMessage(
             LegacyMessage(
