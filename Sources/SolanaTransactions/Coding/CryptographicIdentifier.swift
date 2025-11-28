@@ -28,14 +28,13 @@ extension _CryptographicIdentifier {
     }
 
     public init(arrayLiteral elements: UInt8...) {
-        precondition(elements.count == Self.byteLength)
+        precondition(elements.count == Self.byteLength, "Invalid CryptographicIdentifier array literal: \(elements)")
         self.init(bytes: Data(elements))
     }
 
     public init(stringLiteral value: StaticString) {
         let bytes = Data(base58Encoded: "\(value)")
-        precondition(bytes != nil)
-        precondition(bytes!.count == Self.byteLength)
+        precondition(bytes != nil && bytes!.count == Self.byteLength, "Invalid CryptographicIdentifier string literal: \(value)")
         self.init(bytes: bytes!)
     }
 
