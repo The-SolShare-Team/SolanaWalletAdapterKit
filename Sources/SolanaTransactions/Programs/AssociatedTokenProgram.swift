@@ -26,8 +26,7 @@ public enum AssociatedTokenProgram: Program, Instruction {
                 AccountMeta(publicKey: mint, isSigner: false, isWritable: false),
                 AccountMeta(publicKey: SystemProgram.programId, isSigner: false, isWritable: false),
                 AccountMeta(publicKey: tokenProgramId, isSigner: false, isWritable: false),
-                AccountMeta(
-                    publicKey: TokenProgram.sysvarRentPubkey, isSigner: false, isWritable: false),
+                AccountMeta(publicKey: TokenProgram.sysvarRentPubkey, isSigner: false, isWritable: false),
             ]
         }
     }

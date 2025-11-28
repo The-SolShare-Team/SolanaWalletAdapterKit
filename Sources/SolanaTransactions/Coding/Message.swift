@@ -10,6 +10,15 @@ public struct LegacyMessage: Equatable, Sendable {
     let accounts: [PublicKey]
     let blockhash: Blockhash
     let instructions: [CompiledInstruction]
+
+    public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {
+        self.signatureCount = signatureCount
+        self.readOnlyAccounts = readOnlyAccounts
+        self.readOnlyNonSigners = readOnlyNonSigners
+        self.accounts = accounts
+        self.blockhash = blockhash
+        self.instructions = instructions
+    }
 }
 
 public struct V0Message: Equatable, Sendable {
@@ -20,6 +29,20 @@ public struct V0Message: Equatable, Sendable {
     let blockhash: Blockhash
     let instructions: [CompiledInstruction]
     let addressTableLookups: [AddressTableLookup]
+
+    public init(
+        signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8,
+        accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction],
+        addressTableLookups: [AddressTableLookup]
+    ) {
+        self.signatureCount = signatureCount
+        self.readOnlyAccounts = readOnlyAccounts
+        self.readOnlyNonSigners = readOnlyNonSigners
+        self.accounts = accounts
+        self.blockhash = blockhash
+        self.instructions = instructions
+        self.addressTableLookups = addressTableLookups
+    }
 }
 
 extension VersionedMessage: SolanaTransactionCodable {

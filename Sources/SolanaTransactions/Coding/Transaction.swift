@@ -3,6 +3,11 @@ import Foundation
 public struct Transaction: Equatable, Sendable {
     public let signatures: [Signature]
     public let message: VersionedMessage
+
+    public init(signatures: [Signature], message: VersionedMessage) {
+        self.signatures = signatures
+        self.message = message
+    }
 }
 
 extension Transaction {
