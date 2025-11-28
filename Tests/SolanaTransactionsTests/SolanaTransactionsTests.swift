@@ -148,7 +148,6 @@ import Testing
     #expect(encodedString == expectedEncodedString)
 }
 
-//use lower version transaction from JS to test decoding
 @Test func testV0TransactionDecodingMatchesJS() throws {
     let base64TransactionFromJS = """
         AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
