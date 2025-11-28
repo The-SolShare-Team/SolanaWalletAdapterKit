@@ -1,3 +1,5 @@
+import Foundation
+
 public enum VersionedMessage: Equatable, Sendable {
     case legacyMessage(LegacyMessage)
     case v0(V0Message)
@@ -76,6 +78,20 @@ extension VersionedMessage: SolanaTransactionCodable {
             case 0: .v0(try V0Message(fromSolanaTransaction: &buffer))
             default: throw .unsupportedVersion
             }
+    }
+}
+
+extension VersionedMessage {
+    public func encode() throws(SolanaTransactionCodingError) -> Data {
+        var buffer = SolanaTransactionBuffer()
+        try self.solanaTransactionEncode(to: &buffer)
+        return Data(buffer.readBytes(length: buffer.readableBytes) ?? [])
+    }
+
+    public init<Bytes: Sequence>(bytes: Bytes) throws(SolanaTransactionCodingError)
+    where Bytes.Element == UInt8 {
+        var buffer = SolanaTransactionBuffer(bytes: bytes)
+        try self.init(fromSolanaTransaction: &buffer)
     }
 }
 
