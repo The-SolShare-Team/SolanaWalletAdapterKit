@@ -72,5 +72,8 @@ let package = Package(
                 "Salt",
                 "SolanaTransactions",
             ]),
+        .testTarget(
+            name: "SolanaWalletAdapterKitTests",
+            dependencies: ["SolanaWalletAdapterKit"]),
     ]
 )
