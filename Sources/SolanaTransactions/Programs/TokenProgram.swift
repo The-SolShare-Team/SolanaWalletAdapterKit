@@ -1,7 +1,7 @@
 import SwiftBorsh
 
 private struct InitializeMintData {
-    let index: UInt8 = 0
+    var index: UInt8 { 0 }
     let decimals: UInt8
     let mintAuthority: PublicKey
     let freezeAuthority: PublicKey?
@@ -24,29 +24,29 @@ extension InitializeMintData: BorshEncodable {
 
 @BorshEncodable
 private struct InitializeAccountData {
-    let index: UInt8 = 1
+    var index: UInt8 { 1 }
 }
 
 @BorshEncodable
 private struct TransferData {
-    let index: UInt8 = 3
+    var index: UInt8 { 3 }
     let amount: Int64
 }
 
 @BorshEncodable
 private struct MintToData {
-    let index: UInt8 = 7
+    var index: UInt8 { 7 }
     let amount: Int64
 }
 
 @BorshEncodable
 private struct CloseAccountData {
-    let index: UInt8 = 9
+    var index: UInt8 { 9 }
 }
 
 @BorshEncodable
 private struct TransferCheckedData {
-    let index: UInt8 = 12
+    var index: UInt8 { 12 }
     let amount: Int64
     let decimals: UInt8
 }

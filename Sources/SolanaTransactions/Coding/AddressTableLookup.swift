@@ -2,6 +2,12 @@ public struct AddressTableLookup: Equatable, Sendable {
     public let account: PublicKey
     public let writableIndexes: [UInt8]
     public let readOnlyIndexes: [UInt8]
+
+    public init(account: PublicKey, writableIndexes: [UInt8], readOnlyIndexes: [UInt8]) {
+        self.account = account
+        self.writableIndexes = writableIndexes
+        self.readOnlyIndexes = readOnlyIndexes
+    }
 }
 
 extension AddressTableLookup: SolanaTransactionCodable {

@@ -2,13 +2,13 @@ import SwiftBorsh
 
 @BorshEncodable
 private struct TransferData {
-    let index: Int32 = 2
+    var index: Int32 { 2 }
     let lamports: Int64
 }
 
 @BorshEncodable
 private struct CreateAccountData {
-    let index: Int32 = 0
+    var index: Int32 { 0 }
     let lamports: Int64
     let space: Int64
     let programId: PublicKey
