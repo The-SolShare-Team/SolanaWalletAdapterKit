@@ -43,6 +43,7 @@ public protocol Wallet: SendableMetatype {
         async throws -> SignMessageResponseData
 
     /// Open a URL using the wallet's in-app browser.
+    @MainActor
     nonmutating func browse(url: URL, ref: URL) async throws
 
     static func isProbablyAvailable() -> Bool

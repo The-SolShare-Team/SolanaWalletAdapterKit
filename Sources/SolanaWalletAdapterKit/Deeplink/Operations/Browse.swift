@@ -7,7 +7,6 @@ import Foundation
 #endif
 
 extension DeeplinkWallet {
-    @MainActor
     public func browse(url: URL, ref: URL) async throws {
         guard
             let encodedTargetURL = url.absoluteString.addingPercentEncoding(
