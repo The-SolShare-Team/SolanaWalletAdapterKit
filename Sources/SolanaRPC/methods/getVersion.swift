@@ -1,7 +1,7 @@
 extension SolanaRPCClient {
     public struct GetVersionResponse: Decodable {
-        let solanaCore: String
-        let featureSet: UInt32
+        public let solanaCore: String
+        public let featureSet: UInt32
 
         enum CodingKeys: String, CodingKey {
             case solanaCore = "solana-core"

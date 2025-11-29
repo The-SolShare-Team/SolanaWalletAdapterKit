@@ -15,8 +15,8 @@ extension SolanaRPCClient {
     }
 
     public struct GetLatestBlockhashResponse: Decodable {
-        let blockhash: Blockhash
-        let lastValidBlockHeight: UInt64
+        public let blockhash: Blockhash
+        public let lastValidBlockHeight: UInt64
     }
 
     /// https://solana.com/docs/rpc/http/getlatestblockhash
