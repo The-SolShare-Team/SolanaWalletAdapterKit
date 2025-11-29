@@ -46,7 +46,7 @@ let package = Package(
 
         .target(
             name: "SolanaRPC",
-            dependencies: ["SwiftBorsh", "SolanaTransactions"]),
+            dependencies: ["SwiftBorsh", "SolanaTransactions", "SolanaWalletAdapterKit"]),
         .testTarget(
             name: "SolanaRPCTests",
             dependencies: ["SolanaRPC"]),

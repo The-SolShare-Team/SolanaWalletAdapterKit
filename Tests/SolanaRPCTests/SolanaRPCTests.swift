@@ -1,10 +1,10 @@
 import CryptoKit
 import Foundation
 import Testing
+import SolanaWalletAdapterKit
 
 @testable import SolanaRPC
 @testable import SolanaTransactions
-@testable import SolanaWalletAdapterKit
 
 @Test func testGetBalance() async throws {
     let rpc = SolanaRPCClient(endpoint: .devnet)
