@@ -69,10 +69,12 @@ import Testing
 
     //pre generated for fixed wallets
     let from: PublicKey = "F2uuLHUzSKpj4EovSRsj8TD1wrrrhf4T3RUiDiCbDWj8"
-    let fromPrivate: Curve25519.Signing.PrivateKey =  try Curve25519.Signing.PrivateKey(rawRepresentation: Data([231, 12, 103, 244, 166, 157, 71, 246, 216, 68, 185, 228, 138, 70, 224, 135, 81, 88, 99, 148, 89, 64, 21, 214, 73, 152, 101, 125, 37, 85, 204, 92]))
+    let fromPrivate: Curve25519.Signing.PrivateKey =  try Curve25519.Signing.PrivateKey(rawRepresentation: Data([231, 12, 103, 244, 166, 157, 71, 246, 
+    216, 68, 185, 228, 138, 70, 224, 135, 81, 88, 99, 148, 89, 64, 21, 214, 73, 152, 101, 125, 37, 85, 204, 92]))
     print(fromPrivate.publicKey.rawRepresentation.base58EncodedString())
     let to: PublicKey = "4qgJqqCNopM68TwHnQTAy4gkYKV6LKW3oormkmyLgfZc"
-    let toPrivate: Curve25519.Signing.PrivateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: Data([171, 58, 167, 227, 7, 198, 254, 179, 124, 122, 24, 196, 61, 59, 8, 137, 123, 40, 232, 180, 135, 59, 108, 80, 5, 147, 181, 168, 23, 223, 34, 213]))
+    let toPrivate: Curve25519.Signing.PrivateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: Data([171, 58, 167, 227, 7, 
+    198, 254, 179, 124, 122, 24, 196, 61, 59, 8, 137, 123, 40, 232, 180, 135, 59, 108, 80, 5, 147, 181, 168, 23, 223, 34, 213]))
     print(toPrivate.publicKey.rawRepresentation.base58EncodedString())
 
     let fromBefore = try await rpc.getBalance(account: from)
