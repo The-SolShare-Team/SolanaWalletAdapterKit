@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "SolanaWalletAdapterKit",
     platforms: [
-        .iOS(.v14),
-        .macOS(.v11),
+        .iOS(.v15),
+        .macOS(.v12),
     ],
     products: [
         .library(
@@ -24,7 +24,7 @@ let package = Package(
             .upToNextMajor(from: "0.0.0")),
         .package(
             url: "https://github.com/bitmark-inc/tweetnacl-swiftwrap.git",
-            .upToNextMajor(from: "1.0.0")),
+            .upToNextMajor(from: "1.1.0")),
         .package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMajor(from: "1.0.0")),
