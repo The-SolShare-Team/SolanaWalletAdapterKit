@@ -23,7 +23,7 @@ import Testing
     #expect(
         try Transaction(bytes: try tr.encode())
             == Transaction(
-                signatures: ["1111111111111111111111111111111111111111111111111111111111111111"],
+                signatures: [Signature.placeholder],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
                         signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 2,
