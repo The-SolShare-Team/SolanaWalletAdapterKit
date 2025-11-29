@@ -9,29 +9,29 @@ import SolanaTransactions
     import AppKit
 #endif
 
-class InMemoryWallet: Wallet {
-    struct Connection: WalletConnection {
-        let privateKey: Curve25519.Signing.PrivateKey
-        let publicKey: PublicKey
+public class InMemoryWallet: Wallet {
+    public struct Connection: WalletConnection {
+        public let privateKey: Curve25519.Signing.PrivateKey
+        public let publicKey: PublicKey
 
-        init(privateKey: Curve25519.Signing.PrivateKey = Curve25519.Signing.PrivateKey()) {
+        public init(privateKey: Curve25519.Signing.PrivateKey = Curve25519.Signing.PrivateKey()) {
             self.privateKey = privateKey
             self.publicKey = PublicKey(bytes: privateKey.publicKey.rawRepresentation)!
         }
 
-        init(from decoder: any Decoder) throws {
+        public init(from decoder: any Decoder) throws {
             let container = try decoder.singleValueContainer()
             let privateKeyData = try container.decode(Data.self)
             self.init(privateKey: try Curve25519.Signing.PrivateKey(rawRepresentation: privateKeyData))
         }
 
-        func encode(to encoder: any Encoder) throws {
+        public func encode(to encoder: any Encoder) throws {
             var container = encoder.singleValueContainer()
             try container.encode(privateKey.rawRepresentation)
         }
     }
 
-    static let identifier = "in_memory_wallet"
+    public static let identifier = "in_memory_wallet"
 
     public let appId: AppIdentity
     public let cluster: Endpoint
@@ -40,11 +40,11 @@ class InMemoryWallet: Wallet {
 
     var connection: Connection?
 
-    var publicKey: PublicKey? {
+    public var publicKey: PublicKey? {
         return connection?.publicKey
     }
 
-    required init(for appIdentity: AppIdentity, cluster: Endpoint, connection: Connection?) {
+    public required init(for appIdentity: AppIdentity, cluster: Endpoint, connection: Connection?) {
         self.appId = appIdentity
         self.cluster = cluster
         self.connection = connection
@@ -52,24 +52,24 @@ class InMemoryWallet: Wallet {
     }
 
     @discardableResult
-    func connect() throws -> Connection? {
+    public func connect() throws -> Connection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }
         self.connection = Connection()
         return connection
     }
 
-    func disconnect() throws {
+    public func disconnect() throws {
         guard connection != nil else { throw SolanaWalletAdapterError.notConnected }
         self.connection = nil
     }
 
-    func signMessage(message: Data, display: MessageDisplayFormat?) throws -> SignMessageResponseData {
+    public func signMessage(message: Data, display: MessageDisplayFormat?) throws -> SignMessageResponseData {
         guard let connection = self.connection else { throw SolanaWalletAdapterError.notConnected }
         let signature = try connection.privateKey.signature(for: message)
         return SignMessageResponseData(signature: Signature(bytes: signature)!)
     }
 
-    func signTransaction(transaction: Transaction) throws -> SignTransactionResponseData {
+    public func signTransaction(transaction: Transaction) throws -> SignTransactionResponseData {
         guard let connection = self.connection else { throw SolanaWalletAdapterError.notConnected }
 
         let data = try transaction.message.encode()
@@ -93,12 +93,12 @@ class InMemoryWallet: Wallet {
         return SignTransactionResponseData(transaction: signedTransaction)
     }
 
-    func signAllTransactions(transactions: [Transaction]) async throws -> SignAllTransactionsResponseData {
+    public func signAllTransactions(transactions: [Transaction]) async throws -> SignAllTransactionsResponseData {
         let signedTransactions = try transactions.map { try signTransaction(transaction: $0).transaction }
         return SignAllTransactionsResponseData(transactions: signedTransactions)
     }
 
-    func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?) async throws -> SignAndSendTransactionResponseData {
+    public func signAndSendTransaction(transaction: Transaction, sendOptions: SendOptions?) async throws -> SignAndSendTransactionResponseData {
         let signedTransaction = try signTransaction(transaction: transaction).transaction
 
         let signature = try await rpcClient.sendTransaction(
@@ -114,7 +114,7 @@ class InMemoryWallet: Wallet {
         return SignAndSendTransactionResponseData(signature: signature)
     }
 
-    func browse(url: URL, ref: URL) async throws {
+    public func browse(url: URL, ref: URL) async throws {
         let finalURL = {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             var queryItems = components?.queryItems ?? []
@@ -132,7 +132,7 @@ class InMemoryWallet: Wallet {
         if !success { throw SolanaWalletAdapterError.browsingFailure }
     }
 
-    static func isProbablyAvailable() -> Bool {
+    public static func isProbablyAvailable() -> Bool {
         return true
     }
 }
