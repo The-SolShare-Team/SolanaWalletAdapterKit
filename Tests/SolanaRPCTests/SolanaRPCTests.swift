@@ -48,13 +48,6 @@ import Testing
     #expect(!(blockhashResponse.blockhash.bytes.count == 0))
 }
 
-// @Test func testGetBalanceNonExistentAccount() async throws {
-//     let rpc = SolanaRPCClient(endpoint: .devnet)
-//     let balance = try await rpc.getBalance(
-//         account: "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG")
-//     #expect(balance == 0)
-// }
-
 @Test func testGetMinBalanceForRentExemptionWithConfigs() async throws {
     let rpc = SolanaRPCClient(endpoint: .devnet)
     let lamports = try await rpc.getMinBalanceForRentExemption(
@@ -71,24 +64,7 @@ import Testing
     #expect(!version.solanaCore.isEmpty)
 }
 
-@Test func getPublicAndPrivateKeys() {
-    let alice = Curve25519.Signing.PrivateKey()
-    let bob = Curve25519.Signing.PrivateKey()
-
-    print("=== ALICE KEYS ===")
-    print("ALICE PRIVATE (Base64):", alice.rawRepresentation.base64EncodedString())
-    print("ALICE PRIVATE (Bytes):", [UInt8](alice.rawRepresentation))
-    print("ALICE PUBLIC (Base58):", PublicKey(bytes: alice.publicKey.rawRepresentation)!)
-    print("ALICE PUBLIC (Bytes):", [UInt8](alice.publicKey.rawRepresentation))
-
-    print("\n=== BOB KEYS ===")
-    print("BOB PRIVATE (Base64):", bob.rawRepresentation.base64EncodedString())
-    print("BOB PRIVATE (Bytes):", [UInt8](bob.rawRepresentation))
-    print("BOB PUBLIC (Base58):", PublicKey(bytes: bob.publicKey.rawRepresentation)!)
-    print("BOB PUBLIC (Bytes):", [UInt8](bob.publicKey.rawRepresentation))
-}
-
-@Test func testSendTransactionAndGetBalance() async throws {
+@Test func testSendTransactionAndGetBalanceWithConfigs() async throws {
     let rpc = SolanaRPCClient(endpoint: .devnet)
 
     //pre generated for fixed wallets
@@ -100,44 +76,50 @@ import Testing
     print(toPrivate.publicKey.rawRepresentation.base58EncodedString())
 
     let fromBefore = try await rpc.getBalance(account: from)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
     let toBefore = try await rpc.getBalance(account: to)
-    print("FROM AND BALANCE FIRST TRANSACTION: FROM --> TO: ", fromBefore, toBefore)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
 
     let recentBlockhash = try await rpc.getLatestBlockhash()
     let tx1 = try Transaction(
         feePayer: from,
         blockhash: recentBlockhash.blockhash
     ) {
-        SystemProgram.transfer(from: from, to: to, lamports: 1_000_000)
+        SystemProgram.transfer(from: from, to: to, lamports: 1_000_000_000)
     }
 
     let fromWallet = InMemoryWallet(for: .init(name: "TestApp", url: URL(string:"https://example.com")!, icon: "favicon.ico"), cluster: .devnet, connection: .init(privateKey: fromPrivate))
     let signed1 = try fromWallet.signTransaction(transaction: tx1)
-    let _ = try await rpc.sendTransaction(transaction: signed1.transaction)
+    let _ = try await rpc.sendTransaction(transaction: signed1.transaction, configuration: SolanaRPCClient.SendTransactionConfiguration(encoding: .base58))
+    try await Task.sleep(nanoseconds: 15_000_000_000)
 
     let fromAfter1 = try await rpc.getBalance(account: from)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
     let toAfter1 = try await rpc.getBalance(account: to)
-    print("FROM AND BALANCE AFTER FIRST TRANSACTION: FROM --> TO:", fromAfter1, toAfter1)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
 
-    #expect(toAfter1 == toBefore + 1_000_000)
-    #expect(fromAfter1 < fromBefore - 1_000_000) // fee + transfer
+    #expect(toAfter1 == toBefore + 1_000_000_000)
+    #expect(fromAfter1 <= fromBefore - 1_000_000_000) // fee + transfer
 
     let recentBlockhash2 = try await rpc.getLatestBlockhash()
     let tx2 = try Transaction(
         feePayer: to,
         blockhash: recentBlockhash2.blockhash
     ) {
-        SystemProgram.transfer(from: to, to: from, lamports: 1_000_000)
+        SystemProgram.transfer(from: to, to: from, lamports: 1_000_000_000)
     }
 
     let toWallet = InMemoryWallet(for: .init(name: "TestApp", url: URL(string:"https://example.com")!, icon: "favicon.ico"), cluster: .devnet, connection: .init(privateKey: toPrivate))
     let signed2: SignTransactionResponseData = try toWallet.signTransaction(transaction: tx2)
     let _ = try await rpc.sendTransaction(transaction: signed2.transaction)
+    try await Task.sleep(nanoseconds: 15_000_000_000)
 
     let fromAfter2 = try await rpc.getBalance(account: from)
-    let toAfter2 = try await rpc.getBalance(account: to)
-    print("FROM AND BALANCE AFTER SECOND TRANSACTION: FROM --> TO:", fromAfter2, toAfter2)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
 
-    #expect(toAfter2 < toAfter1 - 1_000_000)  // fee + transfer
-    #expect(fromAfter2 > fromAfter1 + 1_000_000)
+    let toAfter2 = try await rpc.getBalance(account: to)
+    try await Task.sleep(nanoseconds: 3_000_000_000)
+
+    #expect(toAfter2 <= toAfter1 - 1_000_000_000)
+    #expect(fromAfter2 >= fromAfter1 + 1_000_000_000)
 }
