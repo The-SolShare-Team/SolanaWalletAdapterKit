@@ -23,7 +23,7 @@ import TweetNacl
 #else
     extension SaltUtil {
         public static func isOnCurve(publicKey: Data) throws(NaclUtilError) -> Bool {
-            fatalError()
+            fatalError("Cannot find salkt module")
         }
     }
 #endif
