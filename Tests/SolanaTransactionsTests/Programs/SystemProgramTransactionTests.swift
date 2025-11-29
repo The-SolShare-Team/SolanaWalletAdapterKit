@@ -19,10 +19,7 @@ import Testing
     #expect(
         decoded
             == Transaction(
-                signatures: [
-                    "1111111111111111111111111111111111111111111111111111111111111111",
-                    "1111111111111111111111111111111111111111111111111111111111111111",
-                ],
+                signatures: [Signature.placeholder, Signature.placeholder],
                 message: VersionedMessage.legacyMessage(
                     LegacyMessage(
                         signatureCount: 2, readOnlyAccounts: 0, readOnlyNonSigners: 1,

@@ -75,113 +75,91 @@ import Testing
 
     let transaction = try Transaction(bytes: Data(base64Encoded: base64Transaction)!)
 
-    #expect(
-        transaction
-            == Transaction(
-                signatures: [
-                    "2iyMu2haKjkw8bAHgpkSaKHSiVawRdCtEn4rCgfGQmztJ51AGX8iB99R41VyYVGjNK8TCRDRr6zVx7jznL5zr4ah"
+    let expected = Transaction(
+        signatures: [
+            "2iyMu2haKjkw8bAHgpkSaKHSiVawRdCtEn4rCgfGQmztJ51AGX8iB99R41VyYVGjNK8TCRDRr6zVx7jznL5zr4ah"
+        ],
+        message: .v0(
+            V0Message(
+                signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 1,
+                accounts: [
+                    "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
+                    "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
+                    "11111111111111111111111111111111",
+                ], blockhash: "DrAP91wtHVsYp64PYyhGLJXtbYMQt7Sss47YdKUV1Xzj",
+                instructions: [
+                    CompiledInstruction(  // Transfer Lamports Amount: 10000000n
+                        programIdIndex: 2, accounts: [0, 1],
+                        data: [2, 0, 0, 0, 128, 150, 152, 0, 0, 0, 0, 0])
                 ],
-                message: .v0(
-                    V0Message(
-                        signatureCount: 1, readOnlyAccounts: 0, readOnlyNonSigners: 1,
-                        accounts: [
-                            "AWJ1WoX9w7hXQeMnaJTe92GHnBtCQZ5MWquCGDiZCqAG",
-                            "CTZynpom8nofKjsdcYGTk3eWLpUeZQUvXd68dFphWKWu",
-                            "11111111111111111111111111111111",
-                        ], blockhash: "DrAP91wtHVsYp64PYyhGLJXtbYMQt7Sss47YdKUV1Xzj",
-                        instructions: [
-                            CompiledInstruction(  // Transfer Lamports Amount: 10000000n
-                                programIdIndex: 2, accounts: [0, 1],
-                                data: [2, 0, 0, 0, 128, 150, 152, 0, 0, 0, 0, 0])
-                        ],
-                        addressTableLookups: [])))
-    )
+                addressTableLookups: [])))
+
+    #expect(transaction == expected)
 }
 
 // lower level test for V0 transaction encoding/decoding
 @Test func testV0TransactionEncodingMatchesJS() throws {
-    // === Accounts ===
-    let accounts: [PublicKey] = [
-        PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"),
-        PublicKey("CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk"),
-    ]
-
-    // === Blockhash ===
-    let blockhash = Blockhash("13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq")
-
-    // === Compiled Instruction ===
-    let instruction = CompiledInstruction(
-        programIdIndex: 0,
-        accounts: [1],
-        data: [0, 1]
-    )
-
-    // === Construct V0Message ===
-    let message: V0Message = V0Message(
-        signatureCount: 1,
-        readOnlyAccounts: 0,
-        readOnlyNonSigners: 1,
-        accounts: accounts,
-        blockhash: blockhash,
-        instructions: [instruction],
-        addressTableLookups: []
-    )
-
-    let placeholderSignature = Signature(bytes: Data(repeating: UInt8(0), count: 64))
-    let signatures: [Signature] = [placeholderSignature]
-
     let transaction = Transaction(
-        signatures: signatures,
-        message: .v0(message)
+        signatures: [Signature.placeholder],
+        message: .v0(
+            V0Message(
+                signatureCount: 1,
+                readOnlyAccounts: 0,
+                readOnlyNonSigners: 1,
+                accounts: [
+                    PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"),
+                    PublicKey("CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk"),
+                ],
+                blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq",
+                instructions: [
+                    CompiledInstruction(
+                        programIdIndex: 0,
+                        accounts: [1],
+                        data: [0, 1]
+                    )
+                ],
+                addressTableLookups: []
+            ))
     )
 
-    let bytes = try transaction.encode()
-    let encodedString = Data(bytes).base64EncodedString()
-    let expectedEncodedString = """
-        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA\
-        gONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+\
-        8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGu\
-        QEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
-        """
-
-    #expect(encodedString == expectedEncodedString)
+    #expect(
+        try transaction.encode().base64EncodedString() == """
+            AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+            AAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXl\
+            HWIezmwdICjLMnwjFrcAvuRPiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+            """)
 }
 
 @Test func testV0TransactionDecodingMatchesJS() throws {
     let base64TransactionFromJS = """
-        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA\
-        gONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+\
-        8mU/BTy/KwV/EWE4NbXlHWIezmwdICjLMnwjFrcAvuRPiGu\
-        QEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
+        AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+        AAAAAACAAQABAgONOkH9yE7KYZnj6vA4b4+SrhNamF9YTjzn9NoD9Tp0sao+8mU/BTy/KwV/EWE4NbXl\
+        HWIezmwdICjLMnwjFrcAvuRPiGuQEB71ZBejujPKQWShwabjvJeEOQk4bbjgrgEAAQECAAEA
         """
     let transaction = try Transaction(bytes: Data(base64Encoded: base64TransactionFromJS)!)
-    let expectedAccounts: [PublicKey] = [
-        PublicKey("Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo"),
-        PublicKey("CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk"),
-    ]
-    let expectedBlockhash = Blockhash("13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq")
-    let expectedInstruction = CompiledInstruction(
-        programIdIndex: 0,
-        accounts: [1],
-        data: [0, 1]
+
+    let expected = Transaction(
+        signatures: [Signature.placeholder],
+        message: .v0(
+            V0Message(
+                signatureCount: 1,
+                readOnlyAccounts: 0,
+                readOnlyNonSigners: 1,
+                accounts: [
+                    "Es8H62JtW4NwQK4Qcz6LCFswiqfnEQdPskSsGBCJASo",
+                    "CxXjGnBqvcq73ZFP75SXoDVEZ5MhkNMPMRPQwpeUYFFk",
+                ],
+                blockhash: "13uptgsxwDM8pzLj18FCqncEo8Nbz4srN3H7U6xqpaeq",
+                instructions: [
+                    CompiledInstruction(
+                        programIdIndex: 0,
+                        accounts: [1],
+                        data: [0, 1]
+                    )
+                ],
+                addressTableLookups: []
+            ))
     )
-    let expectedMessage = V0Message(
-        signatureCount: 1,
-        readOnlyAccounts: 0,
-        readOnlyNonSigners: 1,
-        accounts: expectedAccounts,
-        blockhash: expectedBlockhash,
-        instructions: [expectedInstruction],
-        addressTableLookups: []
-    )
-    let expectedSignature = Signature(bytes: Data(repeating: UInt8(0), count: 64))
-    #expect(
-        transaction
-            == Transaction(
-                signatures: [expectedSignature],
-                message: .v0(expectedMessage)
-            )
-    )
+
+    #expect(transaction == expected)
 }
