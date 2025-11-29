@@ -19,10 +19,11 @@ public struct BackpackWallet: DeeplinkWallet {
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?
     ) {
         if cluster != .mainnet {
-            #warning("""
-            BackpackWallet requires cluster to be set to mainnet. \
-            See Backpack documentation on how to use other clusters: https://support.backpack.exchange/wallet/actions/add-developer-testnets.
-            """)
+            assert(
+                """
+                BackpackWallet requires cluster to be set to mainnet. \
+                See Backpack documentation on how to use other clusters: https://support.backpack.exchange/wallet/actions/add-developer-testnets.
+                """)
         }
         self.appId = appId
         self.cluster = cluster
