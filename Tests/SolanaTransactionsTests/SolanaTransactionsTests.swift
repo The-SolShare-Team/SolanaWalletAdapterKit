@@ -34,25 +34,12 @@ import Testing
 @Test func shortInt5() throws {
     var buffer = SolanaTransactionBuffer()
 
-    // Encode all UInt16 values
     for i in 0...UInt16.max {
         try UInt16(i).solanaTransactionEncode(to: &buffer)
     }
 
-    // Decode all UInt16 values with guard
     for i in 0...UInt16.max {
-        let value: UInt16
-        do {
-            value = try UInt16(fromSolanaTransaction: &buffer)
-        } catch {
-            fatalError("Decoding failed for i = \(i): \(error)")
-        }
-
-        guard value == i else {
-            fatalError("Decoded value \(value) does not match expected \(i)")
-        }
-
-        // Optional: #expect if you still want Testing syntax
+        let value = try UInt16(fromSolanaTransaction: &buffer)
         #expect(value == i)
     }
 }
