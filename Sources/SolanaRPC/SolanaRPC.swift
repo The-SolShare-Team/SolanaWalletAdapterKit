@@ -1,6 +1,7 @@
 import Foundation
 import SwiftBorsh
 
+
 struct RPCRequest: Encodable {
     let jsonrpc: String = "2.0"
     let id = UUID().uuidString
@@ -14,7 +15,7 @@ struct RPCRequest: Encodable {
         case params
     }
 
-    public func encode(to encoder: any Encoder) throws {
+    func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(jsonrpc, forKey: .jsonrpc)
         try container.encode(id, forKey: .id)
@@ -49,11 +50,21 @@ struct RPCResponseResult<T: Decodable>: Decodable {
     let value: T
 }
 
+/// Represents an error returned from a Solana JSON-RPC request.
+/// 
+/// `RPCError` provides a  typed representation of the error object
+/// defined in the JSON-RPC 2.0 specification. It includes:
+/// - A human-readable ``message``
+/// - A human-friendly ``description`` based on the numeric error code returned from the request.
+/// - Optional ``data`` returned by the RPC server for additional context
+/// 
+/// The ``Kind`` enum maps numeric JSON-RPC error codes into semantic cases to provide a human friendly description of the error.
+///
 public struct RPCError: Error, CustomStringConvertible {
     public let message: String
     public let kind: Kind
     public let data: Sendable?
-
+    
     public enum Kind: Sendable, CustomStringConvertible {
         case clientError
 
@@ -116,6 +127,19 @@ public struct RPCError: Error, CustomStringConvertible {
     }
 }
 
+/// Represents a Solana RPC cluster endpoint.
+///
+/// `Endpoint` provides typed access to the Solana network clusters:
+/// - ``mainnet``
+/// - ``testnet``
+/// - ``devnet``
+///
+/// It also supports custom RPC endpoints using the ``other(name:url:)`` case.
+///
+/// ## Properties
+/// - ``url``: The full RPC URL associated with the endpoint.
+/// - ``description``: A readable name that corresponds to the Solana
+///   cluster naming conventions.
 public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Codable {
     case mainnet
     case testnet
@@ -149,11 +173,57 @@ public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Co
     }
 }
 
+/// Represents the level of certainty or finality a client requires from an RPC node
+/// when querying data or confirming a transaction
+///
+/// Commitments are used as optional parameters for any RPC method.
+///
+/// `Commitment` can take on three values:
+/// - ``processed``
+/// - ``confirmed``
+/// - ``finalized``
 public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
 }
+
+
+/// A client for sending JSON-RPC requests to the Solana blockchain.
+///
+/// `SolanaRPCClient` is the primary interface for communicating with a Solana
+/// RPC endpoint. It manages the network target through its configured
+/// ``endpoint`` and implements the functionality of sending JSON-RPC 2.0 requests.
+///
+/// The client does not have a full list of high-level abstractions for RPC methods. Iinstead, it
+/// exposes access through the ``fetch(method:params:into:)`` method,
+/// which higher-level Solana APIs methods can be built on top of.
+///
+/// ## Usage
+/// To create a client targeting a specific Solana cluster:
+/// ```swift
+/// let client = SolanaRPCClient(endpoint: .devnet)
+/// ```
+///
+/// Once instantiated, you can call Solana RPC methods by providing the
+/// method name and parameters and using the ``SolanaRPCClient/fetch(method:params:into:)``:
+/// ```swift
+/// let balance: UInt64 = try await client.fetch(
+///     method: "getBalance",
+///     params: [publicKey, configuration],
+///     into: UInt64.self
+/// )
+/// ```
+/// For more information on the RPC methods that can be sent to the Solana Network, see
+/// [Solana HTTP Request Docs.](https://solana.com/docs/rpc/http)
+///
+/// ## RPC Methods Implemented
+/// - ``getBalance(account:configuration:)``
+/// - ``getLatestBlockhash(configuration:)``
+/// - ``getMinBalanceForRentExemption(accountDataLength:configuration:)``
+/// - ``getVersion()``
+/// - ``requestAirdrop(to:lamports:configuration:)``
+/// - ``sendTransaction(transaction:configuration:)``
 
 public struct SolanaRPCClient {
     public let endpoint: Endpoint
@@ -161,8 +231,24 @@ public struct SolanaRPCClient {
     public init(endpoint: Endpoint) {
         self.endpoint = endpoint
     }
-
-    func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
+    
+    /// Sends a JSON-RPC request to the configured Solana RPC endpoint and decodes the response.
+    ///
+    /// This method constructs a JSON-RPC 2.0–compliant request using the provided
+    /// `method` and `params`, sends it via HTTP POST to the client's
+    /// ``SolanaRPCClient/endpoint``, and decodes the returned JSON into the
+    /// specified type `into`.
+    ///
+    /// - Parameters:
+    ///   - method: The Solana RPC method name (e.g., `"getBalance"` or `"sendTransaction"`).
+    ///   - params: An array of values to pass as parameters for the RPC method.
+    ///   - into: The expected return type of the RPC call in a struct format. Must conform to ``Swift/Decodable``.
+    ///
+    /// - Returns: An instance of type `into` decoded from the RPC response.
+    ///
+    /// - Throws: ``RPCError`` if the request fails, the RPC returns an error, or the
+    ///   response cannot be decoded.
+    public func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T
     {
