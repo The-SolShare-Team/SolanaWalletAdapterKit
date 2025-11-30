@@ -195,6 +195,10 @@ public enum Commitment: String, Codable {
 /// RPC endpoint. It manages the network target through its configured
 /// ``endpoint`` and implements the functionality of sending JSON-RPC 2.0 requests.
 ///
+/// The client does not have a full list of high-level abstractions for RPC methods. Iinstead, it
+/// exposes access through the ``fetch(method:params:into:)`` method,
+/// which higher-level Solana APIs methods can be built on top of.
+///
 /// ## Usage
 /// To create a client targeting a specific Solana cluster:
 /// ```swift
