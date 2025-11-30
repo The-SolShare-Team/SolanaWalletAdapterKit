@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/The-SolShare-Team/SwiftBorsh",
-            .upToNextMajor(from: "0.0.0")),
+            .upToNextMajor(from: "0.0.1")),
         .package(
             url: "https://github.com/The-SolShare-Team/Salkt.swift",
             .upToNextMajor(from: "0.0.0")),
