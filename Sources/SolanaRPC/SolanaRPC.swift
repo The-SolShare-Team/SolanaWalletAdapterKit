@@ -195,24 +195,10 @@ public enum Commitment: String, Codable {
 /// RPC endpoint. It manages the network target through its configured
 /// ``endpoint`` and implements the functionality of sending JSON-RPC 2.0 requests.
 ///
-/// The client does not have a full list of high-level abstractions for RPC methods. Iinstead, it
-/// exposes access through the ``fetch(method:params:into:)`` method,
-/// which higher-level Solana APIs methods can be built on top of.
-///
 /// ## Usage
 /// To create a client targeting a specific Solana cluster:
 /// ```swift
 /// let client = SolanaRPCClient(endpoint: .devnet)
-/// ```
-///
-/// Once instantiated, you can call Solana RPC methods by providing the
-/// method name and parameters and using the ``SolanaRPCClient/fetch(method:params:into:)``:
-/// ```swift
-/// let balance: UInt64 = try await client.fetch(
-///     method: "getBalance",
-///     params: [publicKey, configuration],
-///     into: UInt64.self
-/// )
 /// ```
 /// For more information on the RPC methods that can be sent to the Solana Network, see
 /// [Solana HTTP Request Docs.](https://solana.com/docs/rpc/http)
@@ -232,23 +218,7 @@ public struct SolanaRPCClient {
         self.endpoint = endpoint
     }
     
-    /// Sends a JSON-RPC request to the configured Solana RPC endpoint and decodes the response.
-    ///
-    /// This method constructs a JSON-RPC 2.0–compliant request using the provided
-    /// `method` and `params`, sends it via HTTP POST to the client's
-    /// ``SolanaRPCClient/endpoint``, and decodes the returned JSON into the
-    /// specified type `into`.
-    ///
-    /// - Parameters:
-    ///   - method: The Solana RPC method name (e.g., `"getBalance"` or `"sendTransaction"`).
-    ///   - params: An array of values to pass as parameters for the RPC method.
-    ///   - into: The expected return type of the RPC call in a struct format. Must conform to ``Swift/Decodable``.
-    ///
-    /// - Returns: An instance of type `into` decoded from the RPC response.
-    ///
-    /// - Throws: ``RPCError`` if the request fails, the RPC returns an error, or the
-    ///   response cannot be decoded.
-    public func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
+    func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T
     {
