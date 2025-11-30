@@ -1,10 +1,35 @@
 import SwiftBorsh
 
+/// A program that attaches a UTF-8 encoded text message, or "memo," to a transaction on the Solana blockchain.
+///
+/// The Memo program is a simple program that validates a string of UTF-8 encoded characters and verifies that any accounts provided are signers of the transaction. The program also logs the memo, as well as any verified signer addresses, to the transaction log, so that anyone can  observe memos and know they were approved by zero or more addresses by inspecting the transaction log from a trusted provider (see [Solana Docs](https://www.solana-program.com/docs/memo)).
+///
+/// The memo program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
+///
+/// ## Instructions
+/// - ``publishMemo(account:memo:)``
 public enum MemoProgram: Program, Instruction {
     public static let programId: PublicKey = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
 
+    /// Publishes a UTF-8 memo string to the Solana blockchain using the Memo Program.
+    ///
+    /// This instruction allows clients to attach arbitrary text to a transaction.
+    /// Memos do not modify account state or balances; they  record the
+    /// provided message on-chain for indexing, auditing, or human-readable context.
+    ///
+    /// - Parameters:
+    ///   - account:
+    ///       The signer in terms of a Public Key responsible for publishing the memo. The account must sign the transaction to authenticate the message.
+    ///   - memo:
+    ///       The UTF-8 encoded string to store on-chain.
     case publishMemo(account: PublicKey, memo: String)
 
+    /// The ordered list of accounts required by the Memo Program
+    /// instruction, in the exact order defined by the Memo program specification.
+    ///
+    /// This list varies depending on the specific instruction case
+    ///  when constructing transactions via higher-level builders like
+    /// ``InstructionsBuilder``.
     public var accounts: [AccountMeta] {
         return switch self {
         case .publishMemo(let account, _):
@@ -14,6 +39,7 @@ public enum MemoProgram: Program, Instruction {
         }
     }
 
+    /// The Borsh-encoded instruction data for the Memo instruction, which is just the memo itself.
     public var data: BorshEncodable {
         switch self {
         case .publishMemo(_, let memo): memo
