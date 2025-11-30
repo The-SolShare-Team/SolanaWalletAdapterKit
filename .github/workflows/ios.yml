@@ -1,0 +1,19 @@
+name: iOS Build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Build for iOS
+    runs-on:  macos-26
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build
+      run: xcodebuild -scheme "SolanaWalletAdapterKit" -destination 'platform=iOS Simulator,OS=26.0.1,name=iPhone Air' -skipMacroValidation
