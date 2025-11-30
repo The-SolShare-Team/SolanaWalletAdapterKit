@@ -1,0 +1,48 @@
+name: Deploy documentation to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build documentation
+        run: |
+            swift package -Xswiftc -DDOCC_BUILD --disable-sandbox \
+                generate-documentation \
+                --target Base58 \
+                --target SolanaRPC \
+                --target Salt \
+                --target SolanaTransactions \
+                --target SolanaWalletAdapterKit \
+                --transform-for-static-hosting \
+                --hosting-base-path SolanaWalletAdapterKit \
+                --output-path ./docs \
+                --enable-experimental-combined-documentation \
+                --enable-experimental-external-link-support \
+                --include-extended-types
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

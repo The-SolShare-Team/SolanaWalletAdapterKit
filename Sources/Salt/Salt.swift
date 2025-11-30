@@ -1,8 +1,9 @@
 import Foundation
 import TweetNacl
 
-#if canImport(salkt)
+#if canImport(salkt) && !DOCC_BUILD
     import salkt
+
     extension KotlinByteArray {
         convenience init(from data: Data) {
             self.init(size: Int32(data.count))
@@ -21,6 +22,7 @@ import TweetNacl
         }
     }
 #else
+    #warning("Cannot find salkt module")
     extension SaltUtil {
         public static func isOnCurve(publicKey: Data) throws(NaclUtilError) -> Bool {
             fatalError("Cannot find salkt module")
