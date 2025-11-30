@@ -114,6 +114,7 @@ public class InMemoryWallet: Wallet {
         return SignAndSendTransactionResponseData(signature: signature)
     }
 
+    @MainActor
     public func browse(url: URL, ref: URL) async throws {
         let finalURL = {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)

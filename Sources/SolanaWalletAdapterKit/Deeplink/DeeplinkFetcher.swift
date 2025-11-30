@@ -71,14 +71,16 @@ class DeeplinkFetcher {
             pendingRequests[id] = PendingRequest(
                 continuation: continuation, timeoutTask: timeoutTask)
 
-            #if os(iOS)
-                let success = await UIApplication.shared.open(finalURL)
-            #elseif os(macOS)
-                let success = NSWorkspace.shared.open(finalURL)
-            #endif
+            Task { @MainActor in
+                #if os(iOS)
+                    let success = await UIApplication.shared.open(finalURL)
+                #elseif os(macOS)
+                    let success = NSWorkspace.shared.open(finalURL)
+                #endif
 
-            if !success {
-                resumeRequestTask(id, .failure(.unableToOpen))
+                if !success {
+                    resumeRequestTask(id, .failure(.unableToOpen))
+                }
             }
         }
 
