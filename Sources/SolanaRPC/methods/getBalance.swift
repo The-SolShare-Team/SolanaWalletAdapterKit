@@ -1,6 +1,7 @@
 import SolanaTransactions
 
 extension SolanaRPCClient {
+    /// An optional configuration
     public struct GetBalanceConfiguration: Encodable {
         let commitment: Commitment?
         let minContextSlot: Int?
