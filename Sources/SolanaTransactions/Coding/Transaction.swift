@@ -15,8 +15,8 @@ import Foundation
 ///}
 /// ```
 /// - Parameters:
-///   - signatures: An array of signatures, created by signing the transaction's Message with the account's private key. See ``Signature``.
-///   - message: Transaction information, including the list of instructions to be processed. See ``VersionedMessage``.
+///   - signatures: An array of signatures produced by signing the transaction message with the private keys of the required accounts. See ``Signature``.
+///   - message: Information about the transaction, including accounts and instructions. See ``VersionedMessage``.
 ///
 /// ## Methods
 /// - ``encode()``

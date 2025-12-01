@@ -68,8 +68,7 @@ public enum TokenProgram: Program, Instruction {
     public static let programId: PublicKey = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
     public static let sysvarRentPubkey: PublicKey = "SysvarRent111111111111111111111111111111111"
 
-    /// Creates a new SPL Token mint account.
-    ///
+    /// Initializes a new SPL Token mint.
     ///
     /// - Parameters:
     ///   - mintAccount:
@@ -105,13 +104,13 @@ public enum TokenProgram: Program, Instruction {
         owner: PublicKey,
     )
     
-    ///Token transfers move tokens between token accounts of the same mint.
+    /// Transfers tokens between accounts that belong to the same mint.
     ///
     /// - Parameters:
     ///   - from:
     ///        The source token account from where the token will be sent. Must be owned by `owner`.
     ///   - to:
-    ///       The destination token account. Must be writable..
+    ///       The destination token account. Must be writable.
     ///   - amount:
     ///       The raw number of tokens to transfer.
     ///   - owner:
@@ -123,7 +122,7 @@ public enum TokenProgram: Program, Instruction {
         owner: PublicKey,
     )
     
-    ///Creates new units of a token into a token account
+    /// Mints new tokens and credits them to a specified token account
     ///
     /// - Parameters:
     ///   - mint:
@@ -141,7 +140,7 @@ public enum TokenProgram: Program, Instruction {
         amount: Int64,
     )
     
-    /// Permanently closes a token account and transfers all remaining SOL (rent) to a specified destination account
+    /// Closes a token account permanently and sends any remaining rent-exempt SOL to the specified destination account.
     ///
     ///    ///
     /// - Parameters:

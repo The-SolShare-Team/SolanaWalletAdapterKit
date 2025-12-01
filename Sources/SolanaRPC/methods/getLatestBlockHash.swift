@@ -41,25 +41,16 @@ extension SolanaRPCClient {
     ///   - blockhash: The most recent blockhash on the network. This is typically used
     ///                when constructing transactions to ensure they are valid.
     ///   - lastValidBlockHeight: The last block height at which the returned blockhash
-    ///                           remains valid. Transactions referencing this blockhash
-    ///                           must be submitted before this height to be accepted.
+    ///                           remains valid. Transactions referencing this blockhash must be submitted before this height to be accepted.
     public struct GetLatestBlockhashResponse: Decodable {
         public let blockhash: Blockhash
         public let lastValidBlockHeight: UInt64
     }
 
-    /// Returns the latest blockhash.
+    /// See [getLatestBlockhash](https://solana.com/docs/rpc/http/getlatestblockhash) implementation on Solana Docs.
     ///
     /// This method sends a `getLatestBlockhash` RPC request to the Solana network. You can optionally provide a
     /// ``GetLatestBlockhashConfiguration`` to control things like the commitment level or the minimum context slot.
-    ///
-    /// - Parameters:
-    ///   - configuration: Optional configuration for the request, such as
-    ///                    commitment level and minimum context slot. Defaults to `nil`. See ``GetLatestBlockhashConfiguration``
-    ///
-    /// - Returns: The blockhash and lastValidBlockHeight in the struct, ``GetLatestBlockhashResponse``
-    ///
-    /// - Throws: `RPCError` if the request fails or the response is invalid.
     public func getLatestBlockhash(
         configuration: GetLatestBlockhashConfiguration? = nil
     ) async throws(RPCError) -> GetLatestBlockhashResponse {

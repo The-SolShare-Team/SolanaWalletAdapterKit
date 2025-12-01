@@ -1,6 +1,6 @@
-/// Create  a collection of related addresses to efficiently load more addresses in a single transaction.
+/// Struct to group related addresses so they can be fetched efficiently within a single transaction.
 ///
-/// See [Solana Documentation](https://solana.com/developers/guides/advanced/lookup-tables) for more details.
+/// See [Solana Documentation on Address Table Lookups](https://solana.com/developers/guides/advanced/lookup-tables) for more details.
 ///
 /// ```
 /// public init(account: PublicKey, writableIndexes: [UInt8],

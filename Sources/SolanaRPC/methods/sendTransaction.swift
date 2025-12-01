@@ -18,11 +18,11 @@ extension SolanaRPCClient {
     /// ```
     ///
     /// - Parameters:
-    ///   - encoding: Encoding used for the transaction data. Values: `.base58` (slow, DEPRECATED), or `.base64`.
-    ///   - skipPreflight: When true, skip the preflight transaction checks.
-    ///   - preflightCommitment: Commitment level to use for preflight. See ``Commitment``
-    ///   - maxRetries: Maximum number of times for the RPC node to retry sending the transaction to the leader. If this parameter not provided, the RPC node will retry the transaction until it is finalized or until the blockhash expires.
-    ///   - minContextSlot: Set the minimum slot at which to perform preflight transaction checks
+    ///   - encoding: The format to use when serializing the transaction
+    ///   - skipPreflight: Set to true to bypass the RPC node’s preflight checks
+    ///   - preflightCommitment: The commitment level the node should use when running preflight. See ``Commitment``
+    ///   - maxRetries: How many times the RPC node should attempt to forward the transaction to a leader. If omitted, the node continues retrying until the transaction is finalized or the blockhash expires.
+    ///   - minContextSlot: The lowest slot at which preflight checks are allowed to run
     public struct SendTransactionConfiguration: Encodable {
         let encoding: TransactionEncoding?
         let skipPreflight: Bool?
@@ -50,16 +50,7 @@ extension SolanaRPCClient {
         case base64
     }
 
-    /// Submits a signed transaction to the cluster for processing.
-    ///
     /// See [sendTransaction](https://solana.com/docs/rpc/http/sendtransaction) on Solana documentation for more details.
-    /// - Parameters:
-    ///   - transaction: Fully-signed Transaction, as encoded string. See ``TransactionEncoding``
-    ///   - configuration: Optional configuration for the request. Defaults to `nil`. See ``SendTransactionConfiguration``
-    ///
-    /// - Returns: First Transaction Signature embedded in the transaction, as base-58 encoded string.
-    ///
-    /// - Throws: `RPCError` if the request fails or the response is invalid.
     public func sendTransaction(
         transaction: Transaction,
         configuration: SendTransactionConfiguration? = nil

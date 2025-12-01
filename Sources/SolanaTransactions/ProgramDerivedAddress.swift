@@ -15,8 +15,7 @@ public struct ProgramDerivedAddress: Sendable {
 
     /// Creates a Program Derived Address (PDA) for a given program using the provided seeds.
     ///
-    /// A PDA is a deterministic public key derived from the program ID and seed values,
-    /// which cannot be signed by any private key. This method generates the PDA.
+    /// PDA is a deterministic public key derived from a program ID and seed values. This method returns the PDA’s `PublicKey`.
     ///
     /// - Parameters:
     ///   - programId: The public key of the program for which the PDA is being generated.

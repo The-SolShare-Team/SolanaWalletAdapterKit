@@ -16,13 +16,13 @@ public enum VersionedMessage: Equatable, Sendable {
 ///   - readOnlyNonSigners:
 ///       The number of read-only accounts that also do *not* sign the transaction.
 ///   - accounts:
-///       The full list of accounts involved in the transaction, including
+///       The full array of accounts of type PublicKey  involved in the transaction, including
 ///       signers, writable accounts, and read-only accounts.
 ///   - blockhash:
 ///       The recent blockhash that makes the transaction valid.
 ///       This prevents the transaction from being replayed.
 ///   - instructions:
-///       The list of compiled instructions that the transaction will execute.
+///       The array of compiled instructions that the transaction will execute.
 ///       Each instruction specifies a program and the accounts it interacts with.
 ///
 /// ```
@@ -72,9 +72,12 @@ public struct LegacyMessage: Equatable, Sendable {
 ///   - blockhash:
 ///       The recent blockhash that makes the transaction valid.
 ///       This prevents the transaction from being replayed.
-///   - addressTableLookups:
+///   - instructions:
 ///       The list of compiled instructions that the transaction will execute.
 ///       Each instruction specifies a program and the accounts it interacts with.
+///   - addressTableLookups:
+///       Address lookup table entries used to load additional accounts
+///       beyond those listed in the static `accountKeys` array.
 ///
 /// ```
 ///public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {

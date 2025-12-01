@@ -18,8 +18,8 @@ extension SolanaRPCClient {
     /// ```
     /// 
     /// - Parameters:
-    ///   - commitment: The commitment describes how finalized a block is at that point in time. See ``Commitment``.
-    ///   - minContextSlot: The minimum slot that the request can be evaluated at.`.
+    ///   - commitment: The commitment level indicates how confirmed a block is at the time of the query. See ``Commitment``.
+    ///   - minContextSlot: The lowest slot at which the request can be evaluated at.
     public struct GetBalanceConfiguration: Encodable {
         let commitment: Commitment?
         let minContextSlot: Int?
@@ -33,19 +33,12 @@ extension SolanaRPCClient {
         }
     }
 
-    /// Returns the lamport balance of the account of provided Pubkey
+    /// See [getBalance](https://solana.com/docs/rpc/http/getbalance) implementation on Solana Docs.
     ///
     /// This method sends a `getBalance` RPC request to the Solana network
     /// for the specified account. You can optionally provide a
     /// ``GetBalanceConfiguration`` to control things like the commitment
     /// level or the minimum context slot.
-    ///
-    /// - Parameters:
-    ///   - account: The `PublicKey` of the account to query.
-    ///   - configuration: Optional configuration for the request, such as
-    ///                    commitment level and minimum context slot. Defaults to `nil`. See ``GetBalanceConfiguration``
-    ///
-    /// - Returns: The account balance in **lamports** as `UInt64`.
     ///
     /// - Throws: `RPCError` if the request fails or the response is invalid.
     public func getBalance(

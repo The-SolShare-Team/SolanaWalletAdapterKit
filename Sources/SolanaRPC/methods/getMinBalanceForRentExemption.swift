@@ -16,8 +16,8 @@ extension SolanaRPCClient {
     /// ```
     ///
     /// - Parameters:
-    ///   - commitment: The commitment describes how finalized a block is at that point in time. See ``Commitment``.
-    ///   
+    ///   - commitment: The commitment level indicates how confirmed a block is at the time of the query. See ``Commitment``.
+    ///
 
     public struct GetMinBalanceForRentExemptionConfiguration: Encodable {
         let commitment: Commitment?
@@ -29,18 +29,10 @@ extension SolanaRPCClient {
         }
     }
 
-    /// Returns minimum balance required to make account rent exempt.
+    /// See [getMinimumBalanceForRentExemption](https://solana.com/docs/rpc/http/getminimumbalanceforrentexemption) implementation on Solana Docs.
     ///
     /// This method sends a `getMinBalanceForRentExemption` RPC request to the Solana network. You can optionally provide a
     /// ``GetMinBalanceForRentExemptionConfiguration`` to control things like the commitment level.
-    ///
-    /// - Parameters:
-    ///   - accountDataLength: An integer value to indicate the account's data length.
-    ///   - configuration: Optional configuration for the request, such as
-    ///                    commitment level and minimum context slot. Defaults to `nil`. See ``GetMinBalanceForRentExemptionConfiguration``
-    ///
-    /// - Returns: The minimum lamports required in the Account to remain rent free
-    ///
     /// - Throws: `RPCError` if the request fails or the response is invalid.
     public func getMinBalanceForRentExemption(
         accountDataLength: UInt64,

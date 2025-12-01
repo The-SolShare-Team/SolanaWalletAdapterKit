@@ -4,9 +4,7 @@ extension SolanaRPCClient {
     ///
     /// Use this struct to access the details of the version when querying the network.
     ///
-    /// - Properties:
-    ///   - solanaCore: The software version of `solana-core`.
-    ///   - featureSet: A unique identifier of the current software's feature set.
+    /// See [getVersion](https://solana.com/docs/rpc/http/getversion)  for optional properties.
     public struct GetVersionResponse: Decodable {
         public let solanaCore: String
         public let featureSet: UInt32
@@ -17,29 +15,8 @@ extension SolanaRPCClient {
         }
     }
 
-    /// Returns the current Solana version running on the node.
+    /// See [getVersion](https://solana.com/docs/rpc/http/getversion) implementation on Solana Docs.
     ///
-    /// This method queries the Solana RPC node and returns the version of
-    /// `solana-core` and the feature set identifier of the current software.
-    ///
-    /// - Returns: A ``GetVersionResponse`` containing:
-    ///   - `solanaCore`: The software version of `solana-core`.
-    ///   - `featureSet`: A unique identifier of the current software's feature set.
-    ///
-    /// - Throws: `RPCError` if the request fails or the response is invalid.
-    ///
-    /// Example of `GetVersionResponse`:
-    /// ```swift
-    /// public struct GetVersionResponse: Decodable {
-    ///     public let solanaCore: String
-    ///     public let featureSet: UInt32
-    ///
-    ///     enum CodingKeys: String, CodingKey {
-    ///         case solanaCore = "solana-core"
-    ///         case featureSet = "feature-set"
-    ///     }
-    /// }
-    /// ```
     public func getVersion() async throws(RPCError) -> GetVersionResponse {
         try await fetch(
             method: "getVersion",

@@ -17,7 +17,7 @@ extension SolanaRPCClient {
     /// ```
     ///
     /// - Parameters:
-    ///   - commitment: The commitment describes how finalized a block is at that point in time. See ``Commitment``.
+    ///   - commitment: The commitment level indicates how confirmed a block is at the time of the query. See ``Commitment``.
     public struct RequestAirdropConfiguration: Encodable {
         let commitment: Commitment?
 
@@ -28,20 +28,7 @@ extension SolanaRPCClient {
         }
     }
     
-    /// Requests an airdrop of lamports to a Pubkey
-    ///
-    /// This method sends a `getMinBalanceForRentExemption` RPC request to the Solana network. You can optionally provide a
-    /// ``RequestAirdropConfiguration`` to control things like the commitment level.
-    ///
-    /// - Parameters:
-    ///   - address: Pubkey of account to receive lamports, as a base-58 encoded string
-    ///   - lamports: Amount of lamports to airdrop
-    ///   - configuration: Optional configuration for the request, such as
-    ///                    commitment level and minimum context slot. Defaults to `nil`. See ``RequestAirdropConfiguration``
-    ///                    
-    /// - Returns: Transaction Signature of the airdrop, as a base-58 encoded string
-    ///
-    /// - Throws: `RPCError` if the request fails or the response is invalid.
+    /// See [requestAirdrop](https://solana.com/docs/rpc/http/requestairdrop) implementation on Solana Docs.
     @discardableResult
     public func requestAirdrop(
         to address: PublicKey,

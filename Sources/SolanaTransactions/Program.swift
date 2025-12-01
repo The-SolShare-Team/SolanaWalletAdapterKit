@@ -24,8 +24,7 @@ extension Program {
 
     /// Creates a Program Derived Address (PDA) for this program using the given seeds.
     ///
-    /// A PDA is a deterministic public key derived from the program ID and seed values.
-    /// This method returns only the `PublicKey` of the PDA.
+    /// PDA is a deterministic public key derived from a program ID and seed values. This method returns the PDA’s `PublicKey`.
     ///
     /// - Parameter seeds: An array of byte arrays used as seeds to derive the PDA.
     /// - Returns: The derived `PublicKey`.

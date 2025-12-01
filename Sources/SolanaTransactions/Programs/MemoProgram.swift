@@ -15,7 +15,7 @@ public enum MemoProgram: Program, Instruction {
     ///
     /// - Parameters:
     ///   - account:
-    ///       The signer in terms of a Public Key responsible for publishing the memo. The account must sign the transaction to authenticate the message.
+    ///       The public key of the account that publishes the memo. This account must sign the transaction to verify the message’s authenticity.
     ///   - memo:
     ///       The UTF-8 encoded string to store on-chain.
     case publishMemo(account: PublicKey, memo: String)

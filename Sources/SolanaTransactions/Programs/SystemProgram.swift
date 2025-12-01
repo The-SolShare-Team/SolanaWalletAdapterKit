@@ -13,7 +13,10 @@ private struct CreateAccountData {
     let space: Int64
     let programId: PublicKey
 }
-///The System Program is the only account that can create new accounts and transfer SOL between accounts.
+///The System Program manages account creation and handles SOL transfers between accounts.
+///
+///
+///For more information see [System Program](https://solana.com/docs/core/programs#the-system-program) Solana Docs.
 ///
 /// The system program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
 /// # Instructions:
