@@ -5,8 +5,7 @@ import SwiftBorsh
 extension SolanaRPCClient {
     /// Configuration options for the ``sendTransaction(transaction:configuration:)``  RPC request.
     ///  
-    /// This struct allows you to provide **optional parameters** sending a transaction on the Solana blockchain. All properties are optional,
-    /// so you can specify only the values you need.
+    /// This struct allows you to provide **optional parameters** sending a transaction on the Solana blockchain. All properties are optional, so you can specify only the values you need.
     ///
     /// ```
     /// public init(
@@ -52,17 +51,6 @@ extension SolanaRPCClient {
     }
 
     /// Submits a signed transaction to the cluster for processing.
-    ///
-    /// This method does not alter the transaction in any way; it relays the transaction created by clients to the node as-is.
-    ///
-    /// If the node's rpc service receives the transaction, this method immediately succeeds, without waiting for any confirmations. A successful response from this method does not guarantee the transaction is processed or confirmed by the cluster.
-    ///
-    /// While the rpc service will reasonably retry to submit it, the transaction could be rejected if transaction's` recent_blockhash` expires before it lands.
-    ///
-    /// Before submitting, the following preflight checks are performed:
-    /// 1. The transaction signatures are verified
-    /// 2. The transaction is simulated against the bank slot specified by the preflight commitment. On failure an error will be returned. Preflight checks may be disabled if desired. It is recommended to specify the same commitment and preflight commitment to avoid confusing behavior.
-    /// The returned signature is the first signature in the transaction, which is used to identify the transaction (transaction id). This identifier can be easily extracted from the transaction data before submission.
     ///
     /// See [sendTransaction](https://solana.com/docs/rpc/http/sendtransaction) on Solana documentation for more details.
     /// - Parameters:

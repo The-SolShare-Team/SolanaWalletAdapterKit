@@ -53,9 +53,10 @@ private struct TransferCheckedData {
 
 /// Token Programs contain all instruction logic for interacting with tokens on the network (both fungible and non-fungible).
 /// 
-///  The memo program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
+///  The token program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
+///
 ///  For more information, refer to [Solana Docs](https://solana.com/docs/tokens#token-program).
-/// 
+///
 ///  # Instructions
 ///  - ``initializeMint(mintAccount:decimals:mintAuthority:freezeAuthority:)``
 ///  - ``initializeAccount(account:mint:owner:)``
@@ -69,9 +70,6 @@ public enum TokenProgram: Program, Instruction {
 
     /// Creates a new SPL Token mint account.
     ///
-    ///You need invoke two instructions to create a mint account:
-    ///1. System Program: Create an account with allocated space for a mint account and transfer ownership to the Token Program.
-    ///2. Token Program: Initialize the mint account data
     ///
     /// - Parameters:
     ///   - mintAccount:
@@ -94,12 +92,6 @@ public enum TokenProgram: Program, Instruction {
     
     /// Initializes a new SPL token account.
     ///
-    /// A token account stores your balance of a specific token. Each token account is associated with exactly one mint and tracks your token balance and additional details.
-    ///
-    /// To hold tokens, you need a token account for that specific mint. Each token account tracks:
-    /// - **Mint**: The specific token type it holds
-    /// - **Owner**: The authority who can transfer tokens from this account
-    ///
     /// - Parameters:
     ///   - mint:
     ///        The mint this account will hold tokens for.
@@ -114,9 +106,6 @@ public enum TokenProgram: Program, Instruction {
     )
     
     ///Token transfers move tokens between token accounts of the same mint.
-    ///
-    /// - Both token accounts must hold the same token type (mint)
-    /// - Only the source account owner or delegate can authorize transfers
     ///
     /// - Parameters:
     ///   - from:
@@ -136,9 +125,6 @@ public enum TokenProgram: Program, Instruction {
     
     ///Creates new units of a token into a token account
     ///
-    /// - Only the mint authority can mint new tokens
-    /// - A destination token account must exist to receive the minted tokens
-    ///
     /// - Parameters:
     ///   - mint:
     ///        The mint account from which new tokens will be created.
@@ -157,8 +143,7 @@ public enum TokenProgram: Program, Instruction {
     
     /// Permanently closes a token account and transfers all remaining SOL (rent) to a specified destination account
     ///
-    /// The token account balance must be zero before closing. Only the token account owner or designated close authority can execute this instruction.
-    ///
+    ///    ///
     /// - Parameters:
     ///   - account:
     ///        The token account to close.
@@ -172,7 +157,7 @@ public enum TokenProgram: Program, Instruction {
         owner: PublicKey,
     )
     
-    /// Transfers tokens between accounts, **with mint decimals checked**.
+    /// Transfers tokens between accounts, with mint decimals checked.
     ///
     /// `transferChecked` ensures:
     /// - the mint matches the token accounts

@@ -2,7 +2,7 @@ import SwiftBorsh
 
 /// A program that attaches a UTF-8 encoded text message, or "memo," to a transaction on the Solana blockchain.
 ///
-/// The Memo program is a simple program that validates a string of UTF-8 encoded characters and verifies that any accounts provided are signers of the transaction. The program also logs the memo, as well as any verified signer addresses, to the transaction log, so that anyone can  observe memos and know they were approved by zero or more addresses by inspecting the transaction log from a trusted provider (see [Solana Docs](https://www.solana-program.com/docs/memo)).
+/// For more information on th memo program, refer to  [Solana Docs](https://www.solana-program.com/docs/memo).
 ///
 /// The memo program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
 ///
@@ -12,10 +12,6 @@ public enum MemoProgram: Program, Instruction {
     public static let programId: PublicKey = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
 
     /// Publishes a UTF-8 memo string to the Solana blockchain using the Memo Program.
-    ///
-    /// This instruction allows clients to attach arbitrary text to a transaction.
-    /// Memos do not modify account state or balances; they  record the
-    /// provided message on-chain for indexing, auditing, or human-readable context.
     ///
     /// - Parameters:
     ///   - account:

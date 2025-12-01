@@ -54,7 +54,7 @@ public struct LegacyMessage: Equatable, Sendable {
 }
 
 
-/// A new versioned format for transaction message, used in ``Transaction``, that allow for additional functionality in the Solana runtime, including Address Lookup Tables.
+/// A new versioned format for transaction message, used in ``Transaction``, that allow for additional functionality, including Address Lookup Tables.
 ///
 /// For more information, visit [Solana Docs](https://solana.com/developers/guides/advanced/versions)
 /// - Parameters:

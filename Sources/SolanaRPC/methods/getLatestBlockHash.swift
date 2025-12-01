@@ -48,7 +48,7 @@ extension SolanaRPCClient {
         public let lastValidBlockHeight: UInt64
     }
 
-    /// Returns the latest blockhash
+    /// Returns the latest blockhash.
     ///
     /// This method sends a `getLatestBlockhash` RPC request to the Solana network. You can optionally provide a
     /// ``GetLatestBlockhashConfiguration`` to control things like the commitment level or the minimum context slot.
