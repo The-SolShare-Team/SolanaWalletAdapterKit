@@ -2,6 +2,13 @@ import Foundation
 import Salt
 
 extension DeeplinkWallet {
+    /// Initiates a connection request to a wallet via the deep-link protocol.
+    ///
+    /// - Returns: An established `DeeplinkWalletConnection` if the wallet
+    ///   approves the connection request. Returns `nil` if the wallet declines or
+    ///   no connection was made.
+    /// - Throws: `SolanaWalletAdapterError` if the deep link request fails,
+    ///   the wallet returns an invalid response, or the payload cannot be decrypted.
     @discardableResult
     public mutating func connect() async throws -> DeeplinkWalletConnection? {
         guard connection == nil else { throw SolanaWalletAdapterError.alreadyConnected }

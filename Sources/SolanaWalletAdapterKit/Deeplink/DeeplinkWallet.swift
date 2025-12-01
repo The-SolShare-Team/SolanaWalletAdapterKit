@@ -12,6 +12,10 @@ import SolanaTransactions
     import AppKit
 #endif
 
+/// Configuration options for a deeplink-based wallet integration.
+///
+/// This structure defines how a wallet type interacts with the Wallet Adapter
+/// through deeplinks. This is essentially a way to define the wallet provider you want to use. Examples include  ``BackpackWallet``, ``PhantomWallet`` and ``SolflareWallet``.
 public struct DeeplinkWalletOptions: Sendable {
     public let baseURL: URL
     public let checkAvailableURL: URL?
@@ -31,6 +35,12 @@ public struct DeeplinkWalletOptions: Sendable {
     }
 }
 
+/// A wallet that communicates with the wallet provider via platform deeplinks.
+///
+/// The SDK manages generating encrypted deeplink requests, receiving and decrypting responses from wallet providers, deriving shared encryption keys, and more.
+///
+/// A `DeeplinkWallet` behaves like any other `Wallet`, but the transport layer
+/// is implemented through deep-links.
 public protocol DeeplinkWallet: Wallet {
     static var _deeplinkWalletOptions: DeeplinkWalletOptions { get }
     var connection: DeeplinkWalletConnection? { get set }
@@ -48,6 +58,14 @@ extension DeeplinkWallet {
         }
     }
 
+    /// Attempts to determine whether the wallet URL is a valid configuration.
+    /// > Note:
+    /// Some wallets still support older, deprecated deep-link schemes. This
+    /// method allows for the modern `checkAvailableURL` but will return `false`
+    /// if none is provided.
+    ///
+    /// - Returns: `true` if the system reports that it can open the wallet's
+    ///   availability URL, otherwise `false`.
     public static func isProbablyAvailable() -> Bool {
         guard let checkAvailableURL = Self._deeplinkWalletOptions.checkAvailableURL else {
             return false

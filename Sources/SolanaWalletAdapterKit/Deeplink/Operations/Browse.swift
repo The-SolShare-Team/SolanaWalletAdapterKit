@@ -7,6 +7,13 @@ import Foundation
 #endif
 
 extension DeeplinkWallet {
+    /// Opens a URL in the wallet's in-app browser
+    ///
+    /// - Parameters:
+    ///   - url: The URL that should open within Solflare's in-app browser, URL-encoded.
+    ///   - ref: The URL of the requesting app, URL-encoded
+    /// - Throws: `SolanaWalletAdapterError.invalidRequest` if URL encoding or deep-link construction fails.
+    ///
     @MainActor
     public func browse(url: URL, ref: URL) async throws {
         guard

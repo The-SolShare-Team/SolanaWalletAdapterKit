@@ -1,6 +1,7 @@
 import Foundation
 import SolanaRPC
 
+/// A deep-link wallet adapter for the Solflare Wallet application
 public struct SolflareWallet: DeeplinkWallet {
     public static let identifier = "solflare_wallet"
     public static let _deeplinkWalletOptions = DeeplinkWalletOptions(
@@ -15,6 +16,14 @@ public struct SolflareWallet: DeeplinkWallet {
     public let cluster: Endpoint
     public var connection: DeeplinkWalletConnection?
 
+    /// Creates a new instance of `SolflareWallet` configured for the given
+    /// application identity and Solana cluster.
+    ///
+    /// - Parameters:
+    ///   - appId: The identity of the dApp requesting access
+    ///   - cluster: The Solana network the wallet should connect to. See ``Endpoint``
+    ///   - connection: An optional existing ``Connection`` used
+    ///     to restore a prior session.
     public init(
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?
     ) {

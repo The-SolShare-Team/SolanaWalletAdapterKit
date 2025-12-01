@@ -1,3 +1,13 @@
+/// Represents the encoding of a single instruction within a multi-instruction `Message`,
+/// which forms the core of a Solana ``Transaction``.
+///
+/// - Parameters:
+///   - programIdIndex: The index in `account_keys` that points to the program
+///     responsible for executing this instruction.
+///   - accounts: Indices into the `account_keys` array that specify the accounts
+///     this instruction depends on.
+///   - data: The serialized instruction payload. This byte sequence indicates
+///     which program instruction to run and includes any required information.
 public struct CompiledInstruction: Equatable, Sendable {
     public let programIdIndex: UInt8
     public let accounts: [UInt8]
