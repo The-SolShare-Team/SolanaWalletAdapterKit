@@ -3,13 +3,6 @@ import Foundation
 import SolanaRPC
 import SolanaTransactions
 
-/// Manages connections to multiple Solana wallets, handling pairing, unpairing,
-/// and recovery of previously connected wallets.
-///
-/// This class supports any wallet conforming to the `Wallet` protocol, and
-/// persists connection data using a secure storage mechanism.
-///
-/// Use this class to either connect a wallet to your app, recover previously connected wallets or unpair wallets and remove them from secure storage.
 @available(iOS 17.0, macOS 14.0, *)
 @Observable
 public class WalletConnectionManager {
@@ -19,6 +12,9 @@ public class WalletConnectionManager {
     private var storage: any SecureStorage
 
     public internal(set) var connectedWallets: [PublicKey: any Wallet] = [:]
+
+    public let appIdentity: AppIdentity
+    public let cluster: Endpoint
 
     public let appIdentity: AppIdentity
     public let cluster: Endpoint
@@ -73,13 +69,6 @@ public class WalletConnectionManager {
         self.connectedWallets.merge(recovered) { (new, _) in new }
     }
 
-    /// Pairs a wallet of the specified type for a given app and cluster.
-    ///
-    /// - Parameters:
-    ///   - wallet: The wallet type to pair (e.g., `PhantomWallet.self`).
-    ///   - appIdentity: The identity of the app using the wallet. See ``AppIdentity``.
-    ///   - cluster: The Solana cluster endpoint (e.g., `.devnet`, `.mainnet`).
-    /// - Returns: The connected wallet instance.
     @discardableResult
     public func pair<W: Wallet>(_ wallet: W.Type) async throws -> any Wallet {
         var walletInstance = wallet.init(for: appIdentity, cluster: cluster)
