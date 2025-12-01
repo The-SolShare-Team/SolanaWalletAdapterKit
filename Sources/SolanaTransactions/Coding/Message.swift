@@ -24,17 +24,6 @@ public enum VersionedMessage: Equatable, Sendable {
 ///   - instructions:
 ///       The array of compiled instructions that the transaction will execute.
 ///       Each instruction specifies a program and the accounts it interacts with.
-///
-/// ```
-///public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {
-///     self.signatureCount = signatureCount
-///     self.readOnlyAccounts = readOnlyAccounts
-///     self.readOnlyNonSigners = readOnlyNonSigners
-///     self.accounts = accounts
-///     self.blockhash = blockhash
-///     self.instructions = instructions
-///}
-/// ```
 public struct LegacyMessage: Equatable, Sendable {
     public let signatureCount: UInt8
     public let readOnlyAccounts: UInt8
@@ -52,7 +41,6 @@ public struct LegacyMessage: Equatable, Sendable {
         self.instructions = instructions
     }
 }
-
 
 /// A new versioned format for transaction message, used in ``Transaction``, that allow for additional functionality, including Address Lookup Tables.
 ///
@@ -78,18 +66,6 @@ public struct LegacyMessage: Equatable, Sendable {
 ///   - addressTableLookups:
 ///       Address lookup table entries used to load additional accounts
 ///       beyond those listed in the static `accountKeys` array.
-///
-/// ```
-///public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {
-///     self.signatureCount = signatureCount
-///     self.readOnlyAccounts = readOnlyAccounts
-///     self.readOnlyNonSigners = readOnlyNonSigners
-///     self.accounts = accounts
-///     self.blockhash = blockhash
-///     self.instructions = instructions
-///}
-/// ```
-
 public struct V0Message: Equatable, Sendable {
     public let signatureCount: UInt8
     public let readOnlyAccounts: UInt8
@@ -162,7 +138,7 @@ extension VersionedMessage {
         try self.solanaTransactionEncode(to: &buffer)
         return Data(buffer.readBytes(length: buffer.readableBytes) ?? [])
     }
-    
+
     /// Initializes a VersionedMessage by decoding it from raw serialized bytes.
     ///
     /// This creates a `SolanaTransactionBuffer` from the provided byte sequence

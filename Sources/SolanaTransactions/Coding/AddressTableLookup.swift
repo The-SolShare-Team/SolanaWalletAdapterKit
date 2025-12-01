@@ -12,7 +12,7 @@
 /// ```
 /// - Parameters:
 ///   - account: The public key of the address table account on the Solana blockchain.
-///   - writableIndexes:Indexes of writable accounts within the address table that the transaction can modify
+///   - writableIndexes: Indexes of writable accounts within the address table that the transaction can modify
 ///   - readOnlyIndexes: Indexes of read-only accounts within the address table that the transaction can read.
 ///
 public struct AddressTableLookup: Equatable, Sendable {

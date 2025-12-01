@@ -1,7 +1,6 @@
 import Foundation
 import SwiftBorsh
 
-
 struct RPCRequest: Encodable {
     let jsonrpc: String = "2.0"
     let id = UUID().uuidString
@@ -51,20 +50,20 @@ struct RPCResponseResult<T: Decodable>: Decodable {
 }
 
 /// Represents an error returned from a Solana JSON-RPC request.
-/// 
+///
 /// `RPCError` provides a  typed representation of the error object
 /// defined in the JSON-RPC 2.0 specification. It includes:
 /// - A human-readable ``message``
 /// - A human-friendly ``description`` based on the numeric error code returned from the request.
 /// - Optional ``data`` returned by the RPC server for additional context
-/// 
+///
 /// The ``Kind`` enum maps numeric JSON-RPC error codes into semantic cases to provide a human friendly description of the error.
 ///
 public struct RPCError: Error, CustomStringConvertible {
     public let message: String
     public let kind: Kind
     public let data: Sendable?
-    
+
     public enum Kind: Sendable, CustomStringConvertible {
         case clientError
 
@@ -177,17 +176,11 @@ public enum Endpoint: Sendable, Equatable, Hashable, CustomStringConvertible, Co
 /// when querying data or confirming a transaction
 ///
 /// Commitments are used as optional parameters for any RPC method.
-///
-/// `Commitment` can take on three values:
-/// - ``processed``
-/// - ``confirmed``
-/// - ``finalized``
 public enum Commitment: String, Codable {
     case processed
     case confirmed
     case finalized
 }
-
 
 /// A client for sending JSON-RPC requests to the Solana blockchain.
 ///
@@ -195,7 +188,7 @@ public enum Commitment: String, Codable {
 /// RPC endpoint. It manages the network target through its configured
 /// ``endpoint`` and implements the functionality of sending JSON-RPC 2.0 requests.
 ///
-/// The client does not have a full list of high-level abstractions for RPC methods. Iinstead, it
+/// The client does not have a full list of high-level abstractions for RPC methods. Instead, it
 /// exposes access through the ``fetch(method:params:into:)`` method,
 /// which higher-level Solana APIs methods can be built on top of.
 ///
@@ -206,22 +199,13 @@ public enum Commitment: String, Codable {
 /// ```
 /// For more information on the RPC methods that can be sent to the Solana Network, see
 /// [Solana HTTP Request Docs.](https://solana.com/docs/rpc/http)
-///
-/// ## RPC Methods Implemented
-/// - ``getBalance(account:configuration:)``
-/// - ``getLatestBlockhash(configuration:)``
-/// - ``getMinBalanceForRentExemption(accountDataLength:configuration:)``
-/// - ``getVersion()``
-/// - ``requestAirdrop(to:lamports:configuration:)``
-/// - ``sendTransaction(transaction:configuration:)``
-
 public struct SolanaRPCClient {
     public let endpoint: Endpoint
 
     public init(endpoint: Endpoint) {
         self.endpoint = endpoint
     }
-    
+
     func fetch<T: Decodable>(method: String, params: [Encodable], into: T.Type)
         async
         throws(RPCError) -> T

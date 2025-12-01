@@ -8,14 +8,6 @@
 ///     this instruction depends on.
 ///   - data: The serialized instruction payload. This byte sequence indicates
 ///     which program instruction to run and includes any required information.
-///
-/// ```swift
-/// public init(programIdIndex: UInt8, accounts: [UInt8], data: [UInt8]) {
-///     self.programIdIndex = programIdIndex
-///     self.accounts = accounts
-///     self.data = data
-/// }
-/// ```
 public struct CompiledInstruction: Equatable, Sendable {
     public let programIdIndex: UInt8
     public let accounts: [UInt8]
