@@ -4,13 +4,6 @@ import Salt
 
 /// A Program Dervied Address (PDA) is an address that is created deterministically using a program ID and a combination of optional predefined inputs.
 ///
-<<<<<<< HEAD
-=======
-/// PDAs provide an easy method to store, map, and fetch program state. PDAs look similar to public key addresses, but do not have a corresponding private key.
-///
-/// The Solana runtime enables programs to sign for PDAs without needing a private key. Using a PDA eliminates the need to keep track of the account's address. Instead, you can recall the specific inputs used for the PDA's derivation.
-///
->>>>>>> 656e57b (finished SolanaTransactions)
 /// For more information, see [Solana Docs](https://solana.com/docs/core/pda).
 ///
 /// ## Methods
@@ -22,12 +15,7 @@ public struct ProgramDerivedAddress: Sendable {
 
     /// Creates a Program Derived Address (PDA) for a given program using the provided seeds.
     ///
-<<<<<<< HEAD
     /// PDA is a deterministic public key derived from a program ID and seed values. This method returns the PDA’s `PublicKey`.
-=======
-    /// A PDA is a deterministic public key derived from the program ID and seed values,
-    /// which cannot be signed by any private key. This method generates the PDA.
->>>>>>> 656e57b (finished SolanaTransactions)
     ///
     /// - Parameters:
     ///   - programId: The public key of the program for which the PDA is being generated.

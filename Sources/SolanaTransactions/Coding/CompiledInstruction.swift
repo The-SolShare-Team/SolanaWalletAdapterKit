@@ -2,21 +2,12 @@
 /// which forms the core of a Solana ``Transaction``.
 ///
 /// - Parameters:
-<<<<<<< HEAD
 ///   - programIdIndex: The index in `account_keys` that points to the program
 ///     responsible for executing this instruction.
 ///   - accounts: Indices into the `account_keys` array that specify the accounts
 ///     this instruction depends on.
 ///   - data: The serialized instruction payload. This byte sequence indicates
 ///     which program instruction to run and includes any required information.
-=======
-///   - programIdIndex: An index into the `account_keys` array indicating the
-///     address of the program that will process this instruction.
-///   - accounts: A list of indices into the `account_keys` array. Each index
-///     refers to an account required by this instruction.
-///   - data: The raw encoded instruction data. This byte array identifies which
-///     instruction to invoke within the program, along with any arguments.
->>>>>>> 656e57b (finished SolanaTransactions)
 ///
 /// ```swift
 /// public init(programIdIndex: UInt8, accounts: [UInt8], data: [UInt8]) {
