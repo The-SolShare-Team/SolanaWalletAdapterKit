@@ -1,5 +1,6 @@
 import SolanaRPC
 
+@available(iOS 17.0, macOS 14.0, *)
 struct SavedWalletConnection: Codable {
     let walletType: any Wallet.Type
     let connection: any WalletConnection
@@ -58,12 +59,6 @@ struct SavedWalletConnection: Codable {
 
     func recover() -> any Wallet {
         walletType.recover(for: appIdentity, cluster: cluster, connection: connection)
-    }
-
-    func identifier() throws -> String {
-        try WalletConnectionManager.walletIdentifier(
-            for: walletType, appIdentity: appIdentity, cluster: cluster,
-            publicKey: connection.publicKey)
     }
 }
 
