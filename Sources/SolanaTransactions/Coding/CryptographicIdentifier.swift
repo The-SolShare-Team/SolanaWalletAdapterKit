@@ -10,7 +10,7 @@ import SwiftBorsh
 // consuming structs.
 
 public protocol CryptographicIdentifier: ExpressibleByArrayLiteral, ExpressibleByStringLiteral,
-    Sendable, CustomStringConvertible, BorshCodable, Codable, Equatable, Hashable
+    Sendable, CustomStringConvertible, BorshCodable, Codable, Equatable, Hashable, Comparable
 {
     static var byteLength: Int { get }
     var bytes: Data { get }
@@ -70,6 +70,10 @@ extension CryptographicIdentifier {
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.bytes == rhs.bytes
+    }
+
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.description.lexicographicallyPrecedes(rhs.description)
     }
 }
 
