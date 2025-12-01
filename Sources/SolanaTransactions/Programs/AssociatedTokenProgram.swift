@@ -5,8 +5,7 @@ private struct EmptyData {}
 
 ///An associated token account (ATA) is the default token account for a wallet to hold a specific token.
 ///
-/// For more details on ATAs, see:
-/// https://solana.com/docs/tokens/basics/create-token-account
+/// For more details on ATAs, see [Solana Docs](https://solana.com/docs/tokens/basics/create-token-account).
 ///
 /// ## Instructions
 /// - ``createAssociatedTokenAccount(mint:associatedAccount:owner:payer:associatedProgramId:tokenProgramId:)``

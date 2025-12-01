@@ -51,8 +51,8 @@ private struct TransferCheckedData {
     let decimals: UInt8
 }
 
-/// Token Programs contain all instruction logic for interacting with tokens on the network (both fungible and non-fungible).
-/// 
+/// Token Programs contain all instruction logic for interacting with tokens on the network.
+///
 ///  The token program conforms to a program when building instructions for a transaction, but also conforms to an instruction for compilation purposes. For more information, view ``Instruction`` and ``Program``.
 ///
 ///  For more information, refer to [Solana Docs](https://solana.com/docs/tokens#token-program).

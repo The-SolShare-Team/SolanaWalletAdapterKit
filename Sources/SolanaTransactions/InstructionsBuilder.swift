@@ -3,7 +3,9 @@ import SwiftBorsh
 
 /// Represents a Solana program instruction.
 ///
-/// An instruction is essentially a public function that anyone using the Solana network can call. Each instruction is used to perform a specific action. The execution logic for instructions are stored on programs, where each program defines its own set of instructions.
+/// An instruction is  a function that anyone using the Solana network can call, where each instruction is used to perform a specific action.
+///
+/// For more information, see [Solana Docs](https://solana.com/docs/core/instructions).
 ///
 /// See ``AssociatedTokenProgram``, ``MemoProgram``, ``SystemProgram``, ``TokenProgram`` to find instructions that are available with the SDK.
 ///
