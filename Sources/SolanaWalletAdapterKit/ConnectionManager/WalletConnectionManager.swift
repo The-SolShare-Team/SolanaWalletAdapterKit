@@ -3,6 +3,8 @@ import Foundation
 import SolanaRPC
 import SolanaTransactions
 
+@available(iOS 17.0, macOS 14.0, *)
+@Observable
 public class WalletConnectionManager {
     static let availableWalletsUserInfoKey = CodingUserInfoKey(rawValue: "availableWallets")!
 
@@ -10,7 +12,7 @@ public class WalletConnectionManager {
     public let availableWallets: [any Wallet.Type]
     private var storage: any SecureStorage
 
-    public internal(set) var connectedWallets: [any Wallet] = []
+    public internal(set) var connectedWallets: [PublicKey: any Wallet] = [:]
 
     public init(
         availableWallets: [any Wallet.Type] = [
@@ -31,10 +33,19 @@ public class WalletConnectionManager {
         decoder.userInfo[WalletConnectionManager.availableWalletsUserInfoKey] =
             self.availableWalletsMap
 
-        self.connectedWallets = try await storage.retrieveAll().compactMap {
-            let saved = try? decoder.decode(SavedWalletConnection.self, from: $0.value)
-            return saved?.recover()
-        }
+        let retrieved = try await storage.retrieveAll()
+
+        let recovered: [PublicKey: any Wallet] = Dictionary(
+            uniqueKeysWithValues:
+                retrieved.compactMap {
+                    let saved = try? decoder.decode(SavedWalletConnection.self, from: $0.value)
+                    guard let recovered = saved?.recover(),
+                        let publicKey = recovered.publicKey,
+                        publicKey.description == $0.key
+                    else { return nil }
+                    return (publicKey, recovered)
+                })
+        self.connectedWallets.merge(recovered) { (new, _) in new }
     }
 
     @discardableResult
@@ -52,43 +63,16 @@ public class WalletConnectionManager {
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(savedConnection)
-        try await storage.store(data, key: try savedConnection.identifier())
+        try await storage.store(data, key: savedConnection.connection.publicKey.description)
 
-        connectedWallets.append(wallet)
+        connectedWallets[connection.publicKey] = wallet
     }
 
     public func unpair<W: Wallet>(_ wallet: inout W) async throws {
         guard let publicKey = wallet.publicKey else { throw SolanaWalletAdapterError.notConnected }
-        let identifier = try Self.walletIdentifier(
-            for: type(of: wallet), appIdentity: wallet.appId, cluster: wallet.cluster,
-            publicKey: publicKey)
+        let identifier = publicKey.description
         try await wallet.disconnect()
-        connectedWallets.removeAll {
-            $0.appId == wallet.appId && $0.cluster == wallet.cluster && $0.publicKey == publicKey
-                && type(of: $0) == type(of: wallet)
-        }
+        connectedWallets.removeValue(forKey: publicKey)
         try await storage.clear(key: identifier)
-    }
-
-    static func walletIdentifier(
-        for walletType: any Wallet.Type, appIdentity: AppIdentity, cluster: Endpoint,
-        publicKey: PublicKey
-    ) throws
-        -> String
-    {
-        struct Identifier: Codable {
-            let walletType: String
-            let appIdentity: AppIdentity
-            let cluster: Endpoint
-            let publicKey: PublicKey
-        }
-        let identifier = Identifier(
-            walletType: walletType.identifier, appIdentity: appIdentity, cluster: cluster,
-            publicKey: publicKey)
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let encoded = try encoder.encode(identifier)
-        let hash = SHA256.hash(data: encoded)
-        return hash.compactMap { String(format: "%02x", $0) }.joined()
     }
 }
