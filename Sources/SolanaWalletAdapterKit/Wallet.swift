@@ -69,4 +69,8 @@ public struct AppIdentity: Sendable, Codable, Equatable {
         self.url = url
         self.icon = icon
     }
+
+    public static func == (lhs: AppIdentity, rhs: AppIdentity) -> Bool {
+        return lhs.name == rhs.name && lhs.url == rhs.url
+    }
 }
