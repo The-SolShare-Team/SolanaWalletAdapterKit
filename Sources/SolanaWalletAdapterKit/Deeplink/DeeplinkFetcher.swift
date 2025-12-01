@@ -6,6 +6,12 @@ import Foundation
     import AppKit
 #endif
 
+/// Errors that may occur when performing a deep-link fetch request.
+///
+/// **Possible Errors**:
+/// 1. The  dApp successfully opens the wallet via deep link, but no callback response is received in time.
+/// 2. The deep-link cannot be opened at all.
+/// 3. A callback is received, but its contents are not valid or cannot be parsed.
 public enum DeeplinkFetchingError: Error {
     case timeout
     case unableToOpen

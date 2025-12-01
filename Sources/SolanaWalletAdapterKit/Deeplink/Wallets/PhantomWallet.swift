@@ -2,6 +2,7 @@ import Foundation
 import SolanaRPC
 import SolanaTransactions
 
+/// A deep-link wallet adapter for the Phantom Wallet application
 public struct PhantomWallet: DeeplinkWallet {
     public static let identifier = "phantom_wallet"
     public static let _deeplinkWalletOptions = DeeplinkWalletOptions(
@@ -18,6 +19,16 @@ public struct PhantomWallet: DeeplinkWallet {
 
     private let rpcClient: SolanaRPCClient
 
+    /// Creates a new instance of `PhantomWallet` configured for the given
+    /// application identity and Solana cluster.
+    ///
+    ///  **Note**:  As Phantom does not currently have a `SignAndSendTransaction`, the current implementation of ``signAndSendTransaction(transaction:sendOptions:)``, signs the transaction through Phantom, but sends the transaction through the RPC client.
+    ///
+    /// - Parameters:
+    ///   - appId: The identity of the dApp requesting access
+    ///   - cluster: The Solana network the wallet should connect to. See ``Endpoint``
+    ///   - connection: An optional existing ``Connection`` used
+    ///     to restore a prior session.
     public init(
         for appId: AppIdentity, cluster: Endpoint, connection: Connection?
     ) {

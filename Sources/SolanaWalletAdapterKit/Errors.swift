@@ -1,5 +1,18 @@
 import Foundation
 
+/// Represents errors that can occur when interacting with Solana wallets through
+/// the Wallet Adapter SDK.
+///
+/// Library errors cover misuses of the SDK or unexpected states, such as attempting
+/// to connect to a wallet that is already connected or sending an invalid request.
+///
+/// Wallet errors correspond to error responses returned by the wallet application
+/// over the deeplink protocol.
+/// 
+/// See:
+/// - Solflare Errors: [https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors](https://docs.solflare.com/solflare/technical/deeplinks/limitations#errors)
+/// - Backpack Errors: [https://docs.backpack.app/deeplinks/limitations#errors](https://docs.backpack.app/deeplinks/limitations#errors)
+/// - Phantom Errors: [https://docs.phantom.com/solana/errors](https://docs.phantom.com/solana/errors)
 public enum SolanaWalletAdapterError: Error {
     // Library errors
     case alreadyConnected

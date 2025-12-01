@@ -36,11 +36,6 @@ public struct Transaction: Equatable, Sendable {
 extension Transaction {
     /// Serializes the transaction into its binary wire format.
     ///
-    /// This writes the transaction’s signatures followed by its message
-    /// into a `SolanaTransactionBuffer` using Solana’s canonical encoding
-    /// rules. The resulting bytes represent the full, signed transaction
-    /// ready to be submitted to an RPC node.
-    ///
     /// - Throws: `SolanaTransactionCodingError` if encoding fails.
     /// - Returns: A `Data` object containing the serialized transaction.
     public func encode() throws(SolanaTransactionCodingError) -> Data {
@@ -51,11 +46,6 @@ extension Transaction {
     }
     
     /// Creates a transaction by decoding it from its serialized byte form.
-    ///
-    /// This initializes a `SolanaTransactionBuffer` from the provided bytes
-    /// and decodes the signatures and message in the order defined by the
-    /// Solana wire format. The initializer consumes bytes from the buffer as
-    /// decoding proceeds.
     ///
     /// - Parameter bytes: A sequence of bytes representing an encoded transaction.
     /// - Throws: `SolanaTransactionCodingError` if the bytes do not represent
