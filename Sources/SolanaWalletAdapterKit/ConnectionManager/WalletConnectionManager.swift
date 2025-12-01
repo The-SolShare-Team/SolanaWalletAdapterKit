@@ -15,7 +15,7 @@ import SolanaTransactions
 public class WalletConnectionManager {
     static let availableWalletsUserInfoKey = CodingUserInfoKey(rawValue: "availableWallets")!
 
-    let availableWalletsMap: [String: any Wallet.Type]
+    public let availableWalletsMap: [String: any Wallet.Type]
     var storage: any SecureStorage
 
     public internal(set) var connectedWallets: [PublicKey: any Wallet] = [:]
