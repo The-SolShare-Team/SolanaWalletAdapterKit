@@ -15,8 +15,13 @@ import Foundation
 ///}
 /// ```
 /// - Parameters:
+<<<<<<< HEAD
 ///   - signatures: An array of signatures produced by signing the transaction message with the private keys of the required accounts. See ``Signature``.
 ///   - message: Information about the transaction, including accounts and instructions. See ``VersionedMessage``.
+=======
+///   - signatures: An array of signatures, created by signing the transaction's Message with the account's private key. See ``Signature``.
+///   - message: Transaction information, including the list of instructions to be processed. See ``VersionedMessage``.
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///
 /// ## Methods
 /// - ``encode()``
@@ -36,6 +41,14 @@ public struct Transaction: Equatable, Sendable {
 extension Transaction {
     /// Serializes the transaction into its binary wire format.
     ///
+<<<<<<< HEAD
+=======
+    /// This writes the transaction’s signatures followed by its message
+    /// into a `SolanaTransactionBuffer` using Solana’s canonical encoding
+    /// rules. The resulting bytes represent the full, signed transaction
+    /// ready to be submitted to an RPC node.
+    ///
+>>>>>>> 656e57b (finished SolanaTransactions)
     /// - Throws: `SolanaTransactionCodingError` if encoding fails.
     /// - Returns: A `Data` object containing the serialized transaction.
     public func encode() throws(SolanaTransactionCodingError) -> Data {
@@ -47,6 +60,14 @@ extension Transaction {
     
     /// Creates a transaction by decoding it from its serialized byte form.
     ///
+<<<<<<< HEAD
+=======
+    /// This initializes a `SolanaTransactionBuffer` from the provided bytes
+    /// and decodes the signatures and message in the order defined by the
+    /// Solana wire format. The initializer consumes bytes from the buffer as
+    /// decoding proceeds.
+    ///
+>>>>>>> 656e57b (finished SolanaTransactions)
     /// - Parameter bytes: A sequence of bytes representing an encoded transaction.
     /// - Throws: `SolanaTransactionCodingError` if the bytes do not represent
     ///           a valid transaction or if decoding fails.

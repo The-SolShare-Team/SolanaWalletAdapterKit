@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 /// Struct to group related addresses so they can be fetched efficiently within a single transaction.
 ///
 /// See [Solana Documentation on Address Table Lookups](https://solana.com/developers/guides/advanced/lookup-tables) for more details.
+=======
+/// Create  a collection of related addresses to efficiently load more addresses in a single transaction.
+///
+/// Address Lookup Tables, commonly referred to as "lookup tables" or "ALTs" for short, allow developers to create a collection of related addresses to efficiently load more addresses in a single transaction.
+///
+/// Since each transaction on the Solana blockchain requires a listing of every address that is interacted with as part of the transaction, this listing would effectively be capped at 32 addresses per transaction. With the help of `AddressTableLookup`, a transaction would now be able to raise that limit to 64 addresses per transaction.
+///
+/// See [Solana Documentation](https://solana.com/developers/guides/advanced/lookup-tables) for more details.
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///
 /// ```
 /// public init(account: PublicKey, writableIndexes: [UInt8],

@@ -16,13 +16,21 @@ public enum VersionedMessage: Equatable, Sendable {
 ///   - readOnlyNonSigners:
 ///       The number of read-only accounts that also do *not* sign the transaction.
 ///   - accounts:
+<<<<<<< HEAD
 ///       The full array of accounts of type PublicKey  involved in the transaction, including
+=======
+///       The full list of accounts involved in the transaction, including
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///       signers, writable accounts, and read-only accounts.
 ///   - blockhash:
 ///       The recent blockhash that makes the transaction valid.
 ///       This prevents the transaction from being replayed.
 ///   - instructions:
+<<<<<<< HEAD
 ///       The array of compiled instructions that the transaction will execute.
+=======
+///       The list of compiled instructions that the transaction will execute.
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///       Each instruction specifies a program and the accounts it interacts with.
 ///
 /// ```
@@ -54,7 +62,11 @@ public struct LegacyMessage: Equatable, Sendable {
 }
 
 
+<<<<<<< HEAD
 /// A new versioned format for transaction message, used in ``Transaction``, that allow for additional functionality, including Address Lookup Tables.
+=======
+/// A new versioned format for transaction message, used in ``Transaction``, that allow for additional functionality in the Solana runtime, including Address Lookup Tables.
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///
 /// For more information, visit [Solana Docs](https://solana.com/developers/guides/advanced/versions)
 /// - Parameters:
@@ -72,12 +84,18 @@ public struct LegacyMessage: Equatable, Sendable {
 ///   - blockhash:
 ///       The recent blockhash that makes the transaction valid.
 ///       This prevents the transaction from being replayed.
+<<<<<<< HEAD
 ///   - instructions:
 ///       The list of compiled instructions that the transaction will execute.
 ///       Each instruction specifies a program and the accounts it interacts with.
 ///   - addressTableLookups:
 ///       Address lookup table entries used to load additional accounts
 ///       beyond those listed in the static `accountKeys` array.
+=======
+///   - addressTableLookups:
+///       The list of compiled instructions that the transaction will execute.
+///       Each instruction specifies a program and the accounts it interacts with.
+>>>>>>> 656e57b (finished SolanaTransactions)
 ///
 /// ```
 ///public init(signatureCount: UInt8, readOnlyAccounts: UInt8, readOnlyNonSigners: UInt8, accounts: [PublicKey], blockhash: Blockhash, instructions: [CompiledInstruction]) {
