@@ -8,7 +8,7 @@ struct RPCRequest: Encodable {
     let method: String
     let params: [Encodable]
 
-    private enum CodingKeys: CodingKey {
+    enum CodingKeys: CodingKey {
         case jsonrpc
         case id
         case method
